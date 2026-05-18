@@ -1,9 +1,10 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import prisma from "@/lib/prisma";
 import styles from "./page.module.css";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, Home } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 import CancelBookingButton from "@/components/CancelBookingButton";
 
@@ -41,7 +42,17 @@ export default async function DashboardPage() {
           <h1 className={styles.title}>Welcome, {session.user.name}</h1>
           <p className={styles.subtitle}>Manage your bookings and view your due status here.</p>
         </div>
-        <LogoutButton />
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <Link href="/" style={{ 
+            display: 'flex', alignItems: 'center', gap: '8px', 
+            background: 'rgba(255,255,255,0.1)', color: '#fff', 
+            padding: '8px 16px', borderRadius: '12px', textDecoration: 'none',
+            fontWeight: 600
+          }}>
+            <Home size={18} /> Home
+          </Link>
+          <LogoutButton />
+        </div>
       </header>
 
       <div className={styles.grid}>

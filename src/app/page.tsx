@@ -57,7 +57,7 @@ export default function Home() {
                 <User size={20} style={{ marginRight: 8 }} /> My Dashboard
               </Link>
             ) : (
-              <button onClick={() => signIn("google", { callbackUrl: "/dashboard" })} className={styles.googleButton}>
+              <button onClick={() => signIn("google", { callbackUrl: "/" })} className={styles.googleButton}>
                 <LogIn size={20} style={{ marginRight: 8 }} /> Sign In with Google
               </button>
             )}

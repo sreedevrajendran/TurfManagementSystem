@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { AlertTriangle, CalendarOff, Mail, Tag, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
+import { AlertTriangle, CalendarOff, Mail, Tag, RefreshCw, Home } from 'lucide-react';
 import styles from './page.module.css';
 import LogoutButton from '@/components/LogoutButton';
 import CustomModal from '@/components/CustomModal';
@@ -297,7 +298,17 @@ export default function AdminDashboard() {
             East Welfare Turf · Mannar · +91 97785 18909
           </p>
         </div>
-        <LogoutButton />
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <Link href="/" style={{ 
+            display: 'flex', alignItems: 'center', gap: '8px', 
+            background: 'rgba(255,255,255,0.1)', color: '#fff', 
+            padding: '8px 16px', borderRadius: '12px', textDecoration: 'none',
+            fontWeight: 600
+          }}>
+            <Home size={18} /> Home
+          </Link>
+          <LogoutButton />
+        </div>
       </motion.header>
 
       {/* ── STATS ── */}
