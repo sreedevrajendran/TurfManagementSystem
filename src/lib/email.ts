@@ -227,7 +227,7 @@ export async function sendCancellationEmail({
   await transporter.sendMail({ from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`, to, subject, html });
 }
 
-const ADMIN_EMAIL = process.env.EMAIL_FROM!;
+const ADMIN_EMAIL = 'eastwelfareturf@gmail.com';
 
 export async function sendAdminBookingAlert({
   userName,
