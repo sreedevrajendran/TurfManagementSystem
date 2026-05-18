@@ -4,73 +4,82 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { sendBlockAnnouncement, sendBlockCancelledAnnouncement } from "@/lib/email";
 
-const formatHour = (t: string) => {
-  const [h] = t.split(":").map(Number);
-  const ampm = h >= 12 ? "PM" : "AM";
-  return `${h % 12 || 12}:00 ${ampm}`;
-};
+const fmtHour = (h: number) => `${h % 12 || 12}:00 ${h >= 12 ? "PM" : "AM"}`;
+const fmtTime = (t: string) => { const [h] = t.split(":").map(Number); return fmtHour(h); };
 
-// POST /api/admin/blocks → create block + email all users
+function eachDay(from: Date, to: Date) {
+  const days: Date[] = [];
+  const cur = new Date(from); cur.setHours(0, 0, 0, 0);
+  const end = new Date(to); end.setHours(0, 0, 0, 0);
+  while (cur <= end) { days.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
+  return days;
+}
+
+// POST → create block (single day or date range) + email all users
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if ((session?.user as any)?.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { date, startTime, endTime, reason } = await req.json();
-  if (!date || startTime === undefined || endTime === undefined || !reason)
+  const { startDate, endDate, startTime, endTime, reason } = await req.json();
+  if (!startDate || !endDate || startTime === undefined || endTime === undefined || !reason)
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
 
   const startHour = parseInt(startTime);
   const endHour = parseInt(endTime);
-  const duration = endHour > startHour ? endHour - startHour : 1;
-  const blockDate = new Date(date);
+  // Full-day block if start=0 end=24, else partial
+  const duration = endHour > startHour ? endHour - startHour : 24;
 
-  // Create BLOCKED booking entry in DB
-  const block = await prisma.booking.create({
-    data: {
-      date: blockDate,
-      startTime: startHour,
-      durationHours: duration,
-      amount: 0,
-      status: "BLOCKED",
-      reason,
-    },
-  });
+  const days = eachDay(new Date(startDate), new Date(endDate));
 
-  // Cancel any overlapping real bookings on that date/time
-  const dayStart = new Date(date); dayStart.setHours(0,0,0,0);
-  const dayEnd = new Date(date); dayEnd.setHours(23,59,59,999);
-  const overlapping = await prisma.booking.findMany({
-    where: {
-      date: { gte: dayStart, lte: dayEnd },
-      status: { notIn: ["CANCELLED", "BLOCKED"] },
-      startTime: { gte: startHour, lt: endHour },
-    },
-    include: { user: { select: { email: true, name: true } } },
-  });
-  for (const b of overlapping) {
-    await prisma.booking.update({ where: { id: b.id }, data: { status: "CANCELLED" } });
+  // Create one BLOCKED booking per day
+  const blocks = await Promise.all(
+    days.map(day =>
+      prisma.booking.create({
+        data: { date: day, startTime: startHour, durationHours: duration, amount: 0, status: "BLOCKED", reason },
+      })
+    )
+  );
+
+  // Cancel overlapping real bookings across all days
+  let cancelledCount = 0;
+  for (const day of days) {
+    const dayStart = new Date(day); dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(day); dayEnd.setHours(23, 59, 59, 999);
+    const overlapping = await prisma.booking.findMany({
+      where: { date: { gte: dayStart, lte: dayEnd }, status: { notIn: ["CANCELLED", "BLOCKED"] }, startTime: { gte: startHour, lt: endHour } },
+    });
+    for (const b of overlapping) {
+      await prisma.booking.update({ where: { id: b.id }, data: { status: "CANCELLED" } });
+      cancelledCount++;
+    }
   }
 
-  // Email all registered users about the block
+  // Email all users
   try {
     const users = await prisma.user.findMany({ select: { email: true } });
     const emails = users.map(u => u.email).filter(Boolean) as string[];
-    await sendBlockAnnouncement({
-      toList: emails,
-      date: blockDate.toLocaleDateString("en-IN"),
-      startTime: formatHour(startTime),
-      endTime: formatHour(endTime),
-      reason,
-    });
-  } catch (e) {
-    console.error("Block email failed:", e);
-  }
+    const dateLabel = startDate === endDate
+      ? new Date(startDate).toLocaleDateString("en-IN")
+      : `${new Date(startDate).toLocaleDateString("en-IN")} – ${new Date(endDate).toLocaleDateString("en-IN")}`;
+    await sendBlockAnnouncement({ toList: emails, date: dateLabel, startTime: fmtTime(startTime), endTime: fmtTime(endTime), reason });
+  } catch (e) { console.error("Block email failed:", e); }
 
-  return NextResponse.json({ success: true, block, cancelledCount: overlapping.length });
+  return NextResponse.json({ success: true, blockIds: blocks.map(b => b.id), cancelledCount });
 }
 
-// DELETE /api/admin/blocks → unblock + email all users
+// PATCH → edit reason on a block
+export async function PATCH(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if ((session?.user as any)?.role !== "ADMIN")
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const { id, reason } = await req.json();
+  const updated = await prisma.booking.update({ where: { id }, data: { reason } });
+  return NextResponse.json({ success: true, block: updated });
+}
+
+// DELETE → remove block + email users
 export async function DELETE(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if ((session?.user as any)?.role !== "ADMIN")
@@ -83,7 +92,6 @@ export async function DELETE(req: NextRequest) {
 
   await prisma.booking.delete({ where: { id } });
 
-  // Notify all users that the block was lifted
   try {
     const users = await prisma.user.findMany({ select: { email: true } });
     const emails = users.map(u => u.email).filter(Boolean) as string[];
@@ -92,9 +100,7 @@ export async function DELETE(req: NextRequest) {
       date: new Date(block.date).toLocaleDateString("en-IN"),
       reason: block.reason || "Scheduled block",
     });
-  } catch (e) {
-    console.error("Block cancel email failed:", e);
-  }
+  } catch (e) { console.error("Block cancel email failed:", e); }
 
   return NextResponse.json({ success: true });
 }

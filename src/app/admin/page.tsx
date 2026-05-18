@@ -43,9 +43,12 @@ export default function AdminDashboard() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [blockDate, setBlockDate] = useState('');
+  const [blockEndDate, setBlockEndDate] = useState('');
   const [blockStart, setBlockStart] = useState('');
   const [blockEnd, setBlockEnd] = useState('');
   const [blockReason, setBlockReason] = useState('Panchayath Event');
+  const [activeBlocks, setActiveBlocks] = useState<any[]>([]);
+  const [editingBlock, setEditingBlock] = useState<{ id: string; reason: string } | null>(null);
   const [emailStatus, setEmailStatus] = useState('');
   const [dueAlertLoading, setDueAlertLoading] = useState(false);
   const [filterType, setFilterType] = useState<'ALL' | 'TODAY' | 'DUE' | 'PAID'>('ALL');
@@ -159,6 +162,7 @@ export default function AdminDashboard() {
     fetchBookings();
     fetchOffers();
     fetchUsers();
+    fetchActiveBlocks();
 
     // Auto-poll every 30 seconds (silent background refresh)
     const pollInterval = setInterval(() => fetchBookings(true), 30_000);
@@ -218,40 +222,71 @@ export default function AdminDashboard() {
     });
   };
 
+  const fetchActiveBlocks = async () => {
+    try {
+      const res = await fetch('/api/blocks');
+      if (res.ok) setActiveBlocks(await res.json());
+    } catch { /* ignore */ }
+  };
+
   const handleBlockSlots = () => {
-    if (!blockDate || !blockStart || !blockEnd) { showAlert('Missing Fields', 'Please fill all block fields.'); return; }
-    showConfirm('Block Turf?', `Block turf on ${blockDate} from ${blockStart}:00 to ${blockEnd}:00?\nReason: ${blockReason}\n\nThis will cancel overlapping bookings and notify all users.`, async () => {
-      try {
-        const res = await fetch('/api/admin/blocks', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ date: blockDate, startTime: blockStart, endTime: blockEnd, reason: blockReason }),
-        });
-        const data = await res.json();
-        if (!res.ok) { showAlert('Error', data.error || 'Block failed.'); return; }
-        await fetchBookings();
-        showAlert('Blocked', `Turf blocked. ${data.cancelledCount} overlapping booking(s) cancelled. All users notified by email. ✅`, 'success');
-        setBlockDate(''); setBlockStart(''); setBlockEnd('');
-      } catch (e) {
-        showAlert('Error', 'Failed to block turf. Please try again.');
-      }
-    });
+    if (!blockDate || !blockStart || !blockEnd || !blockReason) {
+      showAlert('Missing Fields', 'Please fill all block fields.'); return;
+    }
+    const endDate = blockEndDate || blockDate;
+    const label = blockDate === endDate ? blockDate : `${blockDate} → ${endDate}`;
+    showConfirm('Block Turf?',
+      `Block turf from ${label}, ${blockStart}:00 to ${blockEnd}:00?\nReason: ${blockReason}\n\nOverlapping bookings will be cancelled. All users will be notified.`,
+      async () => {
+        try {
+          const res = await fetch('/api/admin/blocks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ startDate: blockDate, endDate, startTime: blockStart, endTime: blockEnd, reason: blockReason }),
+          });
+          const data = await res.json();
+          if (!res.ok) { showAlert('Error', data.error || 'Block failed.'); return; }
+          await fetchBookings(); await fetchActiveBlocks();
+          showAlert('Blocked ✅', `Turf blocked for ${label}. ${data.cancelledCount} overlapping booking(s) cancelled. All users notified.`, 'success');
+          setBlockDate(''); setBlockEndDate(''); setBlockStart(''); setBlockEnd('');
+        } catch { showAlert('Error', 'Failed to block turf. Please try again.'); }
+      });
   };
 
   const handleUnblock = (id: string, reason: string) => {
     showConfirm('Remove Block?', `Remove this block?\nReason: ${reason}\n\nAll users will be notified that slots are available again.`, async () => {
       try {
-        const res = await fetch('/api/admin/blocks', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id }),
-        });
+        const res = await fetch('/api/admin/blocks', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
         if (!res.ok) { showAlert('Error', 'Could not remove block.'); return; }
-        await fetchBookings();
-        showAlert('Block Lifted', 'Block removed. All users notified by email. ✅', 'success');
-      } catch {
-        showAlert('Error', 'Failed to remove block.');
-      }
+        await fetchBookings(); await fetchActiveBlocks();
+        showAlert('Block Lifted ✅', 'Block removed. All users notified by email.', 'success');
+      } catch { showAlert('Error', 'Failed to remove block.'); }
+    });
+  };
+
+  const handleEditBlockReason = async (id: string, newReason: string) => {
+    try {
+      const res = await fetch('/api/admin/blocks', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, reason: newReason }) });
+      if (!res.ok) { showAlert('Error', 'Could not update reason.'); return; }
+      setEditingBlock(null);
+      await fetchActiveBlocks(); await fetchBookings();
+      showAlert('Updated ✅', 'Block reason updated.', 'success');
+    } catch { showAlert('Error', 'Failed to update.'); }
+  };
+
+  const handleResendBlockMail = async (block: any) => {
+    const fh = (h: number) => `${h % 12 || 12}:00 ${h >= 12 ? 'PM' : 'AM'}`;
+    showConfirm('Resend Email?', `Resend the block notification email to all users?\nDate: ${new Date(block.date).toLocaleDateString('en-IN')}\nReason: ${block.reason}`, async () => {
+      try {
+        const users = await fetch('/api/admin/users').then(r => r.json());
+        const emails = users.map((u: any) => u.email).filter(Boolean);
+        await fetch('/api/admin/send-block-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ emails, date: new Date(block.date).toLocaleDateString('en-IN'), startTime: fh(block.startTime), endTime: fh((block.startTime + block.durationHours) % 24), reason: block.reason }),
+        });
+        showAlert('Sent ✅', 'Block notification re-sent to all users.', 'success');
+      } catch { showAlert('Error', 'Failed to resend emails.'); }
     });
   };
 
@@ -521,23 +556,39 @@ export default function AdminDashboard() {
         <h2 className={styles.sectionTitle}>
           Emergency Slot Blocking <CalendarOff size={24} color="#FF4444" />
         </h2>
-        <p style={{ color: 'var(--text-secondary)' }}>
-          Block the turf for Panchayath events, maintenance, or weather. Overlapping bookings will be cancelled.
+        <p style={{ color: 'var(--text-secondary)', marginBottom: 20 }}>
+          Block the turf for Panchayath events, maintenance, or weather. Supports single-day or multi-day ranges. Overlapping bookings will be cancelled.
         </p>
+
+        {/* Block Form */}
         <div className={styles.blockForm}>
           <div className={styles.inputGroup}>
-            <label>Date</label>
+            <label>Start Date</label>
             <input type="date" className={styles.inputField} value={blockDate} onChange={e => setBlockDate(e.target.value)} />
           </div>
           <div className={styles.inputGroup}>
-            <label>Start Time</label>
-            <input type="time" className={styles.inputField} value={blockStart} onChange={e => setBlockStart(e.target.value)} />
+            <label>End Date <span style={{ color: 'var(--text-secondary)', fontSize: '0.78rem' }}>(same = single day)</span></label>
+            <input type="date" className={styles.inputField} value={blockEndDate || blockDate} onChange={e => setBlockEndDate(e.target.value)} min={blockDate} />
           </div>
           <div className={styles.inputGroup}>
-            <label>End Time</label>
-            <input type="time" className={styles.inputField} value={blockEnd} onChange={e => setBlockEnd(e.target.value)} />
+            <label>Block Start Hour</label>
+            <select className={styles.selectField} value={blockStart} onChange={e => setBlockStart(e.target.value)}>
+              <option value="">-- Select --</option>
+              {Array.from({ length: 24 }, (_, i) => i).map(h => (
+                <option key={h} value={h}>{h % 12 || 12}:00 {h >= 12 ? 'PM' : 'AM'}</option>
+              ))}
+            </select>
           </div>
           <div className={styles.inputGroup}>
+            <label>Block End Hour</label>
+            <select className={styles.selectField} value={blockEnd} onChange={e => setBlockEnd(e.target.value)}>
+              <option value="">-- Select --</option>
+              {Array.from({ length: 24 }, (_, i) => i + 1).map(h => (
+                <option key={h} value={h}>{h % 12 || 12}:00 {h >= 12 ? 'PM' : 'AM'}</option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.inputGroup} style={{ gridColumn: '1 / -1' }}>
             <label>Reason</label>
             <select className={styles.selectField} value={blockReason} onChange={e => setBlockReason(e.target.value)}>
               <option>Panchayath Event</option>
@@ -546,11 +597,80 @@ export default function AdminDashboard() {
               <option>Other</option>
             </select>
           </div>
-          <button className={styles.blockBtn} onClick={handleBlockSlots}>Block Turf</button>
-          <div className={styles.emergencyNotice}>
-            <AlertTriangle size={16} /> Use with caution. This forces immediate cancellations.
+          <button className={styles.blockBtn} onClick={handleBlockSlots} style={{ gridColumn: '1 / -1' }}>
+            🚫 Block Turf
+          </button>
+          <div className={styles.emergencyNotice} style={{ gridColumn: '1 / -1' }}>
+            <AlertTriangle size={16} /> Use with caution. This forces immediate cancellations and notifies all users by email.
           </div>
         </div>
+
+        {/* Active Blocks Management Table */}
+        {activeBlocks.length > 0 && (
+          <div style={{ marginTop: 28 }}>
+            <h3 style={{ color: '#fff', marginBottom: 12, fontSize: '1rem', fontWeight: 700 }}>
+              Active & Upcoming Blocks ({activeBlocks.length})
+            </h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
+                    <th style={{ padding: '10px 12px', textAlign: 'left' }}>Date</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left' }}>Time</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left' }}>Reason</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'left' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activeBlocks.map((b: any) => {
+                    const fh = (h: number) => `${h % 12 || 12}:00 ${h >= 12 ? 'PM' : 'AM'}`;
+                    return (
+                      <tr key={b.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                        <td style={{ padding: '12px', color: '#fff', fontWeight: 600 }}>
+                          📅 {new Date(b.date).toLocaleDateString('en-IN')}
+                        </td>
+                        <td style={{ padding: '12px', color: 'rgba(255,255,255,0.7)' }}>
+                          {fh(b.startTime)} – {fh((b.startTime + b.durationHours) % 24)}
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          {editingBlock?.id === b.id ? (
+                            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                              <input
+                                value={editingBlock.reason}
+                                onChange={e => setEditingBlock({ ...editingBlock, reason: e.target.value })}
+                                style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', padding: '4px 8px', borderRadius: 6, fontSize: '0.85rem', fontFamily: 'inherit', flex: 1 }}
+                              />
+                              <button onClick={() => handleEditBlockReason(b.id, editingBlock.reason)} style={{ background: 'rgba(0,230,118,0.15)', border: '1px solid rgba(0,230,118,0.3)', color: '#00E676', padding: '4px 10px', borderRadius: 6, cursor: 'pointer', fontSize: '0.8rem', fontFamily: 'inherit' }}>Save</button>
+                              <button onClick={() => setEditingBlock(null)} style={{ background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', padding: '4px 8px', borderRadius: 6, cursor: 'pointer', fontSize: '0.8rem', fontFamily: 'inherit' }}>✕</button>
+                            </div>
+                          ) : (
+                            <span style={{ color: '#FF6B6B' }}>{b.reason}</span>
+                          )}
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                            <button
+                              onClick={() => setEditingBlock({ id: b.id, reason: b.reason })}
+                              style={{ background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF', padding: '5px 12px', borderRadius: 8, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700, fontFamily: 'inherit' }}
+                            >✏️ Edit</button>
+                            <button
+                              onClick={() => handleResendBlockMail(b)}
+                              style={{ background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.3)', color: '#FFD700', padding: '5px 12px', borderRadius: 8, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700, fontFamily: 'inherit' }}
+                            >📧 Mail</button>
+                            <button
+                              onClick={() => handleUnblock(b.id, b.reason)}
+                              style={{ background: 'rgba(255,68,68,0.1)', border: '1px solid rgba(255,68,68,0.3)', color: '#FF4444', padding: '5px 12px', borderRadius: 8, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700, fontFamily: 'inherit' }}
+                            >🗑️ Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </motion.section>
 
       {/* ── BOOKINGS / USERS TAB SWITCHER ── */}
