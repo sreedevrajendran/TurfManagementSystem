@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -48,6 +48,7 @@ export default function BookPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [offers, setOffers] = useState<SpecialOffer[]>([]);
   const [bookedSlots, setBookedSlots] = useState<number[]>([]);
+  const modalRef = useRef<HTMLDivElement>(null);
   const [customModal, setCustomModal] = useState<{
     isOpen: boolean;
     type: 'alert' | 'confirm' | 'success';
@@ -351,14 +352,18 @@ export default function BookPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className={styles.modalOverlay}
+            onClick={(e) => { if (e.target === e.currentTarget) setIsModalOpen(false); }}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              ref={modalRef}
+              initial={{ opacity: 0, y: '100%' }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 320 }}
               className={styles.modal}
             >
+              {/* drag handle for mobile */}
+              <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 4, margin: '0 auto 20px' }} />
               <h2 className={styles.modalTitle}>Book Slot</h2>
 
               {/* Team name — admin can edit, user sees their name pre-filled */}
