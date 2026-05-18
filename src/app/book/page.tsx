@@ -49,6 +49,7 @@ export default function BookPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [offers, setOffers] = useState<SpecialOffer[]>([]);
   const [bookedSlots, setBookedSlots] = useState<number[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const [customModal, setCustomModal] = useState<{
     isOpen: boolean;
@@ -72,6 +73,14 @@ export default function BookPage() {
   };
 
   const isAdmin = (session?.user as any)?.role === 'ADMIN';
+
+  // Detect mobile
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   // Pre-fill team name for regular users
   useEffect(() => {
@@ -298,6 +307,11 @@ export default function BookPage() {
           visible: { opacity: 1, transition: { staggerChildren: 0.04 } }
         }}
         className={styles.slotsGrid}
+        style={isMobile ? {
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '8px',
+        } : undefined}
       >
         {slots.map((hour) => {
           const now = new Date();
@@ -320,6 +334,16 @@ export default function BookPage() {
               className={`${styles.slot} ${
                 isBooked ? styles.booked : styles.available
               }`}
+              style={isMobile ? {
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '10px 4px',
+                fontSize: '0.8rem',
+                minHeight: '52px',
+                borderRadius: '8px',
+                textAlign: 'center',
+              } : undefined}
               title={isBooked ? 'Already booked' : hasDiscount ? `${discount}% OFF!` : ''}
             >
               <span>{formatTime(hour)}</span>
