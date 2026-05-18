@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import Link from 'next/link';
@@ -776,94 +777,6 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          {/* ── User History Drawer (Portal) ── */}
-          {selectedUser && typeof document !== 'undefined' && createPortal(
-            <div
-              onClick={e => { if (e.target === e.currentTarget) setSelectedUser(null); }}
-              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)', zIndex: 99999, display: 'flex', justifyContent: 'flex-end' }}
-            >
-              <div style={{
-                width: '100%', maxWidth: 460, background: 'var(--bg-color)', borderLeft: '1px solid var(--border-color)',
-                overflowY: 'auto', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 16,
-              }}>
-                {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    {selectedUser.image
-                      ? <img src={selectedUser.image} alt="" style={{ width: 44, height: 44, borderRadius: '50%' }} />
-                      : <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--primary-accent-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 900, color: 'var(--primary-accent)' }}>{selectedUser.name?.[0] ?? '?'}</div>
-                    }
-                    <div>
-                      <div style={{ color: '#fff', fontWeight: 800, fontSize: '1rem' }}>{selectedUser.name ?? 'Unknown'}</div>
-                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{selectedUser.email}</div>
-                    </div>
-                  </div>
-                  <button onClick={() => setSelectedUser(null)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 22, lineHeight: 1 }}>✕</button>
-                </div>
-
-                {/* Stats */}
-                {(() => {
-                  const bk = selectedUser.bookings ?? [];
-                  const active = bk.filter((b: any) => b.status !== 'CANCELLED' && b.status !== 'BLOCKED');
-                  const paid = bk.filter((b: any) => b.status === 'PAID');
-                  const due = bk.filter((b: any) => b.status === 'DUE' || b.status === 'PENDING');
-                  const cancelled = bk.filter((b: any) => b.status === 'CANCELLED');
-                  const totalPaid = paid.reduce((s: number, b: any) => s + b.amount, 0);
-                  const totalDue = due.reduce((s: number, b: any) => s + b.amount, 0);
-                  return (
-                    <>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                        {[
-                          { label: 'Total Matches', value: active.length, color: '#fff' },
-                          { label: 'Cancelled', value: cancelled.length, color: '#FF4444' },
-                          { label: 'Paid ✅', value: `₹${totalPaid.toLocaleString()}`, color: 'var(--primary-accent)' },
-                          { label: 'Due 🔴', value: `₹${totalDue.toLocaleString()}`, color: totalDue > 0 ? '#FF4444' : 'var(--text-secondary)' },
-                        ].map(stat => (
-                          <div key={stat.label} style={{ background: 'var(--bg-surface)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)' }}>
-                            <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginBottom: 4 }}>{stat.label}</div>
-                            <div style={{ color: stat.color, fontWeight: 900, fontSize: '1.25rem' }}>{stat.value}</div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Booking History */}
-                      <div>
-                        <h4 style={{ color: '#fff', marginBottom: 12, fontSize: '0.95rem', fontWeight: 700 }}>Booking History</h4>
-                        {bk.length === 0 ? (
-                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>No bookings yet.</p>
-                        ) : (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                            {bk.map((b: any) => {
-                              const fh = (h: number) => `${h % 12 || 12}:00 ${h >= 12 ? 'PM' : 'AM'}`;
-                              const statusColor = b.status === 'PAID' ? 'var(--primary-accent)' : b.status === 'DUE' || b.status === 'PENDING' ? '#FF4444' : 'var(--text-secondary)';
-                              return (
-                                <div key={b.id} style={{ background: 'var(--bg-surface)', borderRadius: 10, padding: '12px 14px', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                                  <div>
-                                    <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.85rem' }}>
-                                      {b.team?.name ?? '—'}
-                                    </div>
-                                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: 2 }}>
-                                      {new Date(b.date).toLocaleDateString('en-IN')} · {fh(b.startTime)}–{fh((b.startTime + b.durationHours) % 24)}
-                                    </div>
-                                  </div>
-                                  <div style={{ textAlign: 'right' }}>
-                                    <div style={{ color: statusColor, fontWeight: 700, fontSize: '0.82rem' }}>{b.status}</div>
-                                    <div style={{ color: '#fff', fontWeight: 800, fontSize: '0.9rem' }}>₹{b.amount}</div>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  );
-                })()}
-              </div>
-            </div>,
-            document.body
-          )}
-
         ) : (
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -976,6 +889,84 @@ export default function AdminDashboard() {
           </>
         )}
       </motion.section>
+
+      {/* ── User History Drawer (Portal) ── */}
+      {selectedUser && typeof document !== 'undefined' && createPortal(
+        <div
+          onClick={e => { if (e.target === e.currentTarget) setSelectedUser(null); }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)', zIndex: 99999, display: 'flex', justifyContent: 'flex-end' }}
+        >
+          <div style={{ width: '100%', maxWidth: 460, background: 'var(--bg-color)', borderLeft: '1px solid var(--border-color)', overflowY: 'auto', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                {selectedUser.image
+                  ? <img src={selectedUser.image} alt="" style={{ width: 44, height: 44, borderRadius: '50%' }} />
+                  : <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--primary-accent-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 900, color: 'var(--primary-accent)' }}>{selectedUser.name?.[0] ?? '?'}</div>
+                }
+                <div>
+                  <div style={{ color: '#fff', fontWeight: 800, fontSize: '1rem' }}>{selectedUser.name ?? 'Unknown'}</div>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{selectedUser.email}</div>
+                </div>
+              </div>
+              <button onClick={() => setSelectedUser(null)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 22, lineHeight: 1 }}>✕</button>
+            </div>
+            {(() => {
+              const bk: any[] = selectedUser.bookings ?? [];
+              const active = bk.filter(b => b.status !== 'CANCELLED' && b.status !== 'BLOCKED');
+              const paid = bk.filter(b => b.status === 'PAID');
+              const due = bk.filter(b => b.status === 'DUE' || b.status === 'PENDING');
+              const cancelled = bk.filter(b => b.status === 'CANCELLED');
+              const totalPaid = paid.reduce((s, b) => s + b.amount, 0);
+              const totalDue = due.reduce((s, b) => s + b.amount, 0);
+              const fh = (h: number) => `${h % 12 || 12}:00 ${h >= 12 ? 'PM' : 'AM'}`;
+              return (
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    {[
+                      { label: 'Total Matches', value: active.length, color: '#fff' },
+                      { label: 'Cancelled', value: cancelled.length, color: '#FF4444' },
+                      { label: 'Paid ✅', value: `₹${totalPaid.toLocaleString()}`, color: 'var(--primary-accent)' },
+                      { label: 'Due 🔴', value: `₹${totalDue.toLocaleString()}`, color: totalDue > 0 ? '#FF4444' : 'var(--text-secondary)' },
+                    ].map(stat => (
+                      <div key={stat.label} style={{ background: 'var(--bg-surface)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)' }}>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginBottom: 4 }}>{stat.label}</div>
+                        <div style={{ color: stat.color, fontWeight: 900, fontSize: '1.25rem' }}>{stat.value}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <h4 style={{ color: '#fff', marginBottom: 12, fontSize: '0.95rem', fontWeight: 700 }}>Booking History</h4>
+                    {bk.length === 0
+                      ? <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>No bookings yet.</p>
+                      : <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {bk.map(b => {
+                            const statusColor = b.status === 'PAID' ? 'var(--primary-accent)' : b.status === 'DUE' || b.status === 'PENDING' ? '#FF4444' : 'var(--text-secondary)';
+                            return (
+                              <div key={b.id} style={{ background: 'var(--bg-surface)', borderRadius: 10, padding: '12px 14px', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                                <div>
+                                  <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.85rem' }}>{b.team?.name ?? '—'}</div>
+                                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: 2 }}>
+                                    {new Date(b.date).toLocaleDateString('en-IN')} · {fh(b.startTime)}–{fh((b.startTime + b.durationHours) % 24)}
+                                  </div>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                  <div style={{ color: statusColor, fontWeight: 700, fontSize: '0.82rem' }}>{b.status}</div>
+                                  <div style={{ color: '#fff', fontWeight: 800, fontSize: '0.9rem' }}>₹{b.amount}</div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                    }
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>,
+        document.body
+      )}
+
       <CustomModal {...customModal} />
     </div>
   );
