@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { sendBookingConfirmation } from "@/lib/email";
+import { sendBookingConfirmation, sendAdminBookingAlert } from "@/lib/email";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // ── Send confirmation email ──────────────────────────────────────────────
+    // -- Send confirmation email to user
     try {
       await sendBookingConfirmation({
         to: session.user.email,
@@ -126,7 +126,21 @@ export async function POST(req: NextRequest) {
       });
     } catch (e) {
       console.error("Confirmation email failed:", e);
-      // Don't fail the booking if email fails
+    }
+
+    // -- Send alert email to admin
+    try {
+      await sendAdminBookingAlert({
+        userName: session.user.name || "Unknown",
+        userEmail: session.user.email,
+        teamName: teamName.trim(),
+        date: new Date(date).toLocaleDateString("en-IN"),
+        startTime: Number(startTime),
+        duration: Number(durationHours),
+        amount: Number(amount),
+      });
+    } catch (e) {
+      console.error("Admin booking alert email failed:", e);
     }
 
     return NextResponse.json({ success: true, booking });

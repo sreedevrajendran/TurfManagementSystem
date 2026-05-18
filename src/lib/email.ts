@@ -226,3 +226,81 @@ export async function sendCancellationEmail({
 
   await transporter.sendMail({ from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`, to, subject, html });
 }
+
+const ADMIN_EMAIL = process.env.EMAIL_FROM!;
+
+export async function sendAdminBookingAlert({
+  userName,
+  userEmail,
+  teamName,
+  date,
+  startTime,
+  duration,
+  amount,
+}: {
+  userName: string;
+  userEmail: string;
+  teamName: string;
+  date: string;
+  startTime: number;
+  duration: number;
+  amount: number;
+}) {
+  const formatHour = (hour: number) => {
+    const h = hour % 24;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const displayHour = h % 12 || 12;
+    return `${displayHour}:00 ${ampm}`;
+  };
+  const subject = `New Booking: ${teamName} - ${date}`;
+  const html = baseTemplate(`
+    <h2 style="color: #00b0ff; font-size: 22px;">New Booking Received!</h2>
+    <p>A new slot has just been booked.</p>
+    <div style="background: #141420; border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #00b0ff;">
+      <p style="margin: 0 0 8px;"><strong>Team:</strong> ${teamName}</p>
+      <p style="margin: 0 0 8px;"><strong>Booked By:</strong> ${userName} (${userEmail})</p>
+      <p style="margin: 0 0 8px;"><strong>Date:</strong> ${date}</p>
+      <p style="margin: 0 0 8px;"><strong>Time:</strong> ${formatHour(startTime)} to ${formatHour((startTime + duration) % 24)}</p>
+      <p style="margin: 0 0 8px;"><strong>Duration:</strong> ${duration} hour(s)</p>
+      <p style="margin: 0;"><strong>Amount Due:</strong> <span style="color: #00e676; font-size: 18px;">Rs.${amount}</span></p>
+    </div>
+    <a href="https://eastwelfareturf.vercel.app/admin" style="display: inline-block; margin-top: 16px; padding: 12px 24px; background: #00b0ff; color: #000; text-decoration: none; border-radius: 8px; font-weight: bold;">Open Admin Dashboard</a>
+  `);
+  await transporter.sendMail({ from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`, to: ADMIN_EMAIL, subject, html });
+}
+
+export async function sendAdminCancellationAlert({
+  userName,
+  userEmail,
+  teamName,
+  date,
+  startTime,
+  duration,
+}: {
+  userName: string;
+  userEmail: string;
+  teamName: string;
+  date: string;
+  startTime: number;
+  duration: number;
+}) {
+  const formatHour = (hour: number) => {
+    const h = hour % 24;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const displayHour = h % 12 || 12;
+    return `${displayHour}:00 ${ampm}`;
+  };
+  const subject = `Booking Cancelled: ${teamName} - ${date}`;
+  const html = baseTemplate(`
+    <h2 style="color: #FF4444; font-size: 22px;">Booking Cancelled</h2>
+    <p>A booking was cancelled. The slot is now free again.</p>
+    <div style="background: #141420; border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #FF4444;">
+      <p style="margin: 0 0 8px;"><strong>Team:</strong> ${teamName}</p>
+      <p style="margin: 0 0 8px;"><strong>Cancelled By:</strong> ${userName} (${userEmail})</p>
+      <p style="margin: 0 0 8px;"><strong>Date:</strong> ${date}</p>
+      <p style="margin: 0;"><strong>Time:</strong> ${formatHour(startTime)} to ${formatHour((startTime + duration) % 24)}</p>
+    </div>
+    <a href="https://eastwelfareturf.vercel.app/admin" style="display: inline-block; margin-top: 16px; padding: 12px 24px; background: #FF4444; color: #fff; text-decoration: none; border-radius: 8px; font-weight: bold;">Open Admin Dashboard</a>
+  `);
+  await transporter.sendMail({ from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`, to: ADMIN_EMAIL, subject, html });
+}
