@@ -4,6 +4,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "./prisma";
 
+const ADMIN_EMAIL = "sreerajar40@gmail.com";
+
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
   providers: [
@@ -27,9 +29,14 @@ export const authOptions: AuthOptions = {
   ],
   session: { strategy: "jwt" },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
-        token.role = (user as any).role || "CUSTOMER";
+        // Auto-assign ADMIN role to the designated admin email
+        if (account?.provider === "google" && user.email === ADMIN_EMAIL) {
+          token.role = "ADMIN";
+        } else {
+          token.role = (user as any).role || "CUSTOMER";
+        }
       }
       return token;
     },
@@ -39,6 +46,14 @@ export const authOptions: AuthOptions = {
         (session.user as any).id = token.sub;
       }
       return session;
+    },
+    async signIn() {
+      return true;
+    },
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      // Let the page handle redirects via callbackUrl
+      if (url.startsWith(baseUrl)) return url;
+      return baseUrl;
     }
   },
 };
