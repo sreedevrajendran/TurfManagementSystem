@@ -22,9 +22,58 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 24px;
   margin-bottom: 40px;
+}
+
+.emailActionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.emailActionCard {
+  background: rgba(0, 176, 255, 0.05);
+  border: 1px solid rgba(0, 176, 255, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.emailActionCard h4 {
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.emailActionCard p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 16px;
+}
+
+.emailBtn {
+  padding: 10px 20px;
+  background: rgba(0, 176, 255, 0.1);
+  border: 1px solid rgba(0, 176, 255, 0.4);
+  color: #00b0ff;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.emailBtn:hover {
+  background: #00b0ff;
+  color: #000;
+}
+
+.emailBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .statCard {
