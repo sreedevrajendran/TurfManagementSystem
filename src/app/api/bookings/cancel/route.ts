@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     const isAdmin = (session.user as any).role === "ADMIN";
     
     // Check if the user owns the booking or is an admin
-    if (booking.user.email !== session.user.email && !isAdmin) {
+    if (booking.user?.email !== session.user.email && !isAdmin) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
