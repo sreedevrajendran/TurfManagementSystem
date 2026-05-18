@@ -26,7 +26,12 @@ const generateDates = (days: number) => {
   return dates;
 };
 
-const formatTime = (hour: number) => `${hour.toString().padStart(2, '0')}:00`;
+const formatTime = (hour: number) => {
+  const h = hour % 24;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const displayHour = h % 12 || 12;
+  return `${displayHour}:00 ${ampm}`;
+};
 
 export default function BookPage() {
   const { data: session, status } = useSession();
