@@ -459,3 +459,50 @@ export async function sendBlockCancelledAnnouncement({
     }
   }
 }
+
+export async function sendSlotReminder({
+  to,
+  name,
+  teamName,
+  date,
+  startTime,
+  duration,
+  amount,
+}: {
+  to: string;
+  name: string;
+  teamName: string;
+  date: string;
+  startTime: number;
+  duration: number;
+  amount: number;
+}) {
+  const formatHour = (hour: number) => {
+    const h = hour % 24;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const displayHour = h % 12 || 12;
+    return `${displayHour}:00 ${ampm}`;
+  };
+
+  const subject = `⏰ Reminder: Your slot starts in 30 minutes! – East Welfare Turf`;
+  const html = baseTemplate(`
+    <h2 style="color: #FFD700; font-size: 22px;">⏰ Your Slot Starts in 30 Minutes!</h2>
+    <p>Hi <strong>${name}</strong>, this is a friendly reminder that your turf slot is starting soon!</p>
+    <div style="background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,140,0,0.05)); border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #FFD700;">
+      <p style="margin: 0 0 8px;"><strong>Team:</strong> ${teamName}</p>
+      <p style="margin: 0 0 8px;"><strong>Date:</strong> ${date}</p>
+      <p style="margin: 0 0 8px;"><strong>Time:</strong> ${formatHour(startTime)} – ${formatHour((startTime + duration) % 24)}</p>
+      <p style="margin: 0 0 8px;"><strong>Duration:</strong> ${duration} hour(s)</p>
+      <p style="margin: 0;"><strong>Amount Due at Venue:</strong> <span style="color: #FFD700; font-size: 18px;">₹${amount}</span></p>
+    </div>
+    <p style="color: #aaa; font-size: 15px;">🏃 Please arrive <strong style="color: #fff;">10 minutes early</strong> to warm up. Payment is collected at the venue.</p>
+    <p style="color: #aaa; font-size: 13px;">📍 Mannar East Welfare School, Kerala</p>
+  `);
+
+  await transporter.sendMail({
+    from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`,
+    to,
+    subject,
+    html,
+  });
+}
