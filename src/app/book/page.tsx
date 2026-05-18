@@ -4,8 +4,17 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { LogIn, ShieldCheck } from 'lucide-react';
+import { LogIn, ShieldCheck, Tag } from 'lucide-react';
 import styles from './page.module.css';
+
+type SpecialOffer = {
+  id: string;
+  title: string;
+  discountPct: number;
+  slotType: 'PEAK' | 'OFF_PEAK' | 'BOTH';
+  startDate: string;
+  endDate: string;
+};
 
 const generateDates = (days: number) => {
   const dates = [];
@@ -31,6 +40,7 @@ export default function BookPage() {
   const [teamName, setTeamName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [offers, setOffers] = useState<SpecialOffer[]>([]);
 
   const isAdmin = (session?.user as any)?.role === 'ADMIN';
 
@@ -40,6 +50,18 @@ export default function BookPage() {
       setTeamName(session.user.name);
     }
   }, [session, isAdmin]);
+
+  useEffect(() => {
+    const fetchOffers = async () => {
+      try {
+        const res = await fetch('/api/offers');
+        if (res.ok) setOffers(await res.json());
+      } catch (e) {
+        console.error('Failed to fetch offers:', e);
+      }
+    };
+    fetchOffers();
+  }, []);
 
   const slots = Array.from({ length: 24 }, (_, i) => (i + 6) % 24);
 
@@ -53,13 +75,43 @@ export default function BookPage() {
     setIsModalOpen(true);
   };
 
-  const calculatePrice = (startHour: number, dur: number) => {
-    let total = 0;
+  const getPriceForHour = (hour: number, date: Date) => {
+    const isOffPeak = hour >= 6 && hour < 18;
+    const basePrice = isOffPeak ? 400 : 800;
+    const slotType = isOffPeak ? 'OFF_PEAK' : 'PEAK';
+
+    // Find the best applicable offer
+    let bestDiscount = 0;
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+
+    for (const offer of offers) {
+      const start = new Date(offer.startDate);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(offer.endDate);
+      end.setHours(23, 59, 59, 999);
+
+      if (checkDate >= start && checkDate <= end) {
+        if (offer.slotType === 'BOTH' || offer.slotType === slotType) {
+          if (offer.discountPct > bestDiscount) bestDiscount = offer.discountPct;
+        }
+      }
+    }
+
+    const finalPrice = basePrice - (basePrice * (bestDiscount / 100));
+    return { basePrice, finalPrice, discount: bestDiscount };
+  };
+
+  const calculateTotal = (startHour: number, dur: number, date: Date) => {
+    let totalBase = 0;
+    let totalFinal = 0;
     for (let i = 0; i < dur; i++) {
       const h = (startHour + i) % 24;
-      total += (h >= 6 && h < 18) ? 400 : 800;
+      const { basePrice, finalPrice } = getPriceForHour(h, date);
+      totalBase += basePrice;
+      totalFinal += finalPrice;
     }
-    return total;
+    return { totalBase, totalFinal };
   };
 
   const handleConfirm = async () => {
@@ -76,6 +128,7 @@ export default function BookPage() {
     setIsLoading(true);
 
     try {
+      const { totalFinal } = calculateTotal(selectedSlot, duration, selectedDate);
       const res = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -85,12 +138,12 @@ export default function BookPage() {
           durationHours: duration,
           teamName: teamName.trim(),
           phone: phoneNumber.trim(),
-          amount: calculatePrice(selectedSlot, duration),
+          amount: totalFinal,
         }),
       });
 
       if (res.ok) {
-        alert(`✅ Booking Confirmed for "${teamName}"!\nTime: ${formatTime(selectedSlot)} for ${duration} hour(s)\nTotal: ₹${calculatePrice(selectedSlot, duration)}\n\nPay at the venue.`);
+        alert(`✅ Booking Confirmed for "${teamName}"!\nTime: ${formatTime(selectedSlot)} for ${duration} hour(s)\nTotal: ₹${totalFinal}\n\nPay at the venue.`);
         setIsModalOpen(false);
         setSelectedSlot(null);
         if (isAdmin) { setTeamName(''); setPhoneNumber(''); }
@@ -197,6 +250,8 @@ export default function BookPage() {
           const isDisabled = isPast || isBooked;
           const isOffPeak = hour >= 6 && hour < 18;
           const isCurrentHour = isToday && hour === now.getHours();
+          const { basePrice, finalPrice, discount } = getPriceForHour(hour, selectedDate);
+          const hasDiscount = discount > 0;
 
           return (
             <motion.div
@@ -208,14 +263,25 @@ export default function BookPage() {
                 : isBooked ? styles.booked
                 : styles.available
               }`}
-              title={isPast ? 'This slot has already passed' : isBooked ? 'Already booked' : ''}
+              title={isPast ? 'This slot has already passed' : isBooked ? 'Already booked' : hasDiscount ? `${discount}% OFF Special Offer!` : ''}
             >
               <div>{formatTime(hour)}</div>
               {isCurrentHour
                 ? <div className={styles.nowTag}>NOW</div>
                 : isPast
                   ? <div className={styles.priceTag}>Past</div>
-                  : <div className={styles.priceTag}>₹{isOffPeak ? '400' : '800'}</div>
+                  : (
+                    <div className={styles.priceTag} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      {hasDiscount ? (
+                        <>
+                          <span style={{ textDecoration: 'line-through', opacity: 0.5, fontSize: '0.7rem' }}>₹{basePrice}</span>
+                          <span style={{ color: '#FFD700', fontWeight: 'bold' }}>₹{finalPrice} <Tag size={10} /></span>
+                        </>
+                      ) : (
+                        `₹${basePrice}`
+                      )}
+                    </div>
+                  )
               }
             </motion.div>
           );
@@ -281,7 +347,7 @@ export default function BookPage() {
 
               <div className={styles.totalSection}>
                 <span>Total Amount:</span>
-                <strong>₹{selectedSlot !== null && calculatePrice(selectedSlot, duration)}</strong>
+                <strong>₹{selectedSlot !== null && calculateTotal(selectedSlot, duration, selectedDate).totalFinal}</strong>
               </div>
 
               <div className={styles.modalActions}>

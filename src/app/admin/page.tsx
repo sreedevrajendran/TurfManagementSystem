@@ -19,6 +19,17 @@ type Booking = {
   userEmail?: string;
 };
 
+type SpecialOffer = {
+  id: string;
+  title: string;
+  description: string | null;
+  discountPct: number;
+  slotType: 'PEAK' | 'OFF_PEAK' | 'BOTH';
+  startDate: string;
+  endDate: string;
+  active: boolean;
+};
+
 const formatHour = (h: number) => `${h.toString().padStart(2, '0')}:00`;
 
 export default function AdminDashboard() {
@@ -30,6 +41,16 @@ export default function AdminDashboard() {
   const [blockReason, setBlockReason] = useState('Panchayath Event');
   const [emailStatus, setEmailStatus] = useState('');
   const [dueAlertLoading, setDueAlertLoading] = useState(false);
+
+  // Offers State
+  const [offers, setOffers] = useState<SpecialOffer[]>([]);
+  const [offerTitle, setOfferTitle] = useState('');
+  const [offerDesc, setOfferDesc] = useState('');
+  const [offerDiscount, setOfferDiscount] = useState('20');
+  const [offerSlotType, setOfferSlotType] = useState('BOTH');
+  const [offerStartDate, setOfferStartDate] = useState('');
+  const [offerEndDate, setOfferEndDate] = useState('');
+  const [offerLoading, setOfferLoading] = useState(false);
 
   // ── Fetch real bookings ──────────────────────────────────────────────────
   const fetchBookings = async () => {
@@ -56,7 +77,22 @@ export default function AdminDashboard() {
     }
   };
 
-  useEffect(() => { fetchBookings(); }, []);
+  const fetchOffers = async () => {
+    try {
+      const res = await fetch('/api/admin/offers');
+      if (res.ok) {
+        const data = await res.json();
+        setOffers(data);
+      }
+    } catch (e) {
+      console.error('Failed to fetch offers:', e);
+    }
+  };
+
+  useEffect(() => { 
+    fetchBookings(); 
+    fetchOffers();
+  }, []);
 
   // ── Derived stats ────────────────────────────────────────────────────────
   const todayStr = new Date().toLocaleDateString('en-IN');
@@ -117,6 +153,86 @@ export default function AdminDashboard() {
     setDueAlertLoading(false);
   };
 
+  const handleCreateOffer = async () => {
+    if (!offerTitle || !offerDiscount || !offerStartDate || !offerEndDate) {
+      alert('Please fill out all required offer fields.');
+      return;
+    }
+    setOfferLoading(true);
+    try {
+      const res = await fetch('/api/admin/offers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: offerTitle,
+          description: offerDesc,
+          discountPct: Number(offerDiscount),
+          slotType: offerSlotType,
+          startDate: offerStartDate,
+          endDate: offerEndDate,
+        })
+      });
+      if (res.ok) {
+        alert('Special offer created successfully!');
+        setOfferTitle('');
+        setOfferDesc('');
+        setOfferDiscount('20');
+        setOfferStartDate('');
+        setOfferEndDate('');
+        fetchOffers();
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Failed to create offer.');
+    } finally {
+      setOfferLoading(false);
+    }
+  };
+
+  const toggleOffer = async (id: string, currentActive: boolean) => {
+    try {
+      const res = await fetch('/api/admin/offers', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, active: !currentActive })
+      });
+      if (res.ok) fetchOffers();
+    } catch (e) {
+      console.error('Failed to toggle offer:', e);
+    }
+  };
+
+  const deleteOffer = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this offer?')) return;
+    try {
+      const res = await fetch('/api/admin/offers', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      if (res.ok) fetchOffers();
+    } catch (e) {
+      console.error('Failed to delete offer:', e);
+    }
+  };
+
+  const sendOfferEmail = async (id: string) => {
+    if (!confirm('This will email ALL registered users. Are you sure?')) return;
+    try {
+      setEmailStatus('Sending offer emails...');
+      const res = await fetch('/api/admin/send-offer-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ offerId: id })
+      });
+      const data = await res.json();
+      setEmailStatus(`✅ Sent special offer to ${data.sent} user(s)!`);
+    } catch (e) {
+      console.error('Failed to send offer emails:', e);
+      setEmailStatus('❌ Failed to send emails.');
+    }
+  };
+
   return (
     <div className={styles.container}>
       <motion.header
@@ -173,6 +289,103 @@ export default function AdminDashboard() {
           </div>
         </div>
         {emailStatus && <p style={{ marginTop: 16, color: '#00E676' }}>{emailStatus}</p>}
+      </motion.section>
+
+      {/* ── SPECIAL OFFERS ── */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.18 }}
+        className={styles.section}
+      >
+        <h2 className={styles.sectionTitle}>
+          Special Offers & Discounts <Tag size={24} color="#FFD700" />
+        </h2>
+        
+        <div className={styles.blockForm} style={{ background: 'rgba(255, 215, 0, 0.05)', borderColor: 'rgba(255, 215, 0, 0.2)' }}>
+          <div className={styles.inputGroup}>
+            <label>Offer Title</label>
+            <input type="text" className={styles.inputField} placeholder="e.g. Weekend Madness" value={offerTitle} onChange={e => setOfferTitle(e.target.value)} />
+          </div>
+          <div className={styles.inputGroup}>
+            <label>Discount %</label>
+            <input type="number" className={styles.inputField} value={offerDiscount} onChange={e => setOfferDiscount(e.target.value)} />
+          </div>
+          <div className={styles.inputGroup}>
+            <label>Slot Type</label>
+            <select className={styles.selectField} value={offerSlotType} onChange={e => setOfferSlotType(e.target.value)}>
+              <option value="BOTH">All Slots</option>
+              <option value="PEAK">Peak Only (6pm-6am)</option>
+              <option value="OFF_PEAK">Off-Peak Only (6am-6pm)</option>
+            </select>
+          </div>
+          <div className={styles.inputGroup}>
+            <label>Start Date</label>
+            <input type="date" className={styles.inputField} value={offerStartDate} onChange={e => setOfferStartDate(e.target.value)} />
+          </div>
+          <div className={styles.inputGroup}>
+            <label>End Date</label>
+            <input type="date" className={styles.inputField} value={offerEndDate} onChange={e => setOfferEndDate(e.target.value)} />
+          </div>
+          <div className={styles.inputGroup} style={{ gridColumn: '1 / -1' }}>
+            <label>Description (Optional)</label>
+            <input type="text" className={styles.inputField} placeholder="Additional details..." value={offerDesc} onChange={e => setOfferDesc(e.target.value)} />
+          </div>
+          <button 
+            className={styles.blockBtn} 
+            style={{ background: '#FFD700', color: '#000' }} 
+            onClick={handleCreateOffer}
+            disabled={offerLoading}
+          >
+            {offerLoading ? 'Creating...' : 'Create Offer'}
+          </button>
+        </div>
+
+        {/* Offers List */}
+        {offers.length > 0 && (
+          <div className={styles.tableContainer} style={{ marginTop: 24 }}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Offer</th>
+                  <th>Discount</th>
+                  <th>Applies To</th>
+                  <th>Valid Until</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {offers.map(offer => (
+                  <tr key={offer.id} style={{ opacity: offer.active ? 1 : 0.6 }}>
+                    <td><strong>{offer.title}</strong></td>
+                    <td style={{ color: '#FFD700', fontWeight: 'bold' }}>{offer.discountPct}% OFF</td>
+                    <td>{offer.slotType === 'BOTH' ? 'All Slots' : offer.slotType === 'PEAK' ? 'Peak' : 'Off-Peak'}</td>
+                    <td>{new Date(offer.endDate).toLocaleDateString('en-IN')}</td>
+                    <td>
+                      <span className={`${styles.badge} ${offer.active ? styles.paid : styles.cancelled}`}>
+                        {offer.active ? 'ACTIVE' : 'INACTIVE'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className={styles.actionBtnGroup}>
+                        <button onClick={() => toggleOffer(offer.id, offer.active)} className={`${styles.actionBtn} ${styles.reschedule}`}>
+                          {offer.active ? 'Disable' : 'Enable'}
+                        </button>
+                        <button onClick={() => sendOfferEmail(offer.id)} className={`${styles.actionBtn} ${styles.markPaid}`}>
+                          Email Users
+                        </button>
+                        <button onClick={() => deleteOffer(offer.id)} className={`${styles.actionBtn} ${styles.cancel}`}>
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </motion.section>
 
       {/* ── EMERGENCY BLOCKING ── */}
