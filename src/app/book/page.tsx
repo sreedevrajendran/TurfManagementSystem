@@ -189,17 +189,34 @@ export default function BookPage() {
         className={styles.slotsGrid}
       >
         {slots.map((hour) => {
+          const now = new Date();
+          const isToday = selectedDate.toDateString() === now.toDateString();
+          // Disable slot if it's today and the hour has already passed (including current hour)
+          const isPast = isToday && hour <= now.getHours();
           const isBooked = hour === 19 || hour === 20;
+          const isDisabled = isPast || isBooked;
           const isOffPeak = hour >= 6 && hour < 18;
+          const isCurrentHour = isToday && hour === now.getHours();
+
           return (
             <motion.div
               variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1 } }}
               key={hour}
-              onClick={() => !isBooked && handleSlotClick(hour)}
-              className={`${styles.slot} ${isBooked ? styles.booked : styles.available}`}
+              onClick={() => !isDisabled && handleSlotClick(hour)}
+              className={`${styles.slot} ${
+                isPast ? styles.past
+                : isBooked ? styles.booked
+                : styles.available
+              }`}
+              title={isPast ? 'This slot has already passed' : isBooked ? 'Already booked' : ''}
             >
               <div>{formatTime(hour)}</div>
-              <div className={styles.priceTag}>₹{isOffPeak ? '400' : '800'}</div>
+              {isCurrentHour
+                ? <div className={styles.nowTag}>NOW</div>
+                : isPast
+                  ? <div className={styles.priceTag}>Past</div>
+                  : <div className={styles.priceTag}>₹{isOffPeak ? '400' : '800'}</div>
+              }
             </motion.div>
           );
         })}
