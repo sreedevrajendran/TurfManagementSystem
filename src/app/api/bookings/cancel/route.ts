@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { sendCancellationEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -46,6 +47,21 @@ export async function POST(req: NextRequest) {
       where: { id: bookingId },
       data: { status: "CANCELLED" }
     });
+
+    try {
+      if (booking.user?.email) {
+        await sendCancellationEmail({
+          to: booking.user.email,
+          name: booking.user.name || "User",
+          teamName: booking.teamName,
+          date: booking.date,
+          startTime: booking.startTime,
+          duration: booking.durationHours,
+        });
+      }
+    } catch (e) {
+      console.error("Cancellation email failed:", e);
+    }
 
     return NextResponse.json({ success: true, booking: updatedBooking });
 

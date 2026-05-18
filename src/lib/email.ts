@@ -190,3 +190,39 @@ export async function sendNoShowPenalty({
 
   await transporter.sendMail({ from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`, to, subject, html });
 }
+
+export async function sendCancellationEmail({
+  to,
+  name,
+  teamName,
+  date,
+  startTime,
+  duration,
+}: {
+  to: string;
+  name: string;
+  teamName: string;
+  date: string;
+  startTime: number;
+  duration: number;
+}) {
+  const formatHour = (hour: number) => {
+    const h = hour % 24;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const displayHour = h % 12 || 12;
+    return `${displayHour}:00 ${ampm}`;
+  };
+  const subject = "❌ Booking Cancelled – East Welfare Turf";
+  const html = baseTemplate(`
+    <h2 style="color: #FF4444; font-size: 22px;">Booking Cancelled</h2>
+    <p>Hi <strong>${name}</strong>, your booking has been successfully cancelled.</p>
+    <div style="background: #141420; border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #FF4444;">
+      <p style="margin: 0 0 8px;"><strong>Team:</strong> ${teamName}</p>
+      <p style="margin: 0 0 8px;"><strong>Date:</strong> ${date}</p>
+      <p style="margin: 0;"><strong>Time:</strong> ${formatHour(startTime)} – ${formatHour((startTime + duration) % 24)}</p>
+    </div>
+    <p style="color: #aaa;">Your slot has been released. We hope to see you on the pitch next time! ⚽</p>
+  `);
+
+  await transporter.sendMail({ from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`, to, subject, html });
+}
