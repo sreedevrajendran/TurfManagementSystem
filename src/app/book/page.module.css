@@ -349,93 +349,95 @@
   cursor: default;
 }
 
-/* ── Mobile Layout Adjustments ── */
+/* ── Mobile Layout ── */
 @media (max-width: 768px) {
   .container {
-    padding: 20px 16px;
+    padding: 16px 12px;
   }
 
   .title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
   }
 
   .subtitle {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 
-  /* Date scroller stays horizontal with snap */
+  /* Date scroller */
   .dateScroll {
-    gap: 10px;
-    padding-bottom: 12px;
+    gap: 8px;
+    padding-bottom: 10px;
+    margin-bottom: 24px;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
   }
 
   .dateCard {
-    min-width: 64px;
-    padding: 10px 8px;
+    min-width: 58px;
+    padding: 10px 6px;
     scroll-snap-align: start;
-    border-radius: 12px;
+    border-radius: 10px;
   }
 
   .dateDay {
-    font-size: 0.7rem;
-    margin-bottom: 4px;
+    font-size: 0.65rem;
+    margin-bottom: 3px;
   }
 
   .dateNumber {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
   }
 
-  /* ── SLOT GRID → full-width list on mobile ── */
+  /* ── BookMyShow style compact chip grid ── */
   .slotsGrid {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
   }
 
   .slot {
-    /* Override the card layout → horizontal row */
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    padding: 14px 18px;
-    border-radius: 14px;
-    font-size: 1rem;
-    text-align: left;
+    padding: 10px 4px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: center;
+    min-height: 52px;
   }
 
   .priceTag {
-    font-size: 0.9rem;
-    margin-top: 0;
-    font-weight: 700;
+    font-size: 0.65rem;
+    margin-top: 3px;
+    font-weight: 600;
+    opacity: 0.85;
   }
 
   .nowTag {
-    font-size: 0.7rem;
-    padding: 3px 8px;
-    margin-top: 0;
-    margin-left: 8px;
+    font-size: 0.55rem;
+    padding: 1px 5px;
+    margin-top: 3px;
+    border-radius: 4px;
   }
 
-  /* Bottom sheet modal on mobile */
+  /* Bottom sheet modal */
   .modalOverlay {
     align-items: flex-end;
-    justify-content: center;
   }
 
   .modal {
     width: 100%;
     max-width: 100%;
-    border-radius: 24px 24px 0 0;
-    padding: 20px 20px 40px;
+    border-radius: 22px 22px 0 0;
+    padding: 16px 20px 40px;
     max-height: 90vh;
     overflow-y: auto;
   }
 
   .modalTitle {
-    font-size: 1.4rem;
-    margin-bottom: 16px;
+    font-size: 1.3rem;
+    margin-bottom: 14px;
     text-align: left;
   }
 
@@ -449,8 +451,8 @@
   }
 
   .totalSection {
-    margin: 16px 0;
-    padding: 14px 16px;
+    margin: 12px 0;
+    padding: 12px 14px;
   }
 }
 

@@ -320,33 +320,40 @@ export default function BookPage() {
                 : isBooked ? styles.booked
                 : styles.available
               }`}
-              title={isPast ? 'This slot has already passed' : isBooked ? 'Already booked' : hasDiscount ? `${discount}% OFF Special Offer!` : ''}
+              title={isPast ? 'Passed' : isBooked ? 'Booked' : hasDiscount ? `${discount}% OFF!` : ''}
             >
-              {/* Left side: time + NOW badge */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span>{formatTime(hour)}</span>
-                {isCurrentHour && <div className={styles.nowTag}>NOW</div>}
-              </div>
-
-              {/* Right side: price or status */}
-              <div className={styles.priceTag} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                {isPast ? (
-                  <span style={{ opacity: 0.5, fontSize: '0.8rem' }}>Past</span>
-                ) : isBooked ? (
-                  <span style={{ color: '#FF4444', fontSize: '0.85rem' }}>Booked</span>
-                ) : hasDiscount ? (
-                  <>
-                    <span style={{ textDecoration: 'line-through', opacity: 0.5, fontSize: '0.75rem' }}>₹{basePrice}</span>
-                    <span style={{ color: '#FFD700', fontWeight: 'bold' }}>₹{finalPrice} <Tag size={10} /></span>
-                  </>
-                ) : (
-                  <span>₹{basePrice}</span>
-                )}
-              </div>
+              <span>{formatTime(hour)}</span>
+              {isCurrentHour ? (
+                <div className={styles.nowTag}>NOW</div>
+              ) : isPast ? (
+                <div className={styles.priceTag} style={{ opacity: 0.4 }}>–</div>
+              ) : isBooked ? (
+                <div className={styles.priceTag} style={{ color: '#FF4444' }}>✕</div>
+              ) : hasDiscount ? (
+                <div className={styles.priceTag} style={{ color: '#FFD700' }}>₹{finalPrice}</div>
+              ) : (
+                <div className={styles.priceTag}>₹{basePrice}</div>
+              )}
             </motion.div>
           );
         })}
       </motion.div>
+
+      {/* BookMyShow-style legend */}
+      <div style={{ display: 'flex', gap: 16, marginTop: 20, marginBottom: 8, flexWrap: 'wrap', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ width: 18, height: 18, borderRadius: 4, background: 'var(--slot-available-bg)', border: '2px solid var(--primary-accent)', display: 'inline-block' }} />
+          Available
+        </span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ width: 18, height: 18, borderRadius: 4, background: 'var(--bg-surface)', border: '1px dashed var(--border-color)', opacity: 0.6, display: 'inline-block' }} />
+          Booked
+        </span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ width: 18, height: 18, borderRadius: 4, background: '#0f0f12', border: '1px solid #1e1e28', display: 'inline-block' }} />
+          Past
+        </span>
+      </div>
 
       <AnimatePresence>
         {isModalOpen && (
