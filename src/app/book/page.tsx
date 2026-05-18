@@ -40,7 +40,7 @@ export default function BookPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const [dates] = useState(generateDates(14));
+  const [dates] = useState(generateDates(3));
   const [selectedDate, setSelectedDate] = useState<Date>(dates[0]);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

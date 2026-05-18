@@ -49,6 +49,7 @@ export default function AdminDashboard() {
   const [blockReason, setBlockReason] = useState('Panchayath Event');
   const [activeBlocks, setActiveBlocks] = useState<any[]>([]);
   const [editingBlock, setEditingBlock] = useState<{ id: string; reason: string } | null>(null);
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [emailStatus, setEmailStatus] = useState('');
   const [dueAlertLoading, setDueAlertLoading] = useState(false);
   const [filterType, setFilterType] = useState<'ALL' | 'TODAY' | 'DUE' | 'PAID'>('ALL');
@@ -730,9 +731,24 @@ export default function AdminDashboard() {
                   </thead>
                   <tbody>
                     {users.map((u, i) => {
-                      const totalSpent = u.bookings?.reduce((s: number, b: any) => s + b.amount, 0) ?? 0;
+                      const allBookings = u.bookings ?? [];
+                      const paidBookings = allBookings.filter((b: any) => b.status === 'PAID');
+                      const dueBookings = allBookings.filter((b: any) => b.status === 'DUE' || b.status === 'PENDING');
+                      const totalSpent = paidBookings.reduce((s: number, b: any) => s + b.amount, 0);
+                      const totalDue = dueBookings.reduce((s: number, b: any) => s + b.amount, 0);
                       return (
-                        <tr key={u.id} style={{ borderBottom: '1px solid var(--border-color)', background: i % 2 === 0 ? 'var(--bg-surface)' : 'transparent' }}>
+                        <tr
+                          key={u.id}
+                          onClick={() => setSelectedUser(u)}
+                          style={{
+                            borderBottom: '1px solid var(--border-color)',
+                            background: i % 2 === 0 ? 'var(--bg-surface)' : 'transparent',
+                            cursor: 'pointer',
+                            transition: 'background 0.15s',
+                          }}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,230,118,0.06)')}
+                          onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 0 ? 'var(--bg-surface)' : 'transparent')}
+                        >
                           <td style={{ padding: '12px', display: 'flex', alignItems: 'center', gap: 10 }}>
                             {u.image
                               ? <img src={u.image} alt="" style={{ width: 32, height: 32, borderRadius: '50%' }} />
@@ -746,8 +762,11 @@ export default function AdminDashboard() {
                               {u.role}
                             </span>
                           </td>
-                          <td style={{ padding: '12px', color: '#fff', fontWeight: 600 }}>{u._count?.bookings ?? 0}</td>
-                          <td style={{ padding: '12px', color: 'var(--primary-accent)', fontWeight: 700 }}>₹{totalSpent.toLocaleString()}</td>
+                          <td style={{ padding: '12px', color: '#fff', fontWeight: 600 }}>{allBookings.filter((b: any) => b.status !== 'CANCELLED' && b.status !== 'BLOCKED').length}</td>
+                          <td style={{ padding: '12px' }}>
+                            <div style={{ color: 'var(--primary-accent)', fontWeight: 700 }}>₹{totalSpent.toLocaleString()}</div>
+                            {totalDue > 0 && <div style={{ color: '#FF4444', fontSize: '0.78rem' }}>₹{totalDue.toLocaleString()} due</div>}
+                          </td>
                         </tr>
                       );
                     })}
@@ -756,6 +775,95 @@ export default function AdminDashboard() {
               </div>
             )}
           </div>
+
+          {/* ── User History Drawer (Portal) ── */}
+          {selectedUser && typeof document !== 'undefined' && createPortal(
+            <div
+              onClick={e => { if (e.target === e.currentTarget) setSelectedUser(null); }}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)', zIndex: 99999, display: 'flex', justifyContent: 'flex-end' }}
+            >
+              <div style={{
+                width: '100%', maxWidth: 460, background: 'var(--bg-color)', borderLeft: '1px solid var(--border-color)',
+                overflowY: 'auto', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 16,
+              }}>
+                {/* Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    {selectedUser.image
+                      ? <img src={selectedUser.image} alt="" style={{ width: 44, height: 44, borderRadius: '50%' }} />
+                      : <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--primary-accent-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 900, color: 'var(--primary-accent)' }}>{selectedUser.name?.[0] ?? '?'}</div>
+                    }
+                    <div>
+                      <div style={{ color: '#fff', fontWeight: 800, fontSize: '1rem' }}>{selectedUser.name ?? 'Unknown'}</div>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{selectedUser.email}</div>
+                    </div>
+                  </div>
+                  <button onClick={() => setSelectedUser(null)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 22, lineHeight: 1 }}>✕</button>
+                </div>
+
+                {/* Stats */}
+                {(() => {
+                  const bk = selectedUser.bookings ?? [];
+                  const active = bk.filter((b: any) => b.status !== 'CANCELLED' && b.status !== 'BLOCKED');
+                  const paid = bk.filter((b: any) => b.status === 'PAID');
+                  const due = bk.filter((b: any) => b.status === 'DUE' || b.status === 'PENDING');
+                  const cancelled = bk.filter((b: any) => b.status === 'CANCELLED');
+                  const totalPaid = paid.reduce((s: number, b: any) => s + b.amount, 0);
+                  const totalDue = due.reduce((s: number, b: any) => s + b.amount, 0);
+                  return (
+                    <>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                        {[
+                          { label: 'Total Matches', value: active.length, color: '#fff' },
+                          { label: 'Cancelled', value: cancelled.length, color: '#FF4444' },
+                          { label: 'Paid ✅', value: `₹${totalPaid.toLocaleString()}`, color: 'var(--primary-accent)' },
+                          { label: 'Due 🔴', value: `₹${totalDue.toLocaleString()}`, color: totalDue > 0 ? '#FF4444' : 'var(--text-secondary)' },
+                        ].map(stat => (
+                          <div key={stat.label} style={{ background: 'var(--bg-surface)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)' }}>
+                            <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginBottom: 4 }}>{stat.label}</div>
+                            <div style={{ color: stat.color, fontWeight: 900, fontSize: '1.25rem' }}>{stat.value}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Booking History */}
+                      <div>
+                        <h4 style={{ color: '#fff', marginBottom: 12, fontSize: '0.95rem', fontWeight: 700 }}>Booking History</h4>
+                        {bk.length === 0 ? (
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>No bookings yet.</p>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            {bk.map((b: any) => {
+                              const fh = (h: number) => `${h % 12 || 12}:00 ${h >= 12 ? 'PM' : 'AM'}`;
+                              const statusColor = b.status === 'PAID' ? 'var(--primary-accent)' : b.status === 'DUE' || b.status === 'PENDING' ? '#FF4444' : 'var(--text-secondary)';
+                              return (
+                                <div key={b.id} style={{ background: 'var(--bg-surface)', borderRadius: 10, padding: '12px 14px', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                                  <div>
+                                    <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.85rem' }}>
+                                      {b.team?.name ?? '—'}
+                                    </div>
+                                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: 2 }}>
+                                      {new Date(b.date).toLocaleDateString('en-IN')} · {fh(b.startTime)}–{fh((b.startTime + b.durationHours) % 24)}
+                                    </div>
+                                  </div>
+                                  <div style={{ textAlign: 'right' }}>
+                                    <div style={{ color: statusColor, fontWeight: 700, fontSize: '0.82rem' }}>{b.status}</div>
+                                    <div style={{ color: '#fff', fontWeight: 800, fontSize: '0.9rem' }}>₹{b.amount}</div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>,
+            document.body
+          )}
+
         ) : (
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

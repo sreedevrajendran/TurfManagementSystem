@@ -18,8 +18,16 @@ export async function GET() {
       role: true,
       _count: { select: { bookings: true } },
       bookings: {
-        where: { status: { not: "CANCELLED" } },
-        select: { amount: true, status: true },
+        orderBy: { date: "desc" },
+        select: {
+          id: true,
+          date: true,
+          startTime: true,
+          durationHours: true,
+          amount: true,
+          status: true,
+          team: { select: { name: true } },
+        },
       },
     },
     orderBy: { name: "asc" },
