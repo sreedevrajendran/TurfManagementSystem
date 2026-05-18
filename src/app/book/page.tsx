@@ -47,6 +47,7 @@ export default function BookPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [offers, setOffers] = useState<SpecialOffer[]>([]);
+  const [bookedSlots, setBookedSlots] = useState<number[]>([]);
   const [customModal, setCustomModal] = useState<{
     isOpen: boolean;
     type: 'alert' | 'confirm' | 'success';
@@ -88,6 +89,22 @@ export default function BookPage() {
     };
     fetchOffers();
   }, []);
+
+  useEffect(() => {
+    const fetchBookedSlots = async () => {
+      try {
+        const dateStr = selectedDate.toISOString();
+        const res = await fetch(`/api/bookings?date=${encodeURIComponent(dateStr)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setBookedSlots(data);
+        }
+      } catch (e) {
+        console.error('Failed to fetch booked slots:', e);
+      }
+    };
+    fetchBookedSlots();
+  }, [selectedDate]);
 
   const slots = Array.from({ length: 24 }, (_, i) => (i + 6) % 24);
 
@@ -177,6 +194,13 @@ export default function BookPage() {
             setIsModalOpen(false);
             setSelectedSlot(null);
             if (isAdmin) { setTeamName(''); setPhoneNumber(''); }
+            
+            // Re-fetch booked slots so the newly booked slot becomes instantly disabled
+            fetch(`/api/bookings?date=${encodeURIComponent(selectedDate.toISOString())}`)
+              .then(r => r.json())
+              .then(data => setBookedSlots(data))
+              .catch(console.error);
+              
             router.refresh();
           }
         );
@@ -278,7 +302,7 @@ export default function BookPage() {
           const isToday = selectedDate.toDateString() === now.toDateString();
           // Disable slot if it's today and the hour has already passed (including current hour)
           const isPast = isToday && hour <= now.getHours();
-          const isBooked = hour === 19 || hour === 20;
+          const isBooked = bookedSlots.includes(hour);
           const isDisabled = isPast || isBooked;
           const isOffPeak = hour >= 6 && hour < 18;
           const isCurrentHour = isToday && hour === now.getHours();

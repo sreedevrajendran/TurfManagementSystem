@@ -4,6 +4,51 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { sendBookingConfirmation } from "@/lib/email";
 
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const dateStr = searchParams.get('date');
+  
+  if (!dateStr) {
+    return NextResponse.json({ error: "Missing date parameter" }, { status: 400 });
+  }
+
+  // Set the start and end of the requested day in local time
+  const startOfDay = new Date(dateStr);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(startOfDay);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  try {
+    const bookings = await prisma.booking.findMany({
+      where: {
+        date: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        status: {
+          not: 'CANCELLED',
+        },
+      },
+      select: {
+        startTime: true,
+        durationHours: true,
+      },
+    });
+
+    // Expand duration into array of booked hours
+    const bookedHours: number[] = [];
+    bookings.forEach(b => {
+      for (let i = 0; i < b.durationHours; i++) {
+        bookedHours.push((b.startTime + i) % 24);
+      }
+    });
+
+    return NextResponse.json(bookedHours);
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to fetch bookings" }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 

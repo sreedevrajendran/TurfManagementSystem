@@ -23,6 +23,13 @@ export default async function DashboardPage() {
   const pendingDues = userBookings.filter((b: typeof userBookings[0]) => b.status === "DUE");
   const pastBookings = userBookings.filter((b: typeof userBookings[0]) => b.status === "PAID" || b.status === "CANCELLED");
 
+  const formatTime = (hour: number) => {
+    const h = hour % 24;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const displayHour = h % 12 || 12;
+    return `${displayHour}:00 ${ampm}`;
+  };
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -49,6 +56,9 @@ export default async function DashboardPage() {
                 <li key={due.id} className={styles.dueItem}>
                   <div>
                     <strong>{due.date.toDateString()}</strong>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '4px 0' }}>
+                      {formatTime(due.startTime)} – {formatTime((due.startTime + due.durationHours) % 24)}
+                    </p>
                     <p>Team: {due.team?.name}</p>
                   </div>
                   <span className={styles.dueAmount}>₹{due.amount}</span>
@@ -68,7 +78,9 @@ export default async function DashboardPage() {
                 <li key={booking.id} className={styles.historyItem}>
                   <div>
                     <strong>{booking.date.toDateString()}</strong>
-                    <p>Slot: {booking.startTime}:00</p>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                      {formatTime(booking.startTime)} – {formatTime((booking.startTime + booking.durationHours) % 24)}
+                    </p>
                   </div>
                   <span className={booking.status === "PAID" ? styles.paidStatus : styles.cancelledStatus}>
                     {booking.status}
