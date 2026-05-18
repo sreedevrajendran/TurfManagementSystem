@@ -50,6 +50,9 @@ export default function AdminDashboard() {
   const [dueAlertLoading, setDueAlertLoading] = useState(false);
   const [filterType, setFilterType] = useState<'ALL' | 'TODAY' | 'DUE' | 'PAID'>('ALL');
   const tableRef = useRef<HTMLElement>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [secondsAgo, setSecondsAgo] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Offers State
   const [offers, setOffers] = useState<SpecialOffer[]>([]);
@@ -102,8 +105,9 @@ export default function AdminDashboard() {
   };
 
   // ── Fetch real bookings ──────────────────────────────────────────────────
-  const fetchBookings = async () => {
-    setLoading(true);
+  const fetchBookings = async (silent = false) => {
+    if (!silent) setLoading(true);
+    setIsRefreshing(true);
     try {
       const res = await fetch('/api/admin/bookings');
       const data = await res.json();
@@ -119,10 +123,13 @@ export default function AdminDashboard() {
         userEmail: b.user?.email,
       }));
       setBookings(mapped);
+      setLastUpdated(new Date());
+      setSecondsAgo(0);
     } catch {
       console.error('Failed to fetch bookings');
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
   };
 
@@ -147,10 +154,30 @@ export default function AdminDashboard() {
     }
   };
 
-  useEffect(() => { 
-    fetchBookings(); 
+  useEffect(() => {
+    // Initial load
+    fetchBookings();
     fetchOffers();
     fetchUsers();
+
+    // Auto-poll every 30 seconds (silent background refresh)
+    const pollInterval = setInterval(() => fetchBookings(true), 30_000);
+
+    // Refresh immediately when admin returns to the tab
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') fetchBookings(true);
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    // Live "Xs ago" counter
+    const ticker = setInterval(() => setSecondsAgo(s => s + 1), 1000);
+
+    return () => {
+      clearInterval(pollInterval);
+      clearInterval(ticker);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleStatCardClick = (type: 'ALL' | 'TODAY' | 'DUE' | 'PAID') => {
@@ -597,9 +624,30 @@ export default function AdminDashboard() {
              filterType === 'DUE' ? "Pending Dues" : 
              filterType === 'PAID' ? "Paid Bookings" : 
              "Recent Bookings"}
-            <button onClick={fetchBookings} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-              <RefreshCw size={18} />
+            <button
+              onClick={() => fetchBookings()}
+              title="Refresh"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', marginLeft: 4 }}
+            >
+              <RefreshCw
+                size={16}
+                style={{ transition: 'transform 0.5s', transform: isRefreshing ? 'rotate(360deg)' : 'rotate(0deg)' }}
+              />
             </button>
+            {lastUpdated && (
+              <span style={{
+                fontSize: '0.72rem',
+                color: 'var(--primary-accent)',
+                fontWeight: 500,
+                marginLeft: 8,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+              }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--primary-accent)', display: 'inline-block', animation: 'pulse 2s infinite' }} />
+                Live · {secondsAgo < 60 ? `${secondsAgo}s ago` : `${Math.floor(secondsAgo / 60)}m ago`}
+              </span>
+            )}
           </h2>
           {filterType !== 'ALL' && (
             <button 
