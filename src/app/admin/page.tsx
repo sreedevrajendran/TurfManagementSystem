@@ -219,19 +219,39 @@ export default function AdminDashboard() {
   };
 
   const handleBlockSlots = () => {
-    if (!blockDate || !blockStart || !blockEnd) { showAlert('Missing Fields', 'Please fill all fields.'); return; }
-    showConfirm('Block Turf?', `Block turf on ${blockDate} from ${blockStart} to ${blockEnd}?\nReason: ${blockReason}\n\nThis will cancel overlapping bookings.`, () => {
-      setBookings(prev => {
-        const updated = prev.map(b => {
-          if (b.date === new Date(blockDate).toLocaleDateString('en-IN') && b.status !== 'CANCELLED' && b.status !== 'BLOCKED') {
-            return { ...b, status: 'CANCELLED' as Booking['status'], amount: 0 };
-          }
-          return b;
+    if (!blockDate || !blockStart || !blockEnd) { showAlert('Missing Fields', 'Please fill all block fields.'); return; }
+    showConfirm('Block Turf?', `Block turf on ${blockDate} from ${blockStart}:00 to ${blockEnd}:00?\nReason: ${blockReason}\n\nThis will cancel overlapping bookings and notify all users.`, async () => {
+      try {
+        const res = await fetch('/api/admin/blocks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date: blockDate, startTime: blockStart, endTime: blockEnd, reason: blockReason }),
         });
-        return [{ id: `block-${Date.now()}`, teamName: `[BLOCKED] ${blockReason}`, phone: '—', date: new Date(blockDate).toLocaleDateString('en-IN'), startTime: parseInt(blockStart), durationHours: 1, amount: 0, status: 'BLOCKED' as Booking['status'] }, ...updated];
-      });
-      showAlert('Blocked', 'Turf blocked. Overlapping bookings cancelled.', 'success');
-      setBlockDate(''); setBlockStart(''); setBlockEnd('');
+        const data = await res.json();
+        if (!res.ok) { showAlert('Error', data.error || 'Block failed.'); return; }
+        await fetchBookings();
+        showAlert('Blocked', `Turf blocked. ${data.cancelledCount} overlapping booking(s) cancelled. All users notified by email. ✅`, 'success');
+        setBlockDate(''); setBlockStart(''); setBlockEnd('');
+      } catch (e) {
+        showAlert('Error', 'Failed to block turf. Please try again.');
+      }
+    });
+  };
+
+  const handleUnblock = (id: string, reason: string) => {
+    showConfirm('Remove Block?', `Remove this block?\nReason: ${reason}\n\nAll users will be notified that slots are available again.`, async () => {
+      try {
+        const res = await fetch('/api/admin/blocks', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id }),
+        });
+        if (!res.ok) { showAlert('Error', 'Could not remove block.'); return; }
+        await fetchBookings();
+        showAlert('Block Lifted', 'Block removed. All users notified by email. ✅', 'success');
+      } catch {
+        showAlert('Error', 'Failed to remove block.');
+      }
     });
   };
 
@@ -700,21 +720,22 @@ export default function AdminDashboard() {
                       </span>
                     </td>
                     <td>
-                      {booking.status !== 'CANCELLED' && booking.status !== 'BLOCKED' && (
+                      {booking.status === 'BLOCKED' ? (
+                        <button
+                          onClick={() => handleUnblock(booking.id, booking.teamName.replace('[BLOCKED] ', ''))}
+                          style={{ background: 'rgba(0,230,118,0.1)', border: '1px solid rgba(0,230,118,0.3)', color: '#00E676', padding: '6px 14px', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', fontFamily: 'inherit' }}
+                        >
+                          ✅ Unblock
+                        </button>
+                      ) : booking.status !== 'CANCELLED' && (
                         <div className={styles.actionBtnGroup}>
                           {booking.status !== 'PAID' && (
-                            <button onClick={() => markPaid(booking.id)} className={`${styles.actionBtn} ${styles.markPaid}`}>
-                              ✅ Paid
-                            </button>
+                            <button onClick={() => markPaid(booking.id)} className={`${styles.actionBtn} ${styles.markPaid}`}>✅ Paid</button>
                           )}
                           {booking.status === 'PENDING' && (
-                            <button onClick={() => markNoShow(booking.id)} className={`${styles.actionBtn} ${styles.markDue}`}>
-                              No-Show
-                            </button>
+                            <button onClick={() => markNoShow(booking.id)} className={`${styles.actionBtn} ${styles.markDue}`}>No-Show</button>
                           )}
-                          <button onClick={() => cancelBooking(booking.id)} className={`${styles.actionBtn} ${styles.cancel}`}>
-                            Cancel
-                          </button>
+                          <button onClick={() => cancelBooking(booking.id)} className={`${styles.actionBtn} ${styles.cancel}`}>Cancel</button>
                         </div>
                       )}
                     </td>

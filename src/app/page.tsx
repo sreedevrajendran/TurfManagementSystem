@@ -22,8 +22,10 @@ export default function Home() {
   };
 
   const [activeOffers, setActiveOffers] = useState<any[]>([]);
+  const [blocks, setBlocks] = useState<any[]>([]);
   useEffect(() => {
     fetch('/api/offers').then(r => r.json()).then(setActiveOffers).catch(() => {});
+    fetch('/api/blocks').then(r => r.json()).then(setBlocks).catch(() => {});
   }, []);
 
   return (
@@ -84,6 +86,38 @@ export default function Home() {
                     </div>
                   </div>
                 ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Emergency block notice */}
+          <AnimatePresence>
+            {blocks.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  background: 'rgba(255, 68, 68, 0.12)',
+                  border: '1px solid rgba(255, 68, 68, 0.5)',
+                  borderRadius: 14,
+                  padding: '12px 18px',
+                  maxWidth: 480,
+                  margin: '8px auto 0',
+                }}
+              >
+                <div style={{ color: '#FF6B6B', fontWeight: 800, fontSize: '0.9rem', marginBottom: 6 }}>
+                  ⚠️ Emergency Slot Block
+                </div>
+                {blocks.map((b: any) => {
+                  const fh = (h: number) => `${h % 12 || 12}:00 ${h >= 12 ? 'PM' : 'AM'}`;
+                  return (
+                    <div key={b.id} style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem', marginBottom: 4 }}>
+                      📅 {new Date(b.date).toLocaleDateString('en-IN')} · {fh(b.startTime)}–{fh((b.startTime + b.durationHours) % 24)}
+                      <span style={{ color: 'rgba(255,255,255,0.5)', marginLeft: 6 }}>— {b.reason}</span>
+                    </div>
+                  );
+                })}
               </motion.div>
             )}
           </AnimatePresence>

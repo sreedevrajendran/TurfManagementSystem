@@ -51,6 +51,7 @@ export default function BookPage() {
   const [offers, setOffers] = useState<SpecialOffer[]>([]);
   const [bookedSlots, setBookedSlots] = useState<number[]>([]);
   const [isMobile, setIsMobile] = useState(false);
+  const [blocks, setBlocks] = useState<any[]>([]);
   const modalRef = useRef<HTMLDivElement>(null);
   const [customModal, setCustomModal] = useState<{
     isOpen: boolean;
@@ -116,6 +117,7 @@ export default function BookPage() {
       }
     };
     fetchBookedSlots();
+    fetch('/api/blocks').then(r => r.json()).then(setBlocks).catch(() => {});
   }, [selectedDate]);
 
   const slots = Array.from({ length: 24 }, (_, i) => (i + 6) % 24);
@@ -288,7 +290,7 @@ export default function BookPage() {
           border: '1px solid rgba(255,215,0,0.4)',
           borderRadius: 12,
           padding: '12px 18px',
-          marginBottom: 20,
+          marginBottom: 12,
           display: 'flex',
           flexWrap: 'wrap',
           gap: 12,
@@ -310,6 +312,31 @@ export default function BookPage() {
           </div>
         </div>
       )}
+
+      {/* Emergency block notice for selected date */}
+      {blocks.filter((b: any) => new Date(b.date).toDateString() === selectedDate.toDateString()).map((b: any) => {
+        const fh = (h: number) => `${h % 12 || 12}:00 ${h >= 12 ? 'PM' : 'AM'}`;
+        return (
+          <div key={b.id} style={{
+            background: 'rgba(255,68,68,0.1)',
+            border: '1px solid rgba(255,68,68,0.4)',
+            borderRadius: 12,
+            padding: '12px 18px',
+            marginBottom: 12,
+            display: 'flex',
+            gap: 10,
+            alignItems: 'center',
+          }}>
+            <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+            <div>
+              <div style={{ color: '#FF6B6B', fontWeight: 800, fontSize: '0.9rem' }}>Emergency Block</div>
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>
+                {fh(b.startTime)} – {fh((b.startTime + b.durationHours) % 24)} · <span style={{ color: 'rgba(255,255,255,0.5)' }}>{b.reason}</span>
+              </div>
+            </div>
+          </div>
+        );
+      })}
 
       <motion.div
         initial={{ opacity: 0 }}

@@ -384,3 +384,78 @@ export async function sendOfferAnnouncement({
     }
   }
 }
+
+export async function sendBlockAnnouncement({
+  toList,
+  date,
+  startTime,
+  endTime,
+  reason,
+}: {
+  toList: string[];
+  date: string;
+  startTime: string;
+  endTime: string;
+  reason: string;
+}) {
+  const subject = `⚠️ Emergency Slot Block – East Welfare Turf (${date})`;
+  const html = baseTemplate(`
+    <h2 style="color: #FF4444; font-size: 22px;">⚠️ Emergency Turf Block</h2>
+    <p>We regret to inform you that the turf has been temporarily blocked due to an emergency.</p>
+    <div style="background: #1a0000; border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #FF4444;">
+      <p style="margin: 0 0 8px;"><strong>Date:</strong> ${date}</p>
+      <p style="margin: 0 0 8px;"><strong>Blocked Time:</strong> ${startTime} – ${endTime}</p>
+      <p style="margin: 0;"><strong>Reason:</strong> <span style="color: #FF6B6B;">${reason}</span></p>
+    </div>
+    <p style="color: #aaa;">We apologise for the inconvenience. Please avoid booking during this period. Any overlapping bookings have been cancelled automatically.</p>
+    <a href="https://eastwelfareturf.vercel.app/book" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF4444;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;">View Available Slots</a>
+  `);
+
+  for (const email of toList) {
+    try {
+      await transporter.sendMail({
+        from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`,
+        to: email,
+        subject,
+        html,
+      });
+    } catch (e) {
+      console.error(`Block email failed for ${email}:`, e);
+    }
+  }
+}
+
+export async function sendBlockCancelledAnnouncement({
+  toList,
+  date,
+  reason,
+}: {
+  toList: string[];
+  date: string;
+  reason: string;
+}) {
+  const subject = `✅ Block Lifted – East Welfare Turf (${date})`;
+  const html = baseTemplate(`
+    <h2 style="color: #00E676; font-size: 22px;">✅ Slot Block Has Been Lifted</h2>
+    <p>Good news! The previously scheduled block has been <strong>cancelled</strong> and the turf is now available again.</p>
+    <div style="background: #141420; border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #00E676;">
+      <p style="margin: 0 0 8px;"><strong>Date Affected:</strong> ${date}</p>
+      <p style="margin: 0;"><strong>Original Reason:</strong> <span style="color: rgba(255,255,255,0.6);">${reason}</span></p>
+    </div>
+    <p style="color: #aaa;">You can now book slots for this date as normal. We apologise for any earlier inconvenience.</p>
+    <a href="https://eastwelfareturf.vercel.app/book" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#00E676;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;">Book Your Slot</a>
+  `);
+
+  for (const email of toList) {
+    try {
+      await transporter.sendMail({
+        from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`,
+        to: email,
+        subject,
+        html,
+      });
+    } catch (e) {
+      console.error(`Block cancel email failed for ${email}:`, e);
+    }
+  }
+}
