@@ -12,6 +12,9 @@ export default function Navbar() {
   // Don't show on admin pages — admin has its own header
   if (pathname.startsWith("/admin")) return null;
 
+  // Don't show on the book page — it has its own minimal nav
+  if (pathname.startsWith("/book")) return null;
+
   if (!session) return null;
 
   const isAdmin = (session.user as any)?.role === "ADMIN";

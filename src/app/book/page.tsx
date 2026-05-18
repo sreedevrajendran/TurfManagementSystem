@@ -5,7 +5,8 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { LogIn, ShieldCheck, Tag } from 'lucide-react';
+import { LogIn, ShieldCheck, Tag, Home } from 'lucide-react';
+import Link from 'next/link';
 import styles from './page.module.css';
 import CustomModal from '@/components/CustomModal';
 
@@ -259,6 +260,32 @@ export default function BookPage() {
 
   return (
     <div className={styles.container}>
+      {/* Fixed top-left Home button */}
+      <Link
+        href="/"
+        style={{
+          position: 'fixed',
+          top: 16,
+          left: 16,
+          zIndex: 100,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          background: 'var(--bg-surface)',
+          color: '#fff',
+          padding: '8px 14px',
+          borderRadius: '99px',
+          fontSize: '0.85rem',
+          fontWeight: 700,
+          border: '1px solid var(--border-color)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+          backdropFilter: 'blur(10px)',
+          textDecoration: 'none',
+        }}
+      >
+        <Home size={14} />
+        Home
+      </Link>
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
