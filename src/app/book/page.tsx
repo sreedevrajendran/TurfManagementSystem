@@ -281,6 +281,36 @@ export default function BookPage() {
         )}
       </motion.header>
 
+      {/* Active offer banner on booking page */}
+      {offers.length > 0 && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(255,215,0,0.12), rgba(255,140,0,0.12))',
+          border: '1px solid rgba(255,215,0,0.4)',
+          borderRadius: 12,
+          padding: '12px 18px',
+          marginBottom: 20,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 12,
+          alignItems: 'center',
+        }}>
+          <Tag size={18} color="#FFD700" />
+          <div>
+            {offers.map(offer => (
+              <div key={offer.id}>
+                <span style={{ color: '#FFD700', fontWeight: 800, fontSize: '1rem' }}>
+                  {offer.discountPct}% OFF — {offer.title}
+                </span>
+                <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginLeft: 10 }}>
+                  {offer.slotType === 'PEAK' ? 'Evening/Night slots' : offer.slotType === 'OFF_PEAK' ? 'Day slots' : 'All slots'}
+                  {' · '}Valid: {new Date(offer.startDate).toLocaleDateString('en-IN')} – {new Date(offer.endDate).toLocaleDateString('en-IN')}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

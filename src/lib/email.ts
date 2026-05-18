@@ -304,3 +304,61 @@ export async function sendAdminCancellationAlert({
   `);
   await transporter.sendMail({ from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`, to: ADMIN_EMAIL, subject, html });
 }
+
+export async function sendOfferAnnouncement({
+  toList,
+  offerTitle,
+  description,
+  discountPct,
+  slotType,
+  startDate,
+  endDate,
+}: {
+  toList: string[];
+  offerTitle: string;
+  description: string;
+  discountPct: number;
+  slotType: string;
+  startDate: string;
+  endDate: string;
+}) {
+  const slotLabel =
+    slotType === 'PEAK' ? 'Evening/Night slots (6 PM – 6 AM)' :
+    slotType === 'OFF_PEAK' ? 'Day slots (6 AM – 6 PM)' :
+    'All slots (Day & Night)';
+
+  const subject = `${discountPct}% OFF at East Welfare Turf — ${offerTitle}`;
+  const html = baseTemplate(`
+    <h2 style="color: #FFD700; font-size: 24px;">🎉 Special Offer Alert!</h2>
+    <p style="font-size: 16px; margin-bottom: 8px;">We have an exciting offer just for you!</p>
+
+    <div style="background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 16px; padding: 24px; margin: 20px 0; border: 2px solid #FFD700; text-align: center;">
+      <div style="font-size: 48px; font-weight: 900; color: #FFD700;">${discountPct}% OFF</div>
+      <div style="font-size: 22px; font-weight: 700; color: #fff; margin-top: 8px;">${offerTitle}</div>
+      ${description ? `<div style="color: rgba(255,255,255,0.7); margin-top: 8px; font-size: 14px;">${description}</div>` : ''}
+    </div>
+
+    <div style="background: #141420; border-radius: 12px; padding: 20px; margin: 20px 0;">
+      <p style="margin: 0 0 8px;"><strong>Valid Slots:</strong> ${slotLabel}</p>
+      <p style="margin: 0 0 8px;"><strong>Valid From:</strong> ${startDate}</p>
+      <p style="margin: 0;"><strong>Valid Until:</strong> ${endDate}</p>
+    </div>
+
+    <p style="color: rgba(255,255,255,0.7);">Hurry — limited slots available at this price!</p>
+    <a href="https://eastwelfareturf.vercel.app/book" style="display: inline-block; margin-top: 16px; padding: 14px 32px; background: #FFD700; color: #000; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">⚽ Book Now</a>
+  `);
+
+  // Send individually to avoid spam filters blocking bulk "to" lists
+  for (const email of toList) {
+    try {
+      await transporter.sendMail({
+        from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`,
+        to: email,
+        subject,
+        html,
+      });
+    } catch (e) {
+      console.error(`Failed to send offer email to ${email}:`, e);
+    }
+  }
+}

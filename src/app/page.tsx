@@ -2,9 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { MapPin, Trophy, CalendarCheck, LogIn, User, Phone, Mail, Clock, Sun, Moon, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MapPin, Trophy, CalendarCheck, LogIn, User, Phone, Mail, Clock, Sun, Moon, Zap, Tag } from 'lucide-react';
 import { useSession, signIn } from 'next-auth/react';
+import { useState, useEffect } from 'react';
 import styles from './page.module.css';
 
 export default function Home() {
@@ -19,6 +20,11 @@ export default function Home() {
     hidden: { opacity: 0, y: 40 },
     visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 80, damping: 20 } }
   };
+
+  const [activeOffers, setActiveOffers] = useState<any[]>([]);
+  useEffect(() => {
+    fetch('/api/offers').then(r => r.json()).then(setActiveOffers).catch(() => {});
+  }, []);
 
   return (
     <main className={styles.main}>
@@ -43,6 +49,44 @@ export default function Home() {
               <MapPin size={16} className={styles.badgeIcon} /> Mannar East Welfare School, Kerala
             </span>
           </motion.div>
+
+          {/* Active offer banner */}
+          <AnimatePresence>
+            {activeOffers.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,140,0,0.15))',
+                  border: '1px solid rgba(255,215,0,0.5)',
+                  borderRadius: 16,
+                  padding: '14px 22px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 6,
+                  backdropFilter: 'blur(10px)',
+                  maxWidth: 480,
+                  margin: '0 auto',
+                }}
+              >
+                {activeOffers.map(offer => (
+                  <div key={offer.id} style={{ textAlign: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', marginBottom: 4 }}>
+                      <Tag size={16} color="#FFD700" />
+                      <span style={{ color: '#FFD700', fontWeight: 800, fontSize: '1.1rem' }}>{offer.discountPct}% OFF — {offer.title}</span>
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.82rem' }}>
+                      {offer.slotType === 'PEAK' ? 'Evening/Night slots' : offer.slotType === 'OFF_PEAK' ? 'Day slots' : 'All slots'}
+                      &nbsp;·&nbsp;
+                      Valid: {new Date(offer.startDate).toLocaleDateString('en-IN')} – {new Date(offer.endDate).toLocaleDateString('en-IN')}
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
           <motion.h1 variants={itemVariants} className={styles.title}>EAST WELFARE TURF</motion.h1>
           <motion.p variants={itemVariants} className={styles.subtitle}>
             Premium 6-a-side football on high-quality artificial grass with LED floodlights.
