@@ -385,7 +385,10 @@ export default function BookPage() {
               ) : isBooked ? (
                 <div className={styles.priceTag} style={{ color: '#FF4444' }}>✕</div>
               ) : hasDiscount ? (
-                <div className={styles.priceTag} style={{ color: '#FFD700' }}>₹{finalPrice}</div>
+                <div className={styles.priceTag} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                  <span style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through', fontSize: '0.6rem' }}>₹{basePrice}</span>
+                  <span style={{ color: '#FFD700', fontWeight: 800 }}>₹{finalPrice}</span>
+                </div>
               ) : (
                 <div className={styles.priceTag}>₹{basePrice}</div>
               )}
@@ -491,7 +494,23 @@ export default function BookPage() {
 
                 <div className={styles.totalSection}>
                   <span>Total Amount:</span>
-                  <strong>₹{selectedSlot !== null && calculateTotal(selectedSlot, duration, selectedDate).totalFinal}</strong>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+                    {selectedSlot !== null && (() => {
+                      const { totalBase, totalFinal } = calculateTotal(selectedSlot, duration, selectedDate);
+                      const hasOffer = totalFinal < totalBase;
+                      return (
+                        <>
+                          {hasOffer && (
+                            <span style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through', fontSize: '0.85rem' }}>₹{totalBase}</span>
+                          )}
+                          <strong style={{ color: hasOffer ? '#FFD700' : 'var(--primary-accent)', fontSize: '1.2rem' }}>₹{totalFinal}</strong>
+                          {hasOffer && (
+                            <span style={{ color: '#00E676', fontSize: '0.72rem', fontWeight: 600 }}>Offer applied 🎉</span>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
                 </div>
 
                 <div className={styles.modalActions}>

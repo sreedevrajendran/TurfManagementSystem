@@ -37,6 +37,7 @@ export async function sendBookingConfirmation({
   startTime,
   duration,
   amount,
+  originalAmount,
   offer,
 }: {
   to: string;
@@ -46,6 +47,7 @@ export async function sendBookingConfirmation({
   startTime: number;
   duration: number;
   amount: number;
+  originalAmount?: number;
   offer?: { title: string; discountPct: number; slotType: string } | null;
 }) {
   const formatHour = (hour: number) => {
@@ -65,6 +67,11 @@ export async function sendBookingConfirmation({
     </div>
   ` : '';
 
+  const savings = originalAmount && originalAmount > amount ? originalAmount - amount : 0;
+  const amountHtml = savings > 0
+    ? `<span style="color: rgba(255,255,255,0.4); text-decoration: line-through; font-size: 14px; margin-right: 8px;">₹${originalAmount}</span><span style="color: #FFD700; font-size: 20px; font-weight: 900;">₹${amount}</span> <span style="color: #00e676; font-size: 13px;">(You saved ₹${savings}!)</span>`
+    : `<span style="color: #00e676; font-size: 18px;">₹${amount}</span>`;
+
   const subject = "✅ Booking Confirmed – East Welfare Turf";
   const html = baseTemplate(`
     <h2 style="color: #00e676; font-size: 22px;">Booking Confirmed!</h2>
@@ -75,7 +82,7 @@ export async function sendBookingConfirmation({
       <p style="margin: 0 0 8px;"><strong>Date:</strong> ${date}</p>
       <p style="margin: 0 0 8px;"><strong>Time:</strong> ${formatHour(startTime)} – ${formatHour((startTime + duration) % 24)}</p>
       <p style="margin: 0 0 8px;"><strong>Duration:</strong> ${duration} hour(s)</p>
-      <p style="margin: 0;"><strong>Amount Due at Venue:</strong> <span style="color: #00e676; font-size: 18px;">₹${amount}</span>${offer ? ` <span style="color: rgba(255,255,255,0.5); text-decoration: line-through; font-size: 13px; margin-left: 6px;">offer price applied</span>` : ''}</p>
+      <p style="margin: 0;"><strong>Amount Due at Venue:</strong> ${amountHtml}</p>
     </div>
     <p style="color: #aaa;">Please arrive 10 minutes early. Payment is collected at the venue. See you on the pitch! ⚽</p>
   `);
