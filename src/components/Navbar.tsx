@@ -1,42 +1,79 @@
 "use client";
 
 import Link from "next/link";
-import { useSession } from "next-auth/react";
-import { User, LogIn } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
+import { User, LogOut } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const { data: session } = useSession();
   const pathname = usePathname();
 
-  // Don't show floating nav on the dashboard itself or admin pages to avoid clutter
-  if (pathname === "/dashboard" || pathname.startsWith("/admin")) {
-    return null;
-  }
+  // Don't show on admin pages — admin has its own header
+  if (pathname.startsWith("/admin")) return null;
+
+  if (!session) return null;
+
+  const isAdmin = (session.user as any)?.role === "ADMIN";
 
   return (
-    <div style={{ position: "fixed", top: "24px", right: "24px", zIndex: 50 }}>
-      {session ? (
-        <Link 
-          href="/dashboard" 
+    <div style={{
+      position: "fixed",
+      top: "16px",
+      right: "16px",
+      zIndex: 50,
+      display: "flex",
+      gap: "10px",
+      alignItems: "center",
+    }}>
+      {/* Dashboard link (only on non-dashboard pages) */}
+      {pathname !== "/dashboard" && (
+        <Link
+          href="/dashboard"
           style={{
             display: "flex",
             alignItems: "center",
             gap: "8px",
             background: "var(--bg-surface)",
             color: "#fff",
-            padding: "10px 20px",
+            padding: "9px 18px",
             borderRadius: "99px",
             textDecoration: "none",
             fontWeight: "bold",
+            fontSize: "14px",
             border: "1px solid var(--border-color)",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
-            backdropFilter: "blur(10px)"
+            boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+            backdropFilter: "blur(10px)",
           }}
         >
-          <User size={18} color="var(--primary-accent)" /> Dashboard
+          <User size={16} color="var(--primary-accent)" />
+          {isAdmin ? "Admin Panel" : "Dashboard"}
         </Link>
-      ) : null}
+      )}
+
+      {/* Logout button — always visible when signed in */}
+      <button
+        onClick={() => signOut({ callbackUrl: "/" })}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          background: "rgba(255,68,68,0.1)",
+          color: "#ff6b6b",
+          padding: "9px 18px",
+          borderRadius: "99px",
+          fontWeight: "bold",
+          fontSize: "14px",
+          border: "1px solid rgba(255,68,68,0.3)",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+          backdropFilter: "blur(10px)",
+          cursor: "pointer",
+          fontFamily: "inherit",
+        }}
+      >
+        <LogOut size={16} />
+        Sign Out
+      </button>
     </div>
   );
 }

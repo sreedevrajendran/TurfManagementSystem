@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import styles from "./page.module.css";
 import { AlertCircle, CheckCircle } from "lucide-react";
+import LogoutButton from "@/components/LogoutButton";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -25,8 +26,11 @@ export default async function DashboardPage() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Welcome, {session.user.name}</h1>
-        <p className={styles.subtitle}>Manage your bookings and view your due status here.</p>
+        <div>
+          <h1 className={styles.title}>Welcome, {session.user.name}</h1>
+          <p className={styles.subtitle}>Manage your bookings and view your due status here.</p>
+        </div>
+        <LogoutButton />
       </header>
 
       <div className={styles.grid}>

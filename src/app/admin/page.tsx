@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { AlertTriangle, CalendarOff } from 'lucide-react';
 import styles from './page.module.css';
+import LogoutButton from '@/components/LogoutButton';
 
 type Booking = {
   id: string;
@@ -125,6 +126,7 @@ export default function AdminDashboard() {
         className={styles.header}
       >
         <h1 className={styles.title}>Admin Dashboard - EAST WELFARE TURF</h1>
+        <LogoutButton />
       </motion.header>
 
       <motion.div 
