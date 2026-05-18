@@ -322,24 +322,27 @@ export default function BookPage() {
               }`}
               title={isPast ? 'This slot has already passed' : isBooked ? 'Already booked' : hasDiscount ? `${discount}% OFF Special Offer!` : ''}
             >
-              <div>{formatTime(hour)}</div>
-              {isCurrentHour
-                ? <div className={styles.nowTag}>NOW</div>
-                : isPast
-                  ? <div className={styles.priceTag}>Past</div>
-                  : (
-                    <div className={styles.priceTag} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      {hasDiscount ? (
-                        <>
-                          <span style={{ textDecoration: 'line-through', opacity: 0.5, fontSize: '0.7rem' }}>₹{basePrice}</span>
-                          <span style={{ color: '#FFD700', fontWeight: 'bold' }}>₹{finalPrice} <Tag size={10} /></span>
-                        </>
-                      ) : (
-                        `₹${basePrice}`
-                      )}
-                    </div>
-                  )
-              }
+              {/* Left side: time + NOW badge */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>{formatTime(hour)}</span>
+                {isCurrentHour && <div className={styles.nowTag}>NOW</div>}
+              </div>
+
+              {/* Right side: price or status */}
+              <div className={styles.priceTag} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                {isPast ? (
+                  <span style={{ opacity: 0.5, fontSize: '0.8rem' }}>Past</span>
+                ) : isBooked ? (
+                  <span style={{ color: '#FF4444', fontSize: '0.85rem' }}>Booked</span>
+                ) : hasDiscount ? (
+                  <>
+                    <span style={{ textDecoration: 'line-through', opacity: 0.5, fontSize: '0.75rem' }}>₹{basePrice}</span>
+                    <span style={{ color: '#FFD700', fontWeight: 'bold' }}>₹{finalPrice} <Tag size={10} /></span>
+                  </>
+                ) : (
+                  <span>₹{basePrice}</span>
+                )}
+              </div>
             </motion.div>
           );
         })}
