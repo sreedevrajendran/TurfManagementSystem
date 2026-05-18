@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      include: { user: true }
+      include: { user: true, team: true }
     });
 
     if (!booking) {
@@ -53,8 +53,8 @@ export async function POST(req: NextRequest) {
         await sendCancellationEmail({
           to: booking.user.email,
           name: booking.user.name || "User",
-          teamName: booking.teamName,
-          date: booking.date,
+          teamName: booking.team?.name || "Your Team",
+          date: booking.date.toISOString().split('T')[0], // format date for email
           startTime: booking.startTime,
           duration: booking.durationHours,
         });
