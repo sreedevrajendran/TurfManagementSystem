@@ -1,0 +1,245 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 10px;
+  background: linear-gradient(to right, #ffffff, var(--primary-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+.dateScroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 20px;
+  margin-bottom: 40px;
+  scrollbar-width: thin;
+}
+
+.dateCard {
+  min-width: 80px;
+  padding: 16px 12px;
+  border-radius: 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+}
+
+.dateCard:hover {
+  background: var(--bg-surface-hover);
+  transform: translateY(-4px);
+}
+
+.dateCard.selected {
+  background: var(--primary-accent);
+  color: #000;
+  border-color: var(--primary-accent);
+  box-shadow: 0 8px 20px var(--primary-accent-glow);
+}
+
+.dateDay {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dateNumber {
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.slotsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 20px;
+}
+
+.slot {
+  position: relative;
+  padding: 20px 12px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 700;
+  transition: all var(--transition-smooth);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.slot.available {
+  background: var(--slot-available-bg);
+  color: #000;
+  border: 2px solid var(--primary-accent);
+}
+
+.slot.available:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px var(--primary-accent-glow);
+}
+
+.slot.selected {
+  background: var(--primary-accent);
+  color: #000;
+  border: 2px solid var(--primary-accent);
+  box-shadow: 0 0 25px var(--primary-accent-glow);
+  transform: scale(1.05);
+}
+
+.slot.booked {
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 1px dashed var(--border-color);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.priceTag {
+  font-size: 0.8rem;
+  margin-top: 6px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  padding: 40px;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.modalTitle {
+  font-size: 1.75rem;
+  margin-bottom: 24px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.inputGroup {
+  margin-bottom: 20px;
+}
+
+.inputGroup label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.inputField, .durationSelect {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all var(--transition-fast);
+  font-family: inherit;
+}
+
+.inputField:focus, .durationSelect:focus {
+  outline: none;
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 2px var(--primary-accent-muted);
+}
+
+.totalSection {
+  margin: 24px 0;
+  padding: 20px;
+  background: var(--bg-surface);
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(0, 230, 118, 0.2);
+}
+
+.totalSection span {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
+
+.totalSection strong {
+  font-size: 1.5rem;
+  color: var(--primary-accent);
+  font-weight: 800;
+}
+
+.modalActions {
+  display: flex;
+  gap: 16px;
+}
+
+.cancelBtn, .confirmBtn {
+  flex: 1;
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.cancelBtn {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.cancelBtn:hover {
+  background: var(--bg-surface);
+}
+
+.confirmBtn {
+  background: var(--primary-accent);
+  color: #000;
+  border: none;
+}
+
+.confirmBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--primary-accent-glow);
+  background: #00F87F;
+}

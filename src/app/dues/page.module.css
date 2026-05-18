@@ -1,0 +1,110 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 60px 20px;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 40px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 24px;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 32px;
+}
+
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 30px;
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.5rem;
+  color: #fff;
+  margin-bottom: 24px;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 0;
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dueItem, .historyItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.dueItem strong, .historyItem strong {
+  color: #fff;
+  font-size: 1.125rem;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.dueItem p, .historyItem p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.dueAmount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #FF4444;
+}
+
+.paidStatus {
+  color: #00E676;
+  font-weight: 600;
+  font-size: 0.875rem;
+  background: rgba(0, 230, 118, 0.1);
+  padding: 4px 12px;
+  border-radius: 99px;
+}
+
+.cancelledStatus {
+  color: #FFAB00;
+  font-weight: 600;
+  font-size: 0.875rem;
+  background: rgba(255, 171, 0, 0.1);
+  padding: 4px 12px;
+  border-radius: 99px;
+}
