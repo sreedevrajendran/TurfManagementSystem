@@ -7,7 +7,7 @@ import { sendBookingConfirmation } from "@/lib/email";
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user) {
+  if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -20,18 +20,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Find or create the Team record
+    // ── Ensure User exists in DB (upsert by email) ──────────────────────────
+    // This handles the case where NextAuth JWT + PrismaAdapter hasn't saved
+    // the user to the DB yet (foreign key fix).
+    const dbUser = await prisma.user.upsert({
+      where: { email: session.user.email },
+      update: {
+        name: session.user.name ?? undefined,
+        image: (session.user as any).image ?? undefined,
+      },
+      create: {
+        email: session.user.email,
+        name: session.user.name ?? null,
+        image: (session.user as any).image ?? null,
+        role: isAdmin ? "ADMIN" : "CUSTOMER",
+      },
+    });
+
+    // ── Find or create Team record ───────────────────────────────────────────
     let team = null;
     if (isAdmin && phone) {
-      // Admin provides team details — upsert by phone
       team = await prisma.team.upsert({
         where: { phone },
         update: { name: teamName },
         create: { name: teamName, phone },
       });
-    } else if (!isAdmin) {
-      // Regular user — find or create team by their name + userId as phone fallback
-      const userPhone = `USER-${(session.user as any).id}`;
+    } else {
+      // Regular user — use their DB user ID as a unique phone key
+      const userPhone = `USER-${dbUser.id}`;
       team = await prisma.team.upsert({
         where: { phone: userPhone },
         update: { name: teamName },
@@ -39,7 +55,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Create the booking
+    // ── Create Booking ───────────────────────────────────────────────────────
     const booking = await prisma.booking.create({
       data: {
         date: new Date(date),
@@ -48,26 +64,24 @@ export async function POST(req: NextRequest) {
         amount: Number(amount),
         status: "DUE",
         teamId: team?.id ?? undefined,
-        userId: (session.user as any).id ?? undefined,
+        userId: dbUser.id,
       },
     });
 
-    // Send confirmation email
-    const userEmail = session.user?.email;
-    if (userEmail) {
-      try {
-        await sendBookingConfirmation({
-          to: userEmail,
-          name: session.user?.name || "Customer",
-          teamName: teamName.trim(),
-          date: new Date(date).toLocaleDateString("en-IN"),
-          startTime: Number(startTime),
-          duration: Number(durationHours),
-          amount: Number(amount),
-        });
-      } catch (e) {
-        console.error("Confirmation email failed:", e);
-      }
+    // ── Send confirmation email ──────────────────────────────────────────────
+    try {
+      await sendBookingConfirmation({
+        to: session.user.email,
+        name: session.user.name || "Customer",
+        teamName: teamName.trim(),
+        date: new Date(date).toLocaleDateString("en-IN"),
+        startTime: Number(startTime),
+        duration: Number(durationHours),
+        amount: Number(amount),
+      });
+    } catch (e) {
+      console.error("Confirmation email failed:", e);
+      // Don't fail the booking if email fails
     }
 
     return NextResponse.json({ success: true, booking });
