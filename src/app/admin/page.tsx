@@ -636,11 +636,11 @@ export default function AdminDashboard() {
                           {editingBlock?.id === b.id ? (
                             <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                               <input
-                                value={editingBlock.reason}
-                                onChange={e => setEditingBlock({ ...editingBlock, reason: e.target.value })}
+                                value={editingBlock!.reason}
+                                onChange={e => setEditingBlock({ ...editingBlock!, reason: e.target.value })}
                                 style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: '#fff', padding: '4px 8px', borderRadius: 6, fontSize: '0.85rem', fontFamily: 'inherit', flex: 1 }}
                               />
-                              <button onClick={() => handleEditBlockReason(b.id, editingBlock.reason)} style={{ background: 'rgba(0,230,118,0.15)', border: '1px solid rgba(0,230,118,0.3)', color: '#00E676', padding: '4px 10px', borderRadius: 6, cursor: 'pointer', fontSize: '0.8rem', fontFamily: 'inherit' }}>Save</button>
+                              <button onClick={() => handleEditBlockReason(b.id, editingBlock!.reason)} style={{ background: 'rgba(0,230,118,0.15)', border: '1px solid rgba(0,230,118,0.3)', color: '#00E676', padding: '4px 10px', borderRadius: 6, cursor: 'pointer', fontSize: '0.8rem', fontFamily: 'inherit' }}>Save</button>
                               <button onClick={() => setEditingBlock(null)} style={{ background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', padding: '4px 8px', borderRadius: 6, cursor: 'pointer', fontSize: '0.8rem', fontFamily: 'inherit' }}>✕</button>
                             </div>
                           ) : (
