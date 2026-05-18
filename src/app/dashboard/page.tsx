@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import styles from "./page.module.css";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
+import CancelBookingButton from "@/components/CancelBookingButton";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -17,7 +18,10 @@ export default async function DashboardPage() {
   const userBookings = await prisma.booking.findMany({
     where: { userId: (session.user as any).id },
     include: { team: true },
-    orderBy: { date: "desc" }
+    orderBy: [
+      { date: "desc" },
+      { startTime: "desc" }
+    ]
   });
 
   const pendingDues = userBookings.filter((b: typeof userBookings[0]) => b.status === "DUE");
@@ -60,6 +64,7 @@ export default async function DashboardPage() {
                       {formatTime(due.startTime)} – {formatTime((due.startTime + due.durationHours) % 24)}
                     </p>
                     <p>Team: {due.team?.name}</p>
+                    <CancelBookingButton bookingId={due.id} />
                   </div>
                   <span className={styles.dueAmount}>₹{due.amount}</span>
                 </li>

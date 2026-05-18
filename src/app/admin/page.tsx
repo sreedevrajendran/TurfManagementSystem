@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { AlertTriangle, CalendarOff, Mail, Tag, RefreshCw } from 'lucide-react';
@@ -47,6 +47,8 @@ export default function AdminDashboard() {
   const [blockReason, setBlockReason] = useState('Panchayath Event');
   const [emailStatus, setEmailStatus] = useState('');
   const [dueAlertLoading, setDueAlertLoading] = useState(false);
+  const [filterType, setFilterType] = useState<'ALL' | 'TODAY' | 'DUE' | 'PAID'>('ALL');
+  const tableRef = useRef<HTMLElement>(null);
 
   // Offers State
   const [offers, setOffers] = useState<SpecialOffer[]>([]);
@@ -135,6 +137,11 @@ export default function AdminDashboard() {
     fetchBookings(); 
     fetchOffers();
   }, []);
+
+  const handleStatCardClick = (type: 'ALL' | 'TODAY' | 'DUE' | 'PAID') => {
+    setFilterType(type);
+    tableRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   // ── Derived stats ────────────────────────────────────────────────────────
   const todayStr = new Date().toLocaleDateString('en-IN');
@@ -295,19 +302,19 @@ export default function AdminDashboard() {
 
       {/* ── STATS ── */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className={styles.statsGrid}>
-        <div className={styles.statCard}>
+        <div className={styles.statCard} style={{ cursor: 'pointer' }} onClick={() => handleStatCardClick('TODAY')}>
           <h3>Bookings Today</h3>
           <p>{loading ? '...' : todayBookings}</p>
         </div>
-        <div className={styles.statCard}>
+        <div className={styles.statCard} style={{ cursor: 'pointer' }} onClick={() => handleStatCardClick('DUE')}>
           <h3>Total Pending Dues</h3>
           <p style={{ color: '#FF4444' }}>{loading ? '...' : `₹${totalDue.toLocaleString('en-IN')}`}</p>
         </div>
-        <div className={styles.statCard}>
+        <div className={styles.statCard} style={{ cursor: 'pointer' }} onClick={() => handleStatCardClick('PAID')}>
           <h3>Revenue Collected</h3>
           <p style={{ color: '#00E676' }}>{loading ? '...' : `₹${totalPaidThisMonth.toLocaleString('en-IN')}`}</p>
         </div>
-        <div className={styles.statCard}>
+        <div className={styles.statCard} style={{ cursor: 'pointer' }} onClick={() => handleStatCardClick('ALL')}>
           <h3>Total Bookings</h3>
           <p>{loading ? '...' : bookings.filter(b => b.status !== 'CANCELLED' && b.status !== 'BLOCKED').length}</p>
         </div>
@@ -476,17 +483,31 @@ export default function AdminDashboard() {
 
       {/* ── BOOKINGS TABLE ── */}
       <motion.section
+        ref={tableRef}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
         className={styles.section}
       >
-        <h2 className={styles.sectionTitle}>
-          All Bookings
-          <button onClick={fetchBookings} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-            <RefreshCw size={18} />
-          </button>
-        </h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 className={styles.sectionTitle}>
+            {filterType === 'TODAY' ? "Today's Bookings" : 
+             filterType === 'DUE' ? "Pending Dues" : 
+             filterType === 'PAID' ? "Paid Bookings" : 
+             "Recent Bookings"}
+            <button onClick={fetchBookings} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+              <RefreshCw size={18} />
+            </button>
+          </h2>
+          {filterType !== 'ALL' && (
+            <button 
+              onClick={() => setFilterType('ALL')} 
+              style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none', padding: '4px 12px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.85rem' }}
+            >
+              Clear Filter
+            </button>
+          )}
+        </div>
         {loading ? (
           <p style={{ color: 'var(--text-secondary)' }}>Loading bookings...</p>
         ) : bookings.length === 0 ? (
@@ -505,7 +526,14 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {bookings.map((booking) => (
+                {bookings
+                  .filter(b => {
+                    if (filterType === 'TODAY') return b.date === todayStr && b.status !== 'CANCELLED';
+                    if (filterType === 'DUE') return b.status === 'DUE';
+                    if (filterType === 'PAID') return b.status === 'PAID';
+                    return true; // ALL
+                  })
+                  .map((booking) => (
                   <tr key={booking.id} style={{ opacity: booking.status === 'CANCELLED' || booking.status === 'BLOCKED' ? 0.5 : 1 }}>
                     <td><strong>{booking.teamName}</strong></td>
                     <td style={{ fontSize: '0.85rem' }}>{booking.phone}</td>
