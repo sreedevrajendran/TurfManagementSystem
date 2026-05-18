@@ -56,11 +56,11 @@ export default function Home() {
             </Link>
             
             {session ? (
-              <Link href="/dues" className={styles.ghostButton}>
+              <Link href="/dashboard" className={styles.ghostButton}>
                  <User size={20} style={{ marginRight: 8 }} /> My Dashboard
               </Link>
             ) : (
-              <button onClick={() => signIn("google")} className={styles.googleButton}>
+              <button onClick={() => signIn("google", { callbackUrl: "/dashboard" })} className={styles.googleButton}>
                  <LogIn size={20} style={{ marginRight: 8 }} /> Sign In with Google
               </button>
             )}

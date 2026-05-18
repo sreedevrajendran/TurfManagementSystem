@@ -10,8 +10,8 @@ export async function proxy(request: NextRequest) {
       secret: process.env.NEXTAUTH_SECRET,
     });
 
-    if (!token) {
-      const loginUrl = new URL("/login", request.url);
+    if (!token || token.role !== "ADMIN") {
+      const loginUrl = new URL("/admin-login", request.url);
       return NextResponse.redirect(loginUrl);
     }
   }
