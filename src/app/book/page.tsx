@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -342,95 +343,116 @@ export default function BookPage() {
       {/* BookMyShow-style legend */}
       <div style={{ display: 'flex', gap: 16, marginTop: 20, marginBottom: 8, flexWrap: 'wrap', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 18, height: 18, borderRadius: 4, background: 'var(--slot-available-bg)', border: '2px solid var(--primary-accent)', display: 'inline-block' }} />
+          <span style={{ width: 16, height: 16, borderRadius: 3, background: 'var(--slot-available-bg)', border: '2px solid var(--primary-accent)', display: 'inline-block' }} />
           Available
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 18, height: 18, borderRadius: 4, background: 'var(--bg-surface)', border: '1px dashed var(--border-color)', opacity: 0.6, display: 'inline-block' }} />
+          <span style={{ width: 16, height: 16, borderRadius: 3, background: 'var(--bg-surface)', border: '1px dashed var(--border-color)', opacity: 0.6, display: 'inline-block' }} />
           Booked
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 18, height: 18, borderRadius: 4, background: '#0f0f12', border: '1px solid #1e1e28', display: 'inline-block' }} />
+          <span style={{ width: 16, height: 16, borderRadius: 3, background: '#0f0f12', border: '1px solid #1e1e28', display: 'inline-block' }} />
           Past
         </span>
       </div>
 
-      <AnimatePresence>
-        {isModalOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className={styles.modalOverlay}
-            onClick={(e) => { if (e.target === e.currentTarget) setIsModalOpen(false); }}
-          >
+      {/* Portal-based bottom sheet — renders directly to document.body so
+          it's never clipped/hidden by parent transforms or overflow */}
+      {isModalOpen && typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {isModalOpen && (
             <motion.div
-              ref={modalRef}
-              initial={{ opacity: 0, y: '100%' }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-              className={styles.modal}
+              key="overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={{
+                position: 'fixed', inset: 0,
+                background: 'rgba(0,0,0,0.7)',
+                backdropFilter: 'blur(8px)',
+                display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+                zIndex: 9999,
+              }}
+              onClick={(e) => { if (e.target === e.currentTarget) setIsModalOpen(false); }}
             >
-              {/* drag handle for mobile */}
-              <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 4, margin: '0 auto 20px' }} />
-              <h2 className={styles.modalTitle}>Book Slot</h2>
+              <motion.div
+                key="sheet"
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 30, stiffness: 350 }}
+                style={{
+                  background: 'var(--bg-color)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '22px 22px 0 0',
+                  padding: '16px 20px 40px',
+                  width: '100%',
+                  maxWidth: 500,
+                  maxHeight: '90vh',
+                  overflowY: 'auto',
+                  boxShadow: '0 -10px 40px rgba(0,0,0,0.5)',
+                }}
+              >
+                {/* drag handle */}
+                <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.15)', borderRadius: 4, margin: '0 auto 20px' }} />
+                <h2 className={styles.modalTitle}>Book Slot</h2>
 
-              {/* Team name — admin can edit, user sees their name pre-filled */}
-              <div className={styles.inputGroup}>
-                <label>Team Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Mannar Strikers"
-                  className={styles.inputField}
-                  value={teamName}
-                  onChange={(e) => setTeamName(e.target.value)}
-                  readOnly={!isAdmin && !!session?.user?.name}
-                />
-              </div>
-
-              {/* Phone — only required for admin bookings */}
-              {isAdmin && (
                 <div className={styles.inputGroup}>
-                  <label>Team WhatsApp Number</label>
+                  <label>Team Name</label>
                   <input
-                    type="tel"
-                    placeholder="e.g. +91 9876543210"
+                    type="text"
+                    placeholder="e.g. Mannar Strikers"
                     className={styles.inputField}
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    value={teamName}
+                    onChange={(e) => setTeamName(e.target.value)}
+                    readOnly={!isAdmin && !!session?.user?.name}
                   />
                 </div>
-              )}
 
-              <div className={styles.inputGroup}>
-                <label>Duration</label>
-                <select
-                  className={styles.durationSelect}
-                  value={duration}
-                  onChange={(e) => setDuration(Number(e.target.value))}
-                >
-                  <option value={1}>1 Hour ({formatTime(selectedSlot!)} – {formatTime((selectedSlot! + 1) % 24)})</option>
-                  <option value={2}>2 Hours ({formatTime(selectedSlot!)} – {formatTime((selectedSlot! + 2) % 24)})</option>
-                  <option value={3}>3 Hours ({formatTime(selectedSlot!)} – {formatTime((selectedSlot! + 3) % 24)})</option>
-                </select>
-              </div>
+                {isAdmin && (
+                  <div className={styles.inputGroup}>
+                    <label>Team WhatsApp Number</label>
+                    <input
+                      type="tel"
+                      placeholder="e.g. +91 9876543210"
+                      className={styles.inputField}
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                    />
+                  </div>
+                )}
 
-              <div className={styles.totalSection}>
-                <span>Total Amount:</span>
-                <strong>₹{selectedSlot !== null && calculateTotal(selectedSlot, duration, selectedDate).totalFinal}</strong>
-              </div>
+                <div className={styles.inputGroup}>
+                  <label>Duration</label>
+                  <select
+                    className={styles.durationSelect}
+                    value={duration}
+                    onChange={(e) => setDuration(Number(e.target.value))}
+                  >
+                    <option value={1}>1 Hour ({formatTime(selectedSlot!)} – {formatTime((selectedSlot! + 1) % 24)})</option>
+                    <option value={2}>2 Hours ({formatTime(selectedSlot!)} – {formatTime((selectedSlot! + 2) % 24)})</option>
+                    <option value={3}>3 Hours ({formatTime(selectedSlot!)} – {formatTime((selectedSlot! + 3) % 24)})</option>
+                  </select>
+                </div>
 
-              <div className={styles.modalActions}>
-                <button className={styles.cancelBtn} onClick={() => setIsModalOpen(false)}>Cancel</button>
-                <button className={styles.confirmBtn} onClick={handleConfirm} disabled={isLoading}>
-                  {isLoading ? 'Booking...' : 'Confirm Booking'}
-                </button>
-              </div>
+                <div className={styles.totalSection}>
+                  <span>Total Amount:</span>
+                  <strong>₹{selectedSlot !== null && calculateTotal(selectedSlot, duration, selectedDate).totalFinal}</strong>
+                </div>
+
+                <div className={styles.modalActions}>
+                  <button className={styles.cancelBtn} onClick={() => setIsModalOpen(false)}>Cancel</button>
+                  <button className={styles.confirmBtn} onClick={handleConfirm} disabled={isLoading}>
+                    {isLoading ? 'Booking...' : 'Confirm Booking'}
+                  </button>
+                </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+
       <CustomModal {...customModal} />
     </div>
   );
