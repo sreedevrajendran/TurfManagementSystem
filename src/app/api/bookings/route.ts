@@ -128,6 +128,27 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // -- Find active offer that applies to this booking (if any)
+    let appliedOffer: { title: string; discountPct: number; slotType: string } | null = null;
+    try {
+      const bookingDate = new Date(date);
+      const isPeak = Number(startTime) >= 18 || Number(startTime) < 6; // 6PM–6AM = peak
+      const slotLabel = isPeak ? 'PEAK' : 'OFF_PEAK';
+      const offer = await prisma.specialOffer.findFirst({
+        where: {
+          active: true,
+          startDate: { lte: bookingDate },
+          endDate: { gte: bookingDate },
+          OR: [
+            { slotType: 'BOTH' },
+            { slotType: slotLabel },
+          ],
+        },
+        select: { title: true, discountPct: true, slotType: true },
+      });
+      appliedOffer = offer;
+    } catch { /* non-critical */ }
+
     // -- Send confirmation email to user
     try {
       await sendBookingConfirmation({
@@ -138,6 +159,7 @@ export async function POST(req: NextRequest) {
         startTime: Number(startTime),
         duration: Number(durationHours),
         amount: Number(amount),
+        offer: appliedOffer,
       });
     } catch (e) {
       console.error("Confirmation email failed:", e);

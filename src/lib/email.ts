@@ -37,6 +37,7 @@ export async function sendBookingConfirmation({
   startTime,
   duration,
   amount,
+  offer,
 }: {
   to: string;
   name: string;
@@ -45,6 +46,7 @@ export async function sendBookingConfirmation({
   startTime: number;
   duration: number;
   amount: number;
+  offer?: { title: string; discountPct: number; slotType: string } | null;
 }) {
   const formatHour = (hour: number) => {
     const h = hour % 24;
@@ -52,22 +54,35 @@ export async function sendBookingConfirmation({
     const displayHour = h % 12 || 12;
     return `${displayHour}:00 ${ampm}`;
   };
+
+  const offerBadge = offer ? `
+    <div style="background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,140,0,0.15)); border: 1px solid rgba(255,215,0,0.5); border-radius: 12px; padding: 14px 18px; margin: 16px 0; text-align: center;">
+      <div style="font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 4px;">🎉 Special Offer Applied</div>
+      <div style="font-size: 20px; font-weight: 900; color: #FFD700;">${offer.discountPct}% OFF — ${offer.title}</div>
+      <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">
+        ${offer.slotType === 'PEAK' ? 'Evening/Night slots' : offer.slotType === 'OFF_PEAK' ? 'Day slots' : 'All slots'}
+      </div>
+    </div>
+  ` : '';
+
   const subject = "✅ Booking Confirmed – East Welfare Turf";
   const html = baseTemplate(`
     <h2 style="color: #00e676; font-size: 22px;">Booking Confirmed!</h2>
     <p>Hi <strong>${name}</strong>, your slot has been successfully booked.</p>
+    ${offerBadge}
     <div style="background: #141420; border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #00e676;">
       <p style="margin: 0 0 8px;"><strong>Team:</strong> ${teamName}</p>
       <p style="margin: 0 0 8px;"><strong>Date:</strong> ${date}</p>
       <p style="margin: 0 0 8px;"><strong>Time:</strong> ${formatHour(startTime)} – ${formatHour((startTime + duration) % 24)}</p>
       <p style="margin: 0 0 8px;"><strong>Duration:</strong> ${duration} hour(s)</p>
-      <p style="margin: 0;"><strong>Amount Due at Venue:</strong> <span style="color: #00e676; font-size: 18px;">₹${amount}</span></p>
+      <p style="margin: 0;"><strong>Amount Due at Venue:</strong> <span style="color: #00e676; font-size: 18px;">₹${amount}</span>${offer ? ` <span style="color: rgba(255,255,255,0.5); text-decoration: line-through; font-size: 13px; margin-left: 6px;">offer price applied</span>` : ''}</p>
     </div>
     <p style="color: #aaa;">Please arrive 10 minutes early. Payment is collected at the venue. See you on the pitch! ⚽</p>
   `);
 
   await transporter.sendMail({ from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`, to, subject, html });
 }
+
 
 export async function sendPaymentThankYou({
   to,
