@@ -6,6 +6,7 @@ import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { LogIn, ShieldCheck, Tag } from 'lucide-react';
 import styles from './page.module.css';
+import CustomModal from '@/components/CustomModal';
 
 type SpecialOffer = {
   id: string;
@@ -46,6 +47,26 @@ export default function BookPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [offers, setOffers] = useState<SpecialOffer[]>([]);
+  const [customModal, setCustomModal] = useState<{
+    isOpen: boolean;
+    type: 'alert' | 'confirm' | 'success';
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({ isOpen: false, type: 'alert', title: '', message: '', onConfirm: () => {} });
+
+  const showAlert = (title: string, message: string, type: 'alert' | 'success' = 'alert', callback?: () => void) => {
+    setCustomModal({
+      isOpen: true,
+      type,
+      title,
+      message,
+      onConfirm: () => {
+        setCustomModal(prev => ({ ...prev, isOpen: false }));
+        if (callback) callback();
+      }
+    });
+  };
 
   const isAdmin = (session?.user as any)?.role === 'ADMIN';
 
@@ -121,11 +142,11 @@ export default function BookPage() {
 
   const handleConfirm = async () => {
     if (!teamName.trim()) {
-      alert('Please enter a Team Name.');
+      showAlert('Missing Info', 'Please enter a Team Name.');
       return;
     }
     if (isAdmin && !phoneNumber.trim()) {
-      alert('Please enter the team\'s WhatsApp number.');
+      showAlert('Missing Info', 'Please enter the team\'s WhatsApp number.');
       return;
     }
 
@@ -148,17 +169,23 @@ export default function BookPage() {
       });
 
       if (res.ok) {
-        alert(`✅ Booking Confirmed for "${teamName}"!\nTime: ${formatTime(selectedSlot)} for ${duration} hour(s)\nTotal: ₹${totalFinal}\n\nPay at the venue.`);
-        setIsModalOpen(false);
-        setSelectedSlot(null);
-        if (isAdmin) { setTeamName(''); setPhoneNumber(''); }
-        router.refresh();
+        showAlert(
+          'Booking Confirmed!', 
+          `Team: ${teamName}\nTime: ${formatTime(selectedSlot)} for ${duration} hour(s)\nTotal: ₹${totalFinal}\n\nPay at the venue.`,
+          'success',
+          () => {
+            setIsModalOpen(false);
+            setSelectedSlot(null);
+            if (isAdmin) { setTeamName(''); setPhoneNumber(''); }
+            router.refresh();
+          }
+        );
       } else {
         const err = await res.json();
-        alert(`Booking failed: ${err.error || 'Unknown error'}`);
+        showAlert('Booking Failed', err.error || 'Unknown error occurred.');
       }
     } catch {
-      alert('Network error. Please try again.');
+      showAlert('Network Error', 'Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -365,6 +392,7 @@ export default function BookPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      <CustomModal {...customModal} />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
 import { AlertTriangle, CalendarOff, Mail, Tag, RefreshCw } from 'lucide-react';
 import styles from './page.module.css';
 import LogoutButton from '@/components/LogoutButton';
+import CustomModal from '@/components/CustomModal';
 
 type Booking = {
   id: string;
@@ -56,6 +57,42 @@ export default function AdminDashboard() {
   const [offerStartDate, setOfferStartDate] = useState('');
   const [offerEndDate, setOfferEndDate] = useState('');
   const [offerLoading, setOfferLoading] = useState(false);
+
+  const [customModal, setCustomModal] = useState<{
+    isOpen: boolean;
+    type: 'alert' | 'confirm' | 'success';
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel?: () => void;
+  }>({ isOpen: false, type: 'alert', title: '', message: '', onConfirm: () => {} });
+
+  const showAlert = (title: string, message: string, type: 'alert' | 'success' = 'alert', callback?: () => void) => {
+    setCustomModal({
+      isOpen: true,
+      type,
+      title,
+      message,
+      onConfirm: () => {
+        setCustomModal(prev => ({ ...prev, isOpen: false }));
+        if (callback) callback();
+      }
+    });
+  };
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void) => {
+    setCustomModal({
+      isOpen: true,
+      type: 'confirm',
+      title,
+      message,
+      onConfirm: () => {
+        setCustomModal(prev => ({ ...prev, isOpen: false }));
+        onConfirm();
+      },
+      onCancel: () => setCustomModal(prev => ({ ...prev, isOpen: false }))
+    });
+  };
 
   // ── Fetch real bookings ──────────────────────────────────────────────────
   const fetchBookings = async () => {
@@ -111,30 +148,30 @@ export default function AdminDashboard() {
   const markPaid = async (id: string) => {
     const booking = bookings.find(b => b.id === id);
     if (!booking) return;
-    const ok = window.confirm(`Mark ₹${booking.amount} as PAID for ${booking.teamName}? A thank-you email will be sent.`);
-    if (!ok) return;
-    const res = await fetch('/api/admin/mark-paid', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bookingId: id }) });
-    if (res.ok) { await fetchBookings(); alert('Marked as paid ✅ Thank-you email sent!'); }
+    showConfirm('Mark as Paid?', `Mark ₹${booking.amount} as PAID for ${booking.teamName}? A thank-you email will be sent.`, async () => {
+      const res = await fetch('/api/admin/mark-paid', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bookingId: id }) });
+      if (res.ok) { await fetchBookings(); showAlert('Success', 'Marked as paid ✅ Thank-you email sent!', 'success'); }
+    });
   };
 
   const markNoShow = (id: string) => {
     const booking = bookings.find(b => b.id === id);
     if (!booking) return;
-    const ok = window.confirm(`Mark ${booking.teamName} as NO-SHOW? A 50% penalty (₹${booking.amount * 0.5}) will be applied.`);
-    if (!ok) return;
-    setBookings(bookings.map(b => b.id === id ? { ...b, status: 'DUE', amount: b.amount * 0.5 } : b));
-    alert('No-show penalty applied!');
+    showConfirm('Mark as No-Show?', `Apply a 50% penalty (₹${booking.amount * 0.5}) for ${booking.teamName}?`, () => {
+      setBookings(bookings.map(b => b.id === id ? { ...b, status: 'DUE', amount: b.amount * 0.5 } : b));
+      showAlert('Applied', 'No-show penalty applied!', 'success');
+    });
   };
 
   const cancelBooking = (id: string) => {
-    const ok = window.confirm('Cancel this booking?');
-    if (ok) setBookings(bookings.map(b => b.id === id ? { ...b, status: 'CANCELLED', amount: 0 } : b));
+    showConfirm('Cancel Booking?', 'Are you sure you want to cancel this booking?', () => {
+      setBookings(bookings.map(b => b.id === id ? { ...b, status: 'CANCELLED', amount: 0 } : b));
+    });
   };
 
   const handleBlockSlots = () => {
-    if (!blockDate || !blockStart || !blockEnd) { alert('Please fill all fields.'); return; }
-    const ok = confirm(`Block turf on ${blockDate} from ${blockStart} to ${blockEnd}?\nReason: ${blockReason}\n\nThis will cancel overlapping bookings.`);
-    if (ok) {
+    if (!blockDate || !blockStart || !blockEnd) { showAlert('Missing Fields', 'Please fill all fields.'); return; }
+    showConfirm('Block Turf?', `Block turf on ${blockDate} from ${blockStart} to ${blockEnd}?\nReason: ${blockReason}\n\nThis will cancel overlapping bookings.`, () => {
       setBookings(prev => {
         const updated = prev.map(b => {
           if (b.date === new Date(blockDate).toLocaleDateString('en-IN') && b.status !== 'CANCELLED' && b.status !== 'BLOCKED') {
@@ -144,9 +181,9 @@ export default function AdminDashboard() {
         });
         return [{ id: `block-${Date.now()}`, teamName: `[BLOCKED] ${blockReason}`, phone: '—', date: new Date(blockDate).toLocaleDateString('en-IN'), startTime: parseInt(blockStart), durationHours: 1, amount: 0, status: 'BLOCKED' as Booking['status'] }, ...updated];
       });
-      alert('Turf blocked. Overlapping bookings cancelled.');
+      showAlert('Blocked', 'Turf blocked. Overlapping bookings cancelled.', 'success');
       setBlockDate(''); setBlockStart(''); setBlockEnd('');
-    }
+    });
   };
 
   const sendDueAlerts = async () => {
@@ -160,7 +197,7 @@ export default function AdminDashboard() {
 
   const handleCreateOffer = async () => {
     if (!offerTitle || !offerDiscount || !offerStartDate || !offerEndDate) {
-      alert('Please fill out all required offer fields.');
+      showAlert('Missing Fields', 'Please fill out all required offer fields.');
       return;
     }
     setOfferLoading(true);
@@ -178,7 +215,7 @@ export default function AdminDashboard() {
         })
       });
       if (res.ok) {
-        alert('Special offer created successfully!');
+        showAlert('Success', 'Special offer created successfully!', 'success');
         setOfferTitle('');
         setOfferDesc('');
         setOfferDiscount('20');
@@ -188,7 +225,7 @@ export default function AdminDashboard() {
       }
     } catch (e) {
       console.error(e);
-      alert('Failed to create offer.');
+      showAlert('Error', 'Failed to create offer.');
     } finally {
       setOfferLoading(false);
     }
@@ -208,34 +245,36 @@ export default function AdminDashboard() {
   };
 
   const deleteOffer = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this offer?')) return;
-    try {
-      const res = await fetch('/api/admin/offers', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      });
-      if (res.ok) fetchOffers();
-    } catch (e) {
-      console.error('Failed to delete offer:', e);
-    }
+    showConfirm('Delete Offer?', 'Are you sure you want to delete this offer?', async () => {
+      try {
+        const res = await fetch('/api/admin/offers', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        if (res.ok) fetchOffers();
+      } catch (e) {
+        console.error('Failed to delete offer:', e);
+      }
+    });
   };
 
   const sendOfferEmail = async (id: string) => {
-    if (!confirm('This will email ALL registered users. Are you sure?')) return;
-    try {
-      setEmailStatus('Sending offer emails...');
-      const res = await fetch('/api/admin/send-offer-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ offerId: id })
-      });
-      const data = await res.json();
-      setEmailStatus(`✅ Sent special offer to ${data.sent} user(s)!`);
-    } catch (e) {
-      console.error('Failed to send offer emails:', e);
-      setEmailStatus('❌ Failed to send emails.');
-    }
+    showConfirm('Send Mass Email?', 'This will email ALL registered users about this offer. Are you sure?', async () => {
+      try {
+        setEmailStatus('Sending offer emails...');
+        const res = await fetch('/api/admin/send-offer-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ offerId: id })
+        });
+        const data = await res.json();
+        setEmailStatus(`✅ Sent special offer to ${data.sent} user(s)!`);
+      } catch (e) {
+        console.error('Failed to send offer emails:', e);
+        setEmailStatus('❌ Failed to send emails.');
+      }
+    });
   };
 
   return (
@@ -508,6 +547,7 @@ export default function AdminDashboard() {
           </div>
         )}
       </motion.section>
+      <CustomModal {...customModal} />
     </div>
   );
 }
