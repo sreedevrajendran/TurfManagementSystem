@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { sendBookingConfirmation } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -50,6 +51,24 @@ export async function POST(req: NextRequest) {
         userId: (session.user as any).id ?? undefined,
       },
     });
+
+    // Send confirmation email
+    const userEmail = session.user?.email;
+    if (userEmail) {
+      try {
+        await sendBookingConfirmation({
+          to: userEmail,
+          name: session.user?.name || "Customer",
+          teamName: teamName.trim(),
+          date: new Date(date).toLocaleDateString("en-IN"),
+          startTime: Number(startTime),
+          duration: Number(durationHours),
+          amount: Number(amount),
+        });
+      } catch (e) {
+        console.error("Confirmation email failed:", e);
+      }
+    }
 
     return NextResponse.json({ success: true, booking });
   } catch (err: any) {

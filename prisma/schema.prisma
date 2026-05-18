@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
 
 // NextAuth Required Models
@@ -97,4 +97,23 @@ enum BookingStatus {
   DUE
   CANCELLED
   BLOCKED
+}
+
+// Special Offers / Discounts
+model SpecialOffer {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  discountPct   Float    // e.g. 20 = 20% off
+  slotType      SlotType @default(BOTH)
+  startDate     DateTime
+  endDate       DateTime
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+}
+
+enum SlotType {
+  PEAK
+  OFF_PEAK
+  BOTH
 }

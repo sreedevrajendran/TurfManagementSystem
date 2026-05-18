@@ -11,8 +11,8 @@ export async function proxy(request: NextRequest) {
     });
 
     if (!token || token.role !== "ADMIN") {
-      const loginUrl = new URL("/admin-login", request.url);
-      return NextResponse.redirect(loginUrl);
+      const homeUrl = new URL("/", request.url);
+      return NextResponse.redirect(homeUrl);
     }
   }
 
