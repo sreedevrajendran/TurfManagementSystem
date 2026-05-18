@@ -295,21 +295,22 @@ export default function BookPage() {
         animate="visible"
         variants={{
           hidden: { opacity: 0 },
-          visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
+          visible: { opacity: 1, transition: { staggerChildren: 0.04 } }
         }}
         className={styles.slotsGrid}
       >
         {slots.map((hour) => {
           const now = new Date();
           const isToday = selectedDate.toDateString() === now.toDateString();
-          // Disable slot if it's today and the hour has already passed (including current hour)
-          const isPast = isToday && hour <= now.getHours();
+          const isPast = isToday && hour < now.getHours();
+          const isCurrentHour = isToday && hour === now.getHours();
           const isBooked = bookedSlots.includes(hour);
           const isDisabled = isPast || isBooked;
-          const isOffPeak = hour >= 6 && hour < 18;
-          const isCurrentHour = isToday && hour === now.getHours();
           const { basePrice, finalPrice, discount } = getPriceForHour(hour, selectedDate);
           const hasDiscount = discount > 0;
+
+          // Skip past slots entirely — no dark empty boxes
+          if (isPast) return null;
 
           return (
             <motion.div
@@ -317,17 +318,13 @@ export default function BookPage() {
               key={hour}
               onClick={() => !isDisabled && handleSlotClick(hour)}
               className={`${styles.slot} ${
-                isPast ? styles.past
-                : isBooked ? styles.booked
-                : styles.available
+                isBooked ? styles.booked : styles.available
               }`}
-              title={isPast ? 'Passed' : isBooked ? 'Booked' : hasDiscount ? `${discount}% OFF!` : ''}
+              title={isBooked ? 'Already booked' : hasDiscount ? `${discount}% OFF!` : ''}
             >
               <span>{formatTime(hour)}</span>
               {isCurrentHour ? (
                 <div className={styles.nowTag}>NOW</div>
-              ) : isPast ? (
-                <div className={styles.priceTag} style={{ opacity: 0.4 }}>–</div>
               ) : isBooked ? (
                 <div className={styles.priceTag} style={{ color: '#FF4444' }}>✕</div>
               ) : hasDiscount ? (
