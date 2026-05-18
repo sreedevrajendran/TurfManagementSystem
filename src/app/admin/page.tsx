@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import Link from 'next/link';
-import { AlertTriangle, CalendarOff, Mail, Tag, RefreshCw, Home } from 'lucide-react';
+import { AlertTriangle, CalendarOff, Mail, Tag, RefreshCw, Home, Users } from 'lucide-react';
 import styles from './page.module.css';
 import LogoutButton from '@/components/LogoutButton';
 import CustomModal from '@/components/CustomModal';
@@ -70,6 +70,10 @@ export default function AdminDashboard() {
     onCancel?: () => void;
   }>({ isOpen: false, type: 'alert', title: '', message: '', onConfirm: () => {} });
 
+  // Users state
+  const [users, setUsers] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'bookings' | 'users'>('bookings');
+
   const showAlert = (title: string, message: string, type: 'alert' | 'success' = 'alert', callback?: () => void) => {
     setCustomModal({
       isOpen: true,
@@ -134,9 +138,19 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch('/api/admin/users');
+      if (res.ok) setUsers(await res.json());
+    } catch (e) {
+      console.error('Failed to fetch users:', e);
+    }
+  };
+
   useEffect(() => { 
     fetchBookings(); 
     fetchOffers();
+    fetchUsers();
   }, []);
 
   const handleStatCardClick = (type: 'ALL' | 'TODAY' | 'DUE' | 'PAID') => {
@@ -492,7 +506,7 @@ export default function AdminDashboard() {
         </div>
       </motion.section>
 
-      {/* ── BOOKINGS TABLE ── */}
+      {/* ── BOOKINGS / USERS TAB SWITCHER ── */}
       <motion.section
         ref={tableRef}
         initial={{ opacity: 0, y: 20 }}
@@ -500,7 +514,84 @@ export default function AdminDashboard() {
         transition={{ delay: 0.3 }}
         className={styles.section}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {/* Tab switcher */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+          {(['bookings', 'users'] as const).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              style={{
+                padding: '10px 22px',
+                borderRadius: 99,
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                border: activeTab === tab ? '1px solid var(--primary-accent)' : '1px solid var(--border-color)',
+                background: activeTab === tab ? 'var(--primary-accent-muted)' : 'var(--bg-surface)',
+                color: activeTab === tab ? 'var(--primary-accent)' : 'var(--text-secondary)',
+                display: 'flex', alignItems: 'center', gap: 6,
+                fontFamily: 'inherit',
+              }}
+            >
+              {tab === 'bookings' ? <><CalendarOff size={15} /> Bookings</> : <><Users size={15} /> Registered Users</>}
+            </button>
+          ))}
+        </div>
+
+        {activeTab === 'users' ? (
+          /* ── USERS TABLE ── */
+          <div>
+            <h2 className={styles.sectionTitle} style={{ marginBottom: 16 }}>
+              Registered Users ({users.length})
+              <button onClick={fetchUsers} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', marginLeft: 8 }}>
+                <RefreshCw size={18} />
+              </button>
+            </h2>
+            {users.length === 0 ? (
+              <p style={{ color: 'var(--text-secondary)' }}>No users registered yet.</p>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
+                      <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600 }}>Name</th>
+                      <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600 }}>Email</th>
+                      <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600 }}>Role</th>
+                      <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600 }}>Bookings</th>
+                      <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600 }}>Total Spent</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((u, i) => {
+                      const totalSpent = u.bookings?.reduce((s: number, b: any) => s + b.amount, 0) ?? 0;
+                      return (
+                        <tr key={u.id} style={{ borderBottom: '1px solid var(--border-color)', background: i % 2 === 0 ? 'var(--bg-surface)' : 'transparent' }}>
+                          <td style={{ padding: '12px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                            {u.image
+                              ? <img src={u.image} alt="" style={{ width: 32, height: 32, borderRadius: '50%' }} />
+                              : <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--primary-accent-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: 'var(--primary-accent)' }}>{u.name?.[0] ?? '?'}</div>
+                            }
+                            <span style={{ color: '#fff', fontWeight: 600 }}>{u.name ?? '—'}</span>
+                          </td>
+                          <td style={{ padding: '12px', color: 'var(--text-secondary)' }}>{u.email}</td>
+                          <td style={{ padding: '12px' }}>
+                            <span style={{ padding: '3px 10px', borderRadius: 99, fontSize: '0.75rem', fontWeight: 700, background: u.role === 'ADMIN' ? 'rgba(255,68,68,0.15)' : 'rgba(0,230,118,0.1)', color: u.role === 'ADMIN' ? '#FF4444' : 'var(--primary-accent)' }}>
+                              {u.role}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px', color: '#fff', fontWeight: 600 }}>{u._count?.bookings ?? 0}</td>
+                          <td style={{ padding: '12px', color: 'var(--primary-accent)', fontWeight: 700 }}>₹{totalSpent.toLocaleString()}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 className={styles.sectionTitle}>
             {filterType === 'TODAY' ? "Today's Bookings" : 
              filterType === 'DUE' ? "Pending Dues" : 
@@ -584,6 +675,8 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+        )}
+          </>
         )}
       </motion.section>
       <CustomModal {...customModal} />

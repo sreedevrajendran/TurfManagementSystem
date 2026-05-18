@@ -100,6 +100,21 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // ── Conflict check — prevent double-booking same slot ────────────────────
+    const existingBooking = await prisma.booking.findFirst({
+      where: {
+        date: new Date(date),
+        startTime: Number(startTime),
+        status: { not: 'CANCELLED' },
+      },
+    });
+    if (existingBooking) {
+      return NextResponse.json(
+        { error: 'This slot has already been booked. Please choose another time.' },
+        { status: 409 }
+      );
+    }
+
     // ── Create Booking ───────────────────────────────────────────────────────
     const booking = await prisma.booking.create({
       data: {

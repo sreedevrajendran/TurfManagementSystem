@@ -1,7 +1,8 @@
 'use client';
 
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, Info, CheckCircle, X } from 'lucide-react';
+import { AlertTriangle, Info, CheckCircle } from 'lucide-react';
 
 type CustomModalProps = {
   isOpen: boolean;
@@ -24,7 +25,9 @@ export default function CustomModal({
   confirmText = 'OK',
   cancelText = 'Cancel',
 }: CustomModalProps) {
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -33,16 +36,13 @@ export default function CustomModal({
           exit={{ opacity: 0 }}
           style={{
             position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            backdropFilter: 'blur(8px)',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(10px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 9999,
+            zIndex: 99999,
             padding: '20px',
           }}
         >
@@ -79,14 +79,10 @@ export default function CustomModal({
                 <button
                   onClick={onCancel}
                   style={{
-                    padding: '12px 24px',
-                    borderRadius: '12px',
-                    background: 'rgba(255,255,255,0.05)',
-                    color: '#fff',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    flex: 1,
+                    padding: '12px 24px', borderRadius: '12px',
+                    background: 'rgba(255,255,255,0.05)', color: '#fff',
+                    border: '1px solid rgba(255,255,255,0.1)', fontWeight: 600,
+                    cursor: 'pointer', flex: 1,
                   }}
                 >
                   {cancelText}
@@ -96,14 +92,10 @@ export default function CustomModal({
               <button
                 onClick={onConfirm}
                 style={{
-                  padding: '12px 24px',
-                  borderRadius: '12px',
+                  padding: '12px 24px', borderRadius: '12px',
                   background: type === 'alert' ? '#FF4444' : type === 'success' ? '#00E676' : '#00B0FF',
-                  color: '#000',
-                  border: 'none',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  flex: 1,
+                  color: '#000', border: 'none', fontWeight: 700,
+                  cursor: 'pointer', flex: 1,
                 }}
               >
                 {confirmText}
@@ -112,6 +104,7 @@ export default function CustomModal({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
