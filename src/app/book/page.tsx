@@ -40,8 +40,29 @@ export default function BookPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const [dates] = useState(generateDates(3));
-  const [selectedDate, setSelectedDate] = useState<Date>(dates[0]);
+  const [dates, setDates] = useState<Date[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  
+  useEffect(() => {
+    let generated = generateDates(3);
+    const params = new URLSearchParams(window.location.search);
+    const dateParam = params.get('date');
+    
+    if (dateParam) {
+      const parsed = new Date(dateParam);
+      if (!isNaN(parsed.getTime())) {
+        // Add to array if not present in the next 3 days
+        if (!generated.some(d => d.toDateString() === parsed.toDateString())) {
+          generated.push(parsed);
+          generated.sort((a, b) => a.getTime() - b.getTime());
+        }
+        setSelectedDate(parsed);
+      }
+    } else {
+      setSelectedDate(generated[0]);
+    }
+    setDates(generated);
+  }, []);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [duration, setDuration] = useState<number>(1);

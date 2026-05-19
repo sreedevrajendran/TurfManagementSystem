@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Tag, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 export default function AlertBanner() {
   const [offers, setOffers] = useState<any[]>([]);
@@ -39,20 +40,28 @@ export default function AlertBanner() {
       flexWrap: 'wrap'
     }}>
       <AnimatePresence>
-        {todayBlocks.map(b => (
-          <motion.div key={b.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <AlertTriangle size={14} color="#fca5a5" />
-            <span style={{ color: '#fca5a5' }}>URGENT:</span> {b.durationHours === 24 ? 'Turf is closed today' : `Turf is closed today from ${b.startTime % 12 || 12}${b.startTime >= 12 ? 'PM' : 'AM'} to ${(b.startTime + b.durationHours) % 12 || 12}${(b.startTime + b.durationHours) >= 12 ? 'PM' : 'AM'}`} — {b.reason}
-          </motion.div>
-        ))}
+        {todayBlocks.map(b => {
+          const blockDateStr = new Date(b.date).toISOString().split('T')[0];
+          return (
+            <Link key={b.id} href={`/book?date=${blockDateStr}`} style={{ textDecoration: 'none' }}>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                <AlertTriangle size={14} color="#fca5a5" />
+                <span style={{ color: '#fca5a5' }}>URGENT:</span> {b.durationHours === 24 ? 'Turf is closed today' : `Turf is closed today from ${b.startTime % 12 || 12}${b.startTime >= 12 ? 'PM' : 'AM'} to ${(b.startTime + b.durationHours) % 12 || 12}${(b.startTime + b.durationHours) >= 12 ? 'PM' : 'AM'}`} — {b.reason}
+              </motion.div>
+            </Link>
+          );
+        })}
         
         {offers.map(offer => {
           const isUpcoming = new Date(offer.startDate).getTime() > new Date().setHours(23, 59, 59, 999);
+          const offerDateStr = new Date(offer.startDate).toISOString().split('T')[0];
           return (
-            <motion.div key={offer.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Tag size={14} color="#fde047" />
-              <span style={{ color: '#fde047' }}>{isUpcoming ? 'UPCOMING' : 'ACTIVE'} OFFER:</span> {offer.discountPct}% OFF {offer.slotType === 'PEAK' ? '(Night Slots)' : offer.slotType === 'OFF_PEAK' ? '(Day Slots)' : ''} — {offer.title}
-            </motion.div>
+            <Link key={offer.id} href={`/book?date=${offerDateStr}`} style={{ textDecoration: 'none' }}>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                <Tag size={14} color="#fde047" />
+                <span style={{ color: '#fde047' }}>{isUpcoming ? 'UPCOMING' : 'ACTIVE'} OFFER:</span> {offer.discountPct}% OFF {offer.slotType === 'PEAK' ? '(Night Slots)' : offer.slotType === 'OFF_PEAK' ? '(Day Slots)' : ''} — {offer.title}
+              </motion.div>
+            </Link>
           );
         })}
       </AnimatePresence>

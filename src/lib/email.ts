@@ -156,6 +156,7 @@ export async function sendSpecialOffer({
   discountPct,
   slotType,
   validUntil,
+  bookUrl,
 }: {
   to: string;
   name: string;
@@ -164,9 +165,11 @@ export async function sendSpecialOffer({
   discountPct: number;
   slotType: string;
   validUntil: string;
+  bookUrl?: string;
 }) {
   const slotLabel = slotType === "PEAK" ? "Peak (6pm–6am)" : slotType === "OFF_PEAK" ? "Off-Peak (6am–6pm)" : "All Slots";
   const subject = `🎉 Special Offer: ${discountPct}% Off – East Welfare Turf`;
+  const targetUrl = bookUrl || "https://eastwelfareturf.vercel.app/book";
   const html = baseTemplate(`
     <h2 style="color: #FFD700; font-size: 22px;">🎉 Exclusive Offer Just For You!</h2>
     <p>Hi <strong>${name}</strong>, we have a special offer for you!</p>
@@ -178,7 +181,7 @@ export async function sendSpecialOffer({
       <div style="color: #aaa; font-size: 12px; margin-top: 8px;">Valid until: ${validUntil}</div>
     </div>
     <p style="color: #aaa;">Don't miss out — slots fill up fast!</p>
-    <a href="https://eastwelfareturf.vercel.app/book" style="display: inline-block; margin-top: 16px; padding: 14px 32px; background: #FFD700; color: #000; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Book Now</a>
+    <a href="${targetUrl}" style="display: inline-block; margin-top: 16px; padding: 14px 32px; background: #FFD700; color: #000; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Book Your Slot Now</a>
   `);
 
   await transporter.sendMail({ from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`, to, subject, html });

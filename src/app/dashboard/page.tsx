@@ -51,7 +51,6 @@ export default async function DashboardPage() {
           }}>
             <Home size={18} /> Home
           </Link>
-          <LogoutButton />
         </div>
       </header>
 

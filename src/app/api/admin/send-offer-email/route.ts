@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
           discountPct: offer.discountPct,
           slotType: offer.slotType,
           validUntil: offer.endDate.toLocaleDateString("en-IN"),
+          bookUrl: `https://eastwelfareturf.vercel.app/book?date=${offer.startDate.toISOString().split('T')[0]}`
         });
         sent++;
       } catch (e) {
