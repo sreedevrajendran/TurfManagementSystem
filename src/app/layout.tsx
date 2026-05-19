@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   description: "Book your premium 6-a-side artificial grass football turf at EAST WELFARE TURF. Experience high-end facilities, dynamic pricing, and easy booking.",
 };
 
+import AlertBanner from "@/components/AlertBanner";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -23,6 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
+          <AlertBanner />
           <Navbar />
           {children}
         </Providers>

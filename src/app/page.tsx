@@ -55,80 +55,7 @@ export default function Home() {
             </span>
           </motion.div>
 
-          {/* Active offer banner */}
-          <AnimatePresence>
-            {activeOffers.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                style={{
-                  background: 'linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,140,0,0.15))',
-                  border: '1px solid rgba(255,215,0,0.5)',
-                  borderRadius: 16,
-                  padding: '14px 22px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 6,
-                  backdropFilter: 'blur(10px)',
-                  maxWidth: 480,
-                  margin: '0 auto',
-                }}
-              >
-                {activeOffers.map(offer => {
-                  const isUpcoming = new Date(offer.startDate).getTime() > new Date().setHours(23, 59, 59, 999);
-                  return (
-                    <div key={offer.id} style={{ textAlign: 'center', marginBottom: 12 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', marginBottom: 4 }}>
-                        <Tag size={16} color={isUpcoming ? "#FF8C00" : "#FFD700"} />
-                        <span style={{ color: isUpcoming ? '#FF8C00' : '#FFD700', fontWeight: 800, fontSize: '1.1rem' }}>
-                          {isUpcoming ? '⏳ Upcoming:' : '🔥 Active:'} {offer.discountPct}% OFF — {offer.title}
-                        </span>
-                      </div>
-                      <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.82rem' }}>
-                        {offer.slotType === 'PEAK' ? 'Evening/Night slots' : offer.slotType === 'OFF_PEAK' ? 'Day slots' : 'All slots'}
-                        &nbsp;·&nbsp;
-                        Valid: {new Date(offer.startDate).toLocaleDateString('en-IN')} – {new Date(offer.endDate).toLocaleDateString('en-IN')}
-                      </div>
-                    </div>
-                  );
-                })}
-              </motion.div>
-            )}
-          </AnimatePresence>
 
-          {/* Emergency block notice */}
-          <AnimatePresence>
-            {blocks.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                style={{
-                  background: 'rgba(255, 68, 68, 0.12)',
-                  border: '1px solid rgba(255, 68, 68, 0.5)',
-                  borderRadius: 14,
-                  padding: '12px 18px',
-                  maxWidth: 480,
-                  margin: '8px auto 0',
-                }}
-              >
-                <div style={{ color: '#FF6B6B', fontWeight: 800, fontSize: '0.9rem', marginBottom: 6 }}>
-                  ⚠️ Emergency Slot Block
-                </div>
-                {blocks.map((b: any) => {
-                  const fh = (h: number) => `${h % 12 || 12}:00 ${h >= 12 ? 'PM' : 'AM'}`;
-                  return (
-                    <div key={b.id} style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem', marginBottom: 4 }}>
-                      📅 {new Date(b.date).toLocaleDateString('en-IN')} · {b.durationHours === 24 ? 'All Day' : `${fh(b.startTime)} – ${fh((b.startTime + b.durationHours) % 24)}`}
-                      <span style={{ color: 'rgba(255,255,255,0.5)', marginLeft: 6 }}>— {b.reason}</span>
-                    </div>
-                  );
-                })}
-              </motion.div>
-            )}
-          </AnimatePresence>
           <motion.h1 variants={itemVariants} className={styles.title}>EAST WELFARE TURF</motion.h1>
           <motion.p variants={itemVariants} className={styles.subtitle}>
             Premium 6-a-side football on high-quality artificial grass with LED floodlights.
@@ -185,57 +112,107 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── WHY US ── */}
-      <section className={styles.infoSection}>
-        <div className={styles.infoContent}>
-          <h2>Why East Welfare Turf?</h2>
+      {/* ── SNAP SECTION 1 ── */}
+      <section className={styles.snapSection}>
+        <motion.img 
+          src="/school-1.jpg" 
+          alt="East Welfare Turf Night" 
+          className={styles.snapBg}
+          initial={{ scale: 1.15, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.4, ease: "easeOut" }}
+          viewport={{ amount: 0.3 }}
+        />
+        <div className={styles.snapOverlay}></div>
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          viewport={{ amount: 0.4 }}
+          className={styles.snapContent}
+        >
+          <h2>The Heart of Local Football</h2>
           <p>
-            Located at <strong>Mannar East Welfare School</strong>, our facility is the go-to football destination
-            for teams in the region. Play on high-quality artificial grass under powerful LED floodlights —
-            day or night. Book online in seconds, pay at the venue, and get instant confirmation on your email.
+            Nestled inside the historic Mannar East Welfare School, our turf isn't just a football ground—it's a vibrant community hub built to foster local athletic talent and bring people together.
           </p>
-        </div>
+        </motion.div>
       </section>
 
-      {/* ── FEATURES ── */}
-      <section className={styles.featuresSection}>
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
+      {/* ── SNAP SECTION 2 ── */}
+      <section className={styles.snapSection}>
+        <motion.img 
+          src="/school-2.jpg" 
+          alt="Night Games" 
+          className={styles.snapBg}
+          initial={{ scale: 1.15, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.4, ease: "easeOut" }}
+          viewport={{ amount: 0.3 }}
+        />
+        <div className={styles.snapOverlay}></div>
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, type: 'spring', stiffness: 50 }}
-          className={styles.featuresGrid}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          viewport={{ amount: 0.4 }}
+          className={styles.snapContent}
         >
-          <div className={styles.featureCard}>
-            <div className={styles.iconBox}><Trophy size={32} /></div>
-            <h3>Premium Surface</h3>
-            <p>High-quality 6-a-side artificial turf designed for fast-paced matches, excellent grip, and player safety.</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.iconBox}><CalendarCheck size={32} /></div>
-            <h3>Instant Booking</h3>
-            <p>Sign in with Google, pick your slot, and get a confirmation email instantly. No calls needed.</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.iconBox}><Zap size={32} /></div>
-            <h3>Night Games</h3>
-            <p>Powerful LED floodlights for bright, energy-efficient night games at ₹800/hr including lighting.</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.iconBox}><MapPin size={32} /></div>
-            <h3>Prime Location</h3>
-            <p>Situated at Mannar East Welfare School with easy road access and parking available on-site.</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.iconBox}><Clock size={32} /></div>
-            <h3>Open 24/7</h3>
-            <p>Book any hour of the day. Slots available from 6 AM all the way through to 5 AM next morning.</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.iconBox}><Phone size={32} /></div>
-            <h3>Easy Contact</h3>
-            <p>Reach us directly at +91 97785 18909 or email eastwelfareturf@gmail.com for queries.</p>
-          </div>
+          <h2>Stadium-Grade Night Games</h2>
+          <p>
+            By day, the grounds echo with the energy of students. By night, it transforms under our powerful LED floodlights into a battleground for local legends.
+          </p>
+        </motion.div>
+      </section>
+
+      {/* ── SNAP SECTION 3 ── */}
+      <section className={styles.snapSection}>
+        <motion.img 
+          src="/school-3.jpg" 
+          alt="Premium Turf" 
+          className={styles.snapBg}
+          initial={{ scale: 1.15, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.4, ease: "easeOut" }}
+          viewport={{ amount: 0.3 }}
+        />
+        <div className={styles.snapOverlay}></div>
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          viewport={{ amount: 0.4 }}
+          className={styles.snapContent}
+        >
+          <h2>Premium Artificial Grass</h2>
+          <p>
+            Play on high-quality 6-a-side artificial turf designed for fast-paced matches, excellent grip, and ultimate player safety. The perfect pitch for every skill level.
+          </p>
+        </motion.div>
+      </section>
+
+      {/* ── SNAP SECTION 4 ── */}
+      <section className={styles.snapSection}>
+        <motion.img 
+          src="/school-4.jpg" 
+          alt="World Cup Atmosphere" 
+          className={styles.snapBg}
+          initial={{ scale: 1.15, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.4, ease: "easeOut" }}
+          viewport={{ amount: 0.3 }}
+        />
+        <div className={styles.snapOverlay}></div>
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          viewport={{ amount: 0.4 }}
+          className={styles.snapContent}
+        >
+          <h2>A World Cup Atmosphere</h2>
+          <p>
+            Surrounded by the flags of world football giants, playing here feels like stepping onto a World Cup pitch right in Kerala. Open 24/7—book any hour of the day or night!
+          </p>
         </motion.div>
       </section>
 

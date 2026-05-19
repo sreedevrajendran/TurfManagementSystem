@@ -1,19 +1,28 @@
 .main {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-color);
   color: var(--text-primary);
   overflow-x: hidden;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+}
+.main::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 .hero {
   position: relative;
-  height: 100vh;
+  min-height: 100vh;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  scroll-snap-align: start;
 }
 
 .heroImage {
@@ -176,6 +185,84 @@
   line-height: 1.8;
 }
 
+.snapSection {
+  position: relative;
+  min-height: 100vh;
+  width: 100vw;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.snapBg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.snapOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.2) 100%);
+  z-index: 1;
+}
+
+.snapContent {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.snapContent h2 {
+  font-size: clamp(3rem, 6vw, 5rem);
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 24px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.snapContent p {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-top: 40px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.galleryImage {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 16px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.galleryImage:hover {
+  transform: scale(1.03);
+}
+
 .featuresSection {
   padding: 100px 20px;
   max-width: 1200px;
@@ -230,6 +317,7 @@
   padding: 60px 20px 20px 20px;
   border-top: 1px solid var(--border-color);
   margin-top: auto;
+  scroll-snap-align: start;
 }
 
 .footerContent {
