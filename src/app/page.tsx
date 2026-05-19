@@ -39,10 +39,6 @@ export default function Home() {
             Premium Football &amp; Cricket on high-quality artificial grass with LED floodlights.
             Fast bookings, dynamic pricing — play day or night.
           </motion.p>
-          <motion.div variants={fadeUp} className={styles.sportBadges}>
-            <span className={styles.sportChip}>⚽ Football</span>
-            <span className={styles.sportChip}>🏏 Cricket</span>
-          </motion.div>
           <motion.div variants={fadeUp} className={styles.ctaWrapper}>
             <Link href="/book" className={styles.ctaButton}>⚽ Book Your Slot Now</Link>
             {session ? (
