@@ -220,6 +220,7 @@ export async function sendCancellationEmail({
   date,
   startTime,
   duration,
+  reason,
 }: {
   to: string;
   name: string;
@@ -227,6 +228,7 @@ export async function sendCancellationEmail({
   date: string;
   startTime: number;
   duration: number;
+  reason?: string;
 }) {
   const formatHour = (hour: number) => {
     const h = hour % 24;
@@ -237,13 +239,14 @@ export async function sendCancellationEmail({
   const subject = "❌ Booking Cancelled – East Welfare Turf";
   const html = baseTemplate(`
     <h2 style="color: #FF4444; font-size: 22px;">Booking Cancelled</h2>
-    <p>Hi <strong>${name}</strong>, your booking has been successfully cancelled.</p>
+    <p>Hi <strong>${name}</strong>, your booking has been cancelled.</p>
     <div style="background: #141420; border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #FF4444;">
       <p style="margin: 0 0 8px;"><strong>Team:</strong> ${teamName}</p>
       <p style="margin: 0 0 8px;"><strong>Date:</strong> ${date}</p>
       <p style="margin: 0;"><strong>Time:</strong> ${formatHour(startTime)} – ${formatHour((startTime + duration) % 24)}</p>
+      ${reason ? `<p style="margin: 8px 0 0; color: #FF6B6B;"><strong>Reason:</strong> ${reason}</p>` : ''}
     </div>
-    <p style="color: #aaa;">Your slot has been released. We hope to see you on the pitch next time! ⚽</p>
+    <p style="color: #aaa;">${reason ? 'We deeply apologize for the inconvenience caused by this emergency block. You can book another available slot from our website.' : 'Your slot has been released. We hope to see you on the pitch next time! ⚽'}</p>
   `);
 
   await transporter.sendMail({ from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`, to, subject, html });
@@ -456,6 +459,42 @@ export async function sendBlockCancelledAnnouncement({
       });
     } catch (e) {
       console.error(`Block cancel email failed for ${email}:`, e);
+    }
+  }
+}
+
+export async function sendBlockEndedAnnouncement({
+  toList,
+  date,
+  reason,
+}: {
+  toList: string[];
+  date: string;
+  reason: string;
+}) {
+  const subject = `✅ Scheduled Block Concluded – Turf is Open`;
+  const html = baseTemplate(`
+    <h2 style="color: #00E676; font-size: 22px;">✅ Turf is Available Now</h2>
+    <p>The previously scheduled block has successfully ended, and the turf is fully open for new bookings!</p>
+    <div style="background: #141420; border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #00E676;">
+      <p style="margin: 0 0 8px;"><strong>Date:</strong> ${date}</p>
+      <p style="margin: 0;"><strong>Concluded Block:</strong> <span style="color: rgba(255,255,255,0.6);">${reason}</span></p>
+    </div>
+    <p style="color: #aaa;">You can now book any upcoming available slots as usual. We look forward to seeing you!</p>
+    <a href="https://eastwelfareturf.vercel.app/book" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#00E676;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;">Book Your Slot</a>
+  `);
+
+  // Send individually
+  for (const email of toList) {
+    try {
+      await transporter.sendMail({
+        from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`,
+        to: email,
+        subject,
+        html,
+      });
+    } catch (e) {
+      console.error(`Block ended email failed for ${email}:`, e);
     }
   }
 }

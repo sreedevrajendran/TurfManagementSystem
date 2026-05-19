@@ -75,7 +75,18 @@ export default async function DashboardPage() {
                       {formatTime(due.startTime)} – {formatTime((due.startTime + due.durationHours) % 24)}
                     </p>
                     <p>Team: {due.team?.name}</p>
-                    <CancelBookingButton bookingId={due.id} />
+                    {(() => {
+                      const bd = new Date(due.date);
+                      bd.setHours(due.startTime, 0, 0, 0);
+                      const timeDiffMs = bd.getTime() - new Date().getTime();
+                      return timeDiffMs >= 30 * 60 * 1000 ? (
+                        <CancelBookingButton bookingId={due.id} />
+                      ) : (
+                        <span style={{ fontSize: '0.8rem', color: '#FF6B6B', marginTop: '8px', display: 'inline-block' }}>
+                          Too late to cancel
+                        </span>
+                      );
+                    })()}
                   </div>
                   <span className={styles.dueAmount}>₹{due.amount}</span>
                 </li>

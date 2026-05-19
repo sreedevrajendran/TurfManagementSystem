@@ -52,6 +52,7 @@ export default function BookPage() {
   const [bookedSlots, setBookedSlots] = useState<number[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [blocks, setBlocks] = useState<any[]>([]);
+  const [isFetchingSlots, setIsFetchingSlots] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const [customModal, setCustomModal] = useState<{
     isOpen: boolean;
@@ -105,6 +106,7 @@ export default function BookPage() {
 
   useEffect(() => {
     const fetchBookedSlots = async () => {
+      setIsFetchingSlots(true);
       try {
         const dateStr = selectedDate.toISOString();
         const res = await fetch(`/api/bookings?date=${encodeURIComponent(dateStr)}`);
@@ -114,6 +116,8 @@ export default function BookPage() {
         }
       } catch (e) {
         console.error('Failed to fetch booked slots:', e);
+      } finally {
+        setIsFetchingSlots(false);
       }
     };
     fetchBookedSlots();
@@ -298,17 +302,20 @@ export default function BookPage() {
         }}>
           <Tag size={18} color="#FFD700" />
           <div>
-            {offers.map(offer => (
-              <div key={offer.id}>
-                <span style={{ color: '#FFD700', fontWeight: 800, fontSize: '1rem' }}>
-                  {offer.discountPct}% OFF — {offer.title}
-                </span>
-                <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginLeft: 10 }}>
-                  {offer.slotType === 'PEAK' ? 'Evening/Night slots' : offer.slotType === 'OFF_PEAK' ? 'Day slots' : 'All slots'}
-                  {' · '}Valid: {new Date(offer.startDate).toLocaleDateString('en-IN')} – {new Date(offer.endDate).toLocaleDateString('en-IN')}
-                </span>
-              </div>
-            ))}
+            {offers.map(offer => {
+              const isUpcoming = new Date(offer.startDate).getTime() > new Date().setHours(23, 59, 59, 999);
+              return (
+                <div key={offer.id} style={{ marginBottom: 6 }}>
+                  <span style={{ color: isUpcoming ? '#FF8C00' : '#FFD700', fontWeight: 800, fontSize: '1rem' }}>
+                    {isUpcoming ? '⏳ UPCOMING:' : '🔥 ACTIVE:'} {offer.discountPct}% OFF — {offer.title}
+                  </span>
+                  <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginLeft: 10 }}>
+                    {offer.slotType === 'PEAK' ? 'Evening/Night slots' : offer.slotType === 'OFF_PEAK' ? 'Day slots' : 'All slots'}
+                    {' · '}Valid: {new Date(offer.startDate).toLocaleDateString('en-IN')} – {new Date(offer.endDate).toLocaleDateString('en-IN')}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -331,7 +338,7 @@ export default function BookPage() {
             <div>
               <div style={{ color: '#FF6B6B', fontWeight: 800, fontSize: '0.9rem' }}>Emergency Block</div>
               <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem' }}>
-                {fh(b.startTime)} – {fh((b.startTime + b.durationHours) % 24)} · <span style={{ color: 'rgba(255,255,255,0.5)' }}>{b.reason}</span>
+                {b.durationHours === 24 ? 'All Day' : `${fh(b.startTime)} – ${fh((b.startTime + b.durationHours) % 24)}`} · <span style={{ color: 'rgba(255,255,255,0.5)' }}>{b.reason}</span>
               </div>
             </div>
           </div>
@@ -378,8 +385,16 @@ export default function BookPage() {
           const isToday = selectedDate.toDateString() === now.toDateString();
           const isPast = isToday && hour < now.getHours();
           const isCurrentHour = isToday && hour === now.getHours();
-          const isBooked = bookedSlots.includes(hour);
-          const isDisabled = isPast || isBooked;
+          
+          const blockingBlock = blocks.find((b: any) => {
+            if (new Date(b.date).toDateString() !== selectedDate.toDateString()) return false;
+            if (b.durationHours === 24) return true;
+            return hour >= b.startTime && hour < (b.startTime + b.durationHours);
+          });
+          const isBlocked = !!blockingBlock;
+          
+          const isBooked = bookedSlots.includes(hour) || isBlocked;
+          const isDisabled = isPast || isBooked || isFetchingSlots;
           const { basePrice, finalPrice, discount } = getPriceForHour(hour, selectedDate);
           const hasDiscount = discount > 0;
 
@@ -392,7 +407,7 @@ export default function BookPage() {
               key={hour}
               onClick={() => !isDisabled && handleSlotClick(hour)}
               className={`${styles.slot} ${
-                isBooked ? styles.booked : styles.available
+                isFetchingSlots ? styles.fetching : isBooked ? styles.booked : styles.available
               }`}
               style={isMobile ? {
                 flexDirection: 'column',
@@ -404,11 +419,15 @@ export default function BookPage() {
                 borderRadius: '8px',
                 textAlign: 'center',
               } : undefined}
-              title={isBooked ? 'Already booked' : hasDiscount ? `${discount}% OFF!` : ''}
+              title={isBlocked ? `Locked: ${blockingBlock.reason}` : isBooked ? 'Already booked' : hasDiscount ? `${discount}% OFF!` : ''}
             >
               <span>{formatTime(hour)}</span>
               {isCurrentHour ? (
                 <div className={styles.nowTag}>NOW</div>
+              ) : isBlocked ? (
+                <div className={styles.priceTag} style={{ color: '#FF6B6B', fontSize: '0.65rem', lineHeight: 1.1, textAlign: 'center' }}>
+                  🔒<br/>Locked
+                </div>
               ) : isBooked ? (
                 <div className={styles.priceTag} style={{ color: '#FF4444' }}>✕</div>
               ) : hasDiscount ? (

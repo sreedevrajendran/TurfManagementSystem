@@ -209,18 +209,21 @@ export default function AdminDashboard() {
     });
   };
 
-  const markNoShow = (id: string) => {
+  const markNoShow = async (id: string) => {
     const booking = bookings.find(b => b.id === id);
     if (!booking) return;
-    showConfirm('Mark as No-Show?', `Apply a 50% penalty (₹${booking.amount * 0.5}) for ${booking.teamName}?`, () => {
-      setBookings(bookings.map(b => b.id === id ? { ...b, status: 'DUE', amount: b.amount * 0.5 } : b));
-      showAlert('Applied', 'No-show penalty applied!', 'success');
+    showConfirm('Mark as No-Show?', `Apply a 50% penalty (₹${booking.amount * 0.5}) for ${booking.teamName}?`, async () => {
+      const res = await fetch('/api/admin/mark-no-show', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bookingId: id }) });
+      if (res.ok) { await fetchBookings(); showAlert('Applied', 'No-show penalty applied & email sent!', 'success'); }
+      else { showAlert('Error', 'Failed to apply no-show penalty.'); }
     });
   };
 
-  const cancelBooking = (id: string) => {
-    showConfirm('Cancel Booking?', 'Are you sure you want to cancel this booking?', () => {
-      setBookings(bookings.map(b => b.id === id ? { ...b, status: 'CANCELLED', amount: 0 } : b));
+  const cancelBooking = async (id: string) => {
+    showConfirm('Cancel Booking?', 'Are you sure you want to cancel this booking?', async () => {
+      const res = await fetch('/api/bookings/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bookingId: id }) });
+      if (res.ok) { await fetchBookings(); showAlert('Cancelled', 'Booking cancelled successfully.', 'success'); }
+      else { showAlert('Error', 'Failed to cancel booking.'); }
     });
   };
 
@@ -632,7 +635,7 @@ export default function AdminDashboard() {
                           📅 {new Date(b.date).toLocaleDateString('en-IN')}
                         </td>
                         <td style={{ padding: '12px', color: 'rgba(255,255,255,0.7)' }}>
-                          {fh(b.startTime)} – {fh((b.startTime + b.durationHours) % 24)}
+                          {b.durationHours === 24 ? 'All Day' : `${fh(b.startTime)} – ${fh((b.startTime + b.durationHours) % 24)}`}
                         </td>
                         <td style={{ padding: '12px' }}>
                           {editingBlock?.id === b.id ? (

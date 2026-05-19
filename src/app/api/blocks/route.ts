@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/blocks → public: return active BLOCKED slots (today and future)
 export async function GET() {
   const now = new Date();

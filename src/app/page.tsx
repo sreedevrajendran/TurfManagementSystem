@@ -32,13 +32,16 @@ export default function Home() {
     <main className={styles.main}>
       {/* ── HERO ── */}
       <section className={styles.hero}>
-        <Image
-          src="/hero.png"
-          alt="East Welfare Turf - Premium Football Ground Mannar"
-          fill
-          priority
-          className={styles.heroImage}
-        />
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className={styles.heroVideo}
+          poster="/hero.png"
+        >
+          <source src="/hero_video.mp4" type="video/mp4" />
+        </video>
         <div className={styles.heroOverlay} />
         <motion.div
           className={styles.heroContent}
@@ -73,19 +76,24 @@ export default function Home() {
                   margin: '0 auto',
                 }}
               >
-                {activeOffers.map(offer => (
-                  <div key={offer.id} style={{ textAlign: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', marginBottom: 4 }}>
-                      <Tag size={16} color="#FFD700" />
-                      <span style={{ color: '#FFD700', fontWeight: 800, fontSize: '1.1rem' }}>{offer.discountPct}% OFF — {offer.title}</span>
+                {activeOffers.map(offer => {
+                  const isUpcoming = new Date(offer.startDate).getTime() > new Date().setHours(23, 59, 59, 999);
+                  return (
+                    <div key={offer.id} style={{ textAlign: 'center', marginBottom: 12 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', marginBottom: 4 }}>
+                        <Tag size={16} color={isUpcoming ? "#FF8C00" : "#FFD700"} />
+                        <span style={{ color: isUpcoming ? '#FF8C00' : '#FFD700', fontWeight: 800, fontSize: '1.1rem' }}>
+                          {isUpcoming ? '⏳ Upcoming:' : '🔥 Active:'} {offer.discountPct}% OFF — {offer.title}
+                        </span>
+                      </div>
+                      <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.82rem' }}>
+                        {offer.slotType === 'PEAK' ? 'Evening/Night slots' : offer.slotType === 'OFF_PEAK' ? 'Day slots' : 'All slots'}
+                        &nbsp;·&nbsp;
+                        Valid: {new Date(offer.startDate).toLocaleDateString('en-IN')} – {new Date(offer.endDate).toLocaleDateString('en-IN')}
+                      </div>
                     </div>
-                    <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.82rem' }}>
-                      {offer.slotType === 'PEAK' ? 'Evening/Night slots' : offer.slotType === 'OFF_PEAK' ? 'Day slots' : 'All slots'}
-                      &nbsp;·&nbsp;
-                      Valid: {new Date(offer.startDate).toLocaleDateString('en-IN')} – {new Date(offer.endDate).toLocaleDateString('en-IN')}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </motion.div>
             )}
           </AnimatePresence>
@@ -113,7 +121,7 @@ export default function Home() {
                   const fh = (h: number) => `${h % 12 || 12}:00 ${h >= 12 ? 'PM' : 'AM'}`;
                   return (
                     <div key={b.id} style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem', marginBottom: 4 }}>
-                      📅 {new Date(b.date).toLocaleDateString('en-IN')} · {fh(b.startTime)}–{fh((b.startTime + b.durationHours) % 24)}
+                      📅 {new Date(b.date).toLocaleDateString('en-IN')} · {b.durationHours === 24 ? 'All Day' : `${fh(b.startTime)} – ${fh((b.startTime + b.durationHours) % 24)}`}
                       <span style={{ color: 'rgba(255,255,255,0.5)', marginLeft: 6 }}>— {b.reason}</span>
                     </div>
                   );
