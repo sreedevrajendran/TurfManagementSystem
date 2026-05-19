@@ -5,9 +5,12 @@ import { Tag, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
+type Offer = { id: string; startDate: string; discountPct: number; slotType: string; title: string };
+type Block = { id: string; date: string; startTime: number; durationHours: number; reason: string };
+
 export default function AlertBanner() {
-  const [offers, setOffers] = useState<any[]>([]);
-  const [blocks, setBlocks] = useState<any[]>([]);
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [blocks, setBlocks] = useState<Block[]>([]);
 
   useEffect(() => {
     fetch('/api/offers').then(r => r.json()).then(setOffers).catch(() => {});

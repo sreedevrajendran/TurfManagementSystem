@@ -10,7 +10,15 @@ const formatTime = (hour: number) => {
   return `${displayHour}:00 ${ampm}`;
 };
 
-export default function PastBookingsList({ bookings }: { bookings: any[] }) {
+type BookingRecord = {
+  id: string;
+  date: string;
+  startTime: number;
+  durationHours: number;
+  status: string;
+};
+
+export default function PastBookingsList({ bookings }: { bookings: BookingRecord[] }) {
   const [showAll, setShowAll] = useState(false);
   const visibleBookings = showAll ? bookings : bookings.slice(0, 3);
 

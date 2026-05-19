@@ -20,7 +20,7 @@ export default function Navbar() {
 
   if (!session) return null;
 
-  const isAdmin = (session.user as any)?.role === "ADMIN";
+  const isAdmin = (session.user as { role?: string })?.role === "ADMIN";
 
   return (
     <div style={{

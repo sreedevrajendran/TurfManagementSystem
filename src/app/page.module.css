@@ -1,19 +1,14 @@
+/* ── BASE ── */
 .main {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-color);
   color: var(--text-primary);
   overflow-x: hidden;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
-  scrollbar-width: none; /* Firefox */
-}
-.main::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
 }
 
+/* ── HERO ── */
 .hero {
   position: relative;
   min-height: 100vh;
@@ -22,30 +17,20 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  scroll-snap-align: start;
-}
-
-.heroImage {
-  object-fit: cover;
-  object-position: center;
-  z-index: 0;
 }
 
 .heroVideo {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   object-fit: cover;
-  object-position: center;
   z-index: 0;
 }
 
 .heroOverlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(9,9,11,1) 100%);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.35) 50%, rgba(9,9,11,1) 100%);
   z-index: 1;
 }
 
@@ -54,7 +39,7 @@
   z-index: 2;
   text-align: center;
   max-width: 900px;
-  padding: 0 20px;
+  padding: 0 24px;
 }
 
 .badgeWrapper {
@@ -67,34 +52,56 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 8px 16px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 8px 18px;
   border-radius: 99px;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--primary-accent);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
 }
+
+.badgeIcon { display: inline; }
 
 .title {
   font-size: clamp(3rem, 8vw, 6rem);
   font-weight: 900;
-  line-height: 1.1;
+  line-height: 1.05;
   color: #fff;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   text-transform: uppercase;
   letter-spacing: -0.02em;
 }
 
 .subtitle {
-  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-size: clamp(1rem, 2vw, 1.2rem);
   color: var(--text-secondary);
-  margin-bottom: 40px;
+  margin-bottom: 28px;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
-  line-height: 1.6;
+  line-height: 1.7;
+}
+
+/* Sport chips under subtitle */
+.sportBadges {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+
+.sportChip {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  padding: 8px 20px;
+  border-radius: 99px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.03em;
 }
 
 .ctaWrapper {
@@ -107,37 +114,35 @@
 .ctaButton {
   background: var(--primary-accent);
   color: #000;
-  padding: 16px 32px;
+  padding: 16px 36px;
   border-radius: 99px;
-  font-size: 1.125rem;
+  font-size: 1.1rem;
   font-weight: 800;
   text-decoration: none;
-  transition: all var(--transition-fast);
-  box-shadow: 0 0 0 rgba(0, 230, 118, 0);
+  transition: all 0.25s;
+  box-shadow: 0 0 0 rgba(0,230,118,0);
 }
-
 .ctaButton:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 30px var(--primary-accent-glow);
+  box-shadow: 0 12px 32px var(--primary-accent-glow);
 }
 
 .ghostButton {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
   color: #fff;
   padding: 16px 32px;
   border-radius: 99px;
-  font-size: 1.125rem;
+  font-size: 1.1rem;
   font-weight: 700;
   text-decoration: none;
-  transition: all var(--transition-fast);
+  transition: all 0.25s;
   backdrop-filter: blur(10px);
 }
-
 .ghostButton:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255,255,255,0.12);
   transform: translateY(-4px);
 }
 
@@ -149,47 +154,300 @@
   padding: 16px 32px;
   border: none;
   border-radius: 99px;
-  font-size: 1.125rem;
+  font-size: 1.1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.25s;
 }
-
 .googleButton:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 30px rgba(255,255,255,0.2);
 }
 
-.infoSection {
-  padding: 80px 20px;
-  background: var(--bg-surface);
+/* Scroll hint */
+.scrollHint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.scrollLine {
+  width: 2px;
+  height: 48px;
+  background: linear-gradient(to bottom, rgba(0,230,118,0.8), transparent);
+  animation: scrollPulse 1.6s ease-in-out infinite;
+}
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.4; transform: scaleY(1); }
+  50% { opacity: 1; transform: scaleY(1.1); }
+}
+
+/* ── SECTION SHARED ── */
+.sectionHeader {
   text-align: center;
+  margin-bottom: 56px;
+  padding: 0 20px;
+}
+
+.sectionTag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--primary-accent);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  border: 1px solid rgba(0,230,118,0.3);
+  padding: 4px 14px;
+  border-radius: 99px;
+}
+
+.sectionTitle {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 14px;
+  line-height: 1.15;
+}
+
+.sectionSubtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── SPORTS SECTION ── */
+.sportsSection {
+  padding: 100px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.sportsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+}
+
+.sportCard {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.sportCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top left, var(--sport-glow, transparent), transparent 70%);
+  pointer-events: none;
+}
+.sportCard:hover {
+  border-color: var(--sport-color, var(--primary-accent));
+  transform: translateY(-8px);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+}
+
+.sportCardEmoji {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+}
+
+.sportCardTitle {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--sport-color, #fff);
+  margin-bottom: 14px;
+}
+
+.sportCardDesc {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.65;
+  margin-bottom: 24px;
+  flex: 1;
+}
+
+.sportFeatures {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 28px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sportFeatures li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.featureDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sportBookBtn {
+  display: inline-block;
+  text-align: center;
+  padding: 14px 28px;
+  border-radius: 99px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #000;
+  text-decoration: none;
+  transition: all 0.25s;
+}
+.sportBookBtn:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+/* ── PRICING BANNER ── */
+.pricingBanner {
+  padding: 100px 24px;
+  background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 100%);
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
 }
 
-.infoContent {
-  max-width: 800px;
+.pricingGrid {
+  max-width: 900px;
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
 }
 
-.infoContent h2 {
-  font-size: 2.5rem;
+.priceCard {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 36px 32px;
+  border-radius: 24px;
+  border: 1px solid;
+  transition: transform 0.3s ease;
+}
+.priceCard:hover { transform: translateY(-6px); }
+
+.priceCard.offPeak {
+  background: rgba(0,230,118,0.06);
+  border-color: rgba(0,230,118,0.25);
+  color: #00e676;
+}
+
+.priceCard.peak {
+  background: rgba(0,176,255,0.06);
+  border-color: rgba(0,176,255,0.25);
+  color: #00b0ff;
+}
+
+.priceLabel {
+  font-size: 1rem;
+  font-weight: 700;
   color: #fff;
-  margin-bottom: 24px;
+  margin-bottom: 4px;
 }
 
-.infoContent p {
-  font-size: 1.125rem;
+.priceTime {
+  font-size: 0.85rem;
   color: var(--text-secondary);
-  line-height: 1.8;
 }
 
+.priceAmount {
+  margin-left: auto;
+  font-size: 2.2rem;
+  font-weight: 900;
+}
+.priceAmount span {
+  font-size: 1rem;
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+/* ── FEATURES ── */
+.featuresSection {
+  padding: 100px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 28px;
+}
+
+.featureCard {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  padding: 36px 28px;
+  border-radius: 24px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+.featureCard:hover {
+  border-color: var(--primary-accent);
+  transform: translateY(-8px);
+  box-shadow: 0 16px 48px rgba(0,230,118,0.08);
+}
+
+.iconBox {
+  width: 72px;
+  height: 72px;
+  background: rgba(0,230,118,0.1);
+  color: var(--primary-accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px auto;
+}
+
+.featureCard h3 {
+  font-size: 1.3rem;
+  color: #fff;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.featureCard p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* ── SNAP / PHOTO SECTIONS ── */
 .snapSection {
   position: relative;
-  min-height: 100vh;
-  width: 100vw;
-  scroll-snap-align: start;
+  min-height: 80vh;
+  width: 100%;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -197,127 +455,99 @@
 
 .snapBg {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   object-fit: cover;
   z-index: 0;
 }
 
 .snapOverlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.2) 100%);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.65) 40%, rgba(0,0,0,0.15) 100%);
   z-index: 1;
+}
+
+.snapSection:nth-child(even) .snapOverlay {
+  background: linear-gradient(270deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.65) 40%, rgba(0,0,0,0.15) 100%);
 }
 
 .snapContent {
   position: relative;
   z-index: 2;
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 0 40px;
+  max-width: 600px;
+  padding: 60px 60px;
+}
+
+.snapSection:nth-child(even) .snapContent {
+  margin-left: auto;
 }
 
 .snapContent h2 {
-  font-size: clamp(3rem, 6vw, 5rem);
+  font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 900;
   color: #fff;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   line-height: 1.1;
   text-transform: uppercase;
 }
 
 .snapContent p {
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
-  color: rgba(255, 255, 255, 0.9);
-  max-width: 600px;
-  line-height: 1.6;
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  color: rgba(255,255,255,0.85);
+  line-height: 1.7;
+  margin-bottom: 28px;
 }
 
-.galleryGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
-  margin-top: 40px;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+.snapCta {
+  display: inline-block;
+  padding: 14px 32px;
+  border-radius: 99px;
+  background: var(--primary-accent);
+  color: #000;
+  font-weight: 800;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.25s;
+}
+.snapCta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px var(--primary-accent-glow);
 }
 
-.galleryImage {
-  width: 100%;
-  height: 250px;
-  object-fit: cover;
-  border-radius: 16px;
-  transition: transform 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+/* ── CTA BAND ── */
+.ctaBand {
+  padding: 100px 24px;
+  background: linear-gradient(135deg, rgba(0,230,118,0.06) 0%, rgba(0,0,0,0) 60%);
+  border-top: 1px solid rgba(0,230,118,0.1);
+  border-bottom: 1px solid rgba(0,230,118,0.1);
 }
 
-.galleryImage:hover {
-  transform: scale(1.03);
-}
-
-.featuresSection {
-  padding: 100px 20px;
-  max-width: 1200px;
+.ctaBandInner {
+  max-width: 700px;
   margin: 0 auto;
-}
-
-.featuresGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 32px;
-}
-
-.featureCard {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  padding: 40px 30px;
-  border-radius: 24px;
   text-align: center;
-  transition: all var(--transition-fast);
 }
 
-.featureCard:hover {
-  border-color: var(--primary-accent);
-  transform: translateY(-10px);
-}
-
-.iconBox {
-  width: 80px;
-  height: 80px;
-  background: rgba(0, 230, 118, 0.1);
-  color: var(--primary-accent);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 24px auto;
-}
-
-.featureCard h3 {
-  font-size: 1.5rem;
+.ctaBandInner h2 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 900;
   color: #fff;
   margin-bottom: 16px;
 }
 
-.featureCard p {
+.ctaBandInner p {
+  font-size: 1.15rem;
   color: var(--text-secondary);
   line-height: 1.6;
 }
 
+/* ── FOOTER ── */
 .footer {
   background: #000;
-  padding: 60px 20px 20px 20px;
+  padding: 60px 24px 24px;
   border-top: 1px solid var(--border-color);
-  margin-top: auto;
-  scroll-snap-align: start;
 }
 
 .footerContent {
@@ -336,108 +566,32 @@
   margin-bottom: 8px;
 }
 
-.footerBrand p {
-  color: var(--text-secondary);
-}
-
-.footerContact h4 {
-  font-size: 1.125rem;
-  color: #fff;
-  margin-bottom: 16px;
-}
-
-.footerContact p {
+.footerBrand p, .footerContact p {
   color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
-.footerBottom {
-  text-align: center;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-}
-
-/* ── Pricing Banner ── */
-.pricingBanner {
-  padding: 60px 20px;
-  background: linear-gradient(135deg, #0a0a0f 0%, #111118 100%);
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.pricingGrid {
-  max-width: 900px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-}
-
-.priceCard {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 32px 28px;
-  border-radius: 20px;
-  border: 1px solid;
-  transition: transform 0.3s ease;
-}
-
-.priceCard:hover {
-  transform: translateY(-4px);
-}
-
-.priceCard.offPeak {
-  background: rgba(0, 230, 118, 0.06);
-  border-color: rgba(0, 230, 118, 0.25);
-  color: #00e676;
-}
-
-.priceCard.peak {
-  background: rgba(0, 176, 255, 0.06);
-  border-color: rgba(0, 176, 255, 0.25);
-  color: #00b0ff;
-}
-
-.priceLabel {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 4px;
-}
-
-.priceTime {
-  font-size: 0.85rem;
-  opacity: 0.7;
-  color: var(--text-secondary);
-}
-
-.priceAmount {
-  margin-left: auto;
-  font-size: 2rem;
-  font-weight: 900;
-}
-
-.priceAmount span {
-  font-size: 1rem;
-  font-weight: 500;
-  opacity: 0.7;
-}
-
-/* ── Footer Links Column ── */
-.footerLinks h4 {
-  font-size: 1.125rem;
+.footerContact h4, .footerLinks h4 {
+  font-size: 1.1rem;
   color: #fff;
   margin-bottom: 16px;
+  font-weight: 700;
 }
 
 .footerLinks a:hover {
   color: var(--primary-accent) !important;
 }
 
-@media (max-width: 640px) {
+.footerBottom {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
   .pricingGrid {
     grid-template-columns: 1fr;
   }
@@ -448,5 +602,33 @@
 
   .priceAmount {
     margin-left: 0;
+  }
+
+  .snapContent {
+    padding: 40px 24px;
+    max-width: 100%;
+  }
+
+  .snapSection {
+    min-height: 70vh;
+  }
+
+  .sportsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .sportBadges {
+    gap: 8px;
+  }
+
+  .sportChip {
+    font-size: 0.85rem;
+    padding: 6px 14px;
+  }
+
+  .snapContent h2 {
+    font-size: 1.8rem;
   }
 }

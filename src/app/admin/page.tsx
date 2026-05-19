@@ -188,7 +188,7 @@ export default function AdminDashboard() {
       clearInterval(ticker);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   const handleStatCardClick = (type: 'ALL' | 'TODAY' | 'DUE' | 'PAID') => {

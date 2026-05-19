@@ -5,7 +5,6 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 import styles from "./page.module.css";
 import { AlertCircle, CheckCircle, Home } from "lucide-react";
-import LogoutButton from "@/components/LogoutButton";
 import CancelBookingButton from "@/components/CancelBookingButton";
 import PastBookingsList from "@/components/PastBookingsList";
 
@@ -18,7 +17,7 @@ export default async function DashboardPage() {
 
   // Find bookings for the logged-in user
   const userBookings = await prisma.booking.findMany({
-    where: { userId: (session.user as any).id },
+    where: { userId: (session.user as { id?: string }).id },
     include: { team: true },
     orderBy: [
       { date: "desc" },
@@ -97,7 +96,7 @@ export default async function DashboardPage() {
 
         <section className={styles.card}>
           <h2 className={styles.cardTitle}>Past Bookings & Cleared Dues</h2>
-          <PastBookingsList bookings={pastBookings.map((b: any) => ({ ...b, date: b.date.toISOString(), createdAt: b.createdAt.toISOString(), updatedAt: b.updatedAt.toISOString() }))} />
+          <PastBookingsList bookings={pastBookings.map((b) => ({ ...b, date: b.date.toISOString(), createdAt: b.createdAt.toISOString(), updatedAt: b.updatedAt.toISOString() }))} />
         </section>
       </div>
     </div>

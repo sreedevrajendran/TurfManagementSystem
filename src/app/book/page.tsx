@@ -44,7 +44,7 @@ export default function BookPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   
   useEffect(() => {
-    let generated = generateDates(3);
+    const generated = generateDates(3);
     const params = new URLSearchParams(window.location.search);
     const dateParam = params.get('date');
     
