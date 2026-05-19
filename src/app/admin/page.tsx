@@ -53,7 +53,7 @@ export default function AdminDashboard() {
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [emailStatus, setEmailStatus] = useState('');
   const [dueAlertLoading, setDueAlertLoading] = useState(false);
-  const [filterType, setFilterType] = useState<'ALL' | 'TODAY' | 'DUE' | 'PAID'>('ALL');
+  const [filterType, setFilterType] = useState<'ALL' | 'TODAY' | 'WEEK' | 'MONTH' | 'DUE' | 'PAID' | 'CANCELLED' | 'NO_SHOW'>('ALL');
   const tableRef = useRef<HTMLElement>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [secondsAgo, setSecondsAgo] = useState(0);
@@ -80,7 +80,7 @@ export default function AdminDashboard() {
 
   // Users state
   const [users, setUsers] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'bookings' | 'users'>('bookings');
+  const [activeTab, setActiveTab] = useState<'overview' | 'operations' | 'bookings' | 'users'>('overview');
 
   const showAlert = (title: string, message: string, type: 'alert' | 'success' = 'alert', callback?: () => void) => {
     setCustomModal({
@@ -187,8 +187,11 @@ export default function AdminDashboard() {
   }, []);
 
   const handleStatCardClick = (type: 'ALL' | 'TODAY' | 'DUE' | 'PAID') => {
-    setFilterType(type);
-    tableRef.current?.scrollIntoView({ behavior: 'smooth' });
+    setActiveTab('bookings');
+    setFilterType(type as any);
+    setTimeout(() => {
+      tableRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   // ── Derived stats ────────────────────────────────────────────────────────
@@ -412,6 +415,34 @@ export default function AdminDashboard() {
         </div>
       </motion.header>
 
+      {/* ── TOP NAVIGATION ── */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 24, overflowX: 'auto', paddingBottom: 8, borderBottom: '1px solid var(--border-color)', marginTop: 16 }}>
+        {(['overview', 'operations', 'bookings', 'users'] as const).map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            style={{
+              padding: '10px 22px',
+              borderRadius: 99,
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              border: activeTab === tab ? '1px solid var(--primary-accent)' : '1px solid transparent',
+              background: activeTab === tab ? 'var(--primary-accent-muted)' : 'transparent',
+              color: activeTab === tab ? 'var(--primary-accent)' : 'var(--text-secondary)',
+              textTransform: 'capitalize',
+              whiteSpace: 'nowrap',
+              fontFamily: 'inherit',
+              transition: 'all 0.2s'
+            }}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'overview' && (
+        <>
       {/* ── STATS ── */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className={styles.statsGrid}>
         <div className={styles.statCard} style={{ cursor: 'pointer' }} onClick={() => handleStatCardClick('TODAY')}>
@@ -453,7 +484,11 @@ export default function AdminDashboard() {
         </div>
         {emailStatus && <p style={{ marginTop: 16, color: '#00E676' }}>{emailStatus}</p>}
       </motion.section>
+        </>
+      )}
 
+      {activeTab === 'operations' && (
+        <>
       {/* ── SPECIAL OFFERS ── */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
@@ -677,40 +712,16 @@ export default function AdminDashboard() {
           </div>
         )}
       </motion.section>
+        </>
+      )}
 
-      {/* ── BOOKINGS / USERS TAB SWITCHER ── */}
+      {activeTab === 'users' && (
       <motion.section
-        ref={tableRef}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
         className={styles.section}
       >
-        {/* Tab switcher */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
-          {(['bookings', 'users'] as const).map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              style={{
-                padding: '10px 22px',
-                borderRadius: 99,
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                cursor: 'pointer',
-                border: activeTab === tab ? '1px solid var(--primary-accent)' : '1px solid var(--border-color)',
-                background: activeTab === tab ? 'var(--primary-accent-muted)' : 'var(--bg-surface)',
-                color: activeTab === tab ? 'var(--primary-accent)' : 'var(--text-secondary)',
-                display: 'flex', alignItems: 'center', gap: 6,
-                fontFamily: 'inherit',
-              }}
-            >
-              {tab === 'bookings' ? <><CalendarOff size={15} /> Bookings</> : <><Users size={15} /> Registered Users</>}
-            </button>
-          ))}
-        </div>
-
-        {activeTab === 'users' ? (
           /* ── USERS TABLE ── */
           <div>
             <h2 className={styles.sectionTitle} style={{ marginBottom: 16 }}>
@@ -779,15 +790,36 @@ export default function AdminDashboard() {
               </div>
             )}
           </div>
+      </motion.section>
+      )}
 
-        ) : (
-          <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 className={styles.sectionTitle}>
-            {filterType === 'TODAY' ? "Today's Bookings" : 
-             filterType === 'DUE' ? "Pending Dues" : 
-             filterType === 'PAID' ? "Paid Bookings" : 
-             "Recent Bookings"}
+      {activeTab === 'bookings' && (
+      <motion.section
+        ref={tableRef}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className={styles.section}
+      >
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+          {['ALL', 'TODAY', 'WEEK', 'MONTH', 'DUE', 'PAID', 'CANCELLED', 'NO_SHOW'].map(f => (
+            <button
+              key={f}
+              onClick={() => setFilterType(f as any)}
+              style={{
+                padding: '6px 14px', borderRadius: 99, fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
+                background: filterType === f ? 'var(--primary-accent-muted)' : 'transparent',
+                border: filterType === f ? '1px solid var(--primary-accent)' : '1px solid var(--border-color)',
+                color: filterType === f ? 'var(--primary-accent)' : 'var(--text-secondary)'
+              }}
+            >
+              {f.replace('_', ' ')}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 className={styles.sectionTitle} style={{ margin: 0 }}>
+            {filterType.replace('_', ' ')} Bookings
             <button
               onClick={() => fetchBookings()}
               title="Refresh"
@@ -842,9 +874,23 @@ export default function AdminDashboard() {
               <tbody>
                 {bookings
                   .filter(b => {
+                    const [day, month, year] = b.date.split('/');
+                    const bDate = new Date(`${year}-${month}-${day}`);
+                    const now = new Date();
+                    
                     if (filterType === 'TODAY') return b.date === todayStr && b.status !== 'CANCELLED';
+                    if (filterType === 'WEEK') {
+                      const diffTime = Math.abs(now.getTime() - bDate.getTime());
+                      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                      return diffDays <= 7 && b.status !== 'CANCELLED';
+                    }
+                    if (filterType === 'MONTH') {
+                      return bDate.getMonth() === now.getMonth() && bDate.getFullYear() === now.getFullYear() && b.status !== 'CANCELLED';
+                    }
                     if (filterType === 'DUE') return b.status === 'DUE';
                     if (filterType === 'PAID') return b.status === 'PAID';
+                    if (filterType === 'CANCELLED') return b.status === 'CANCELLED';
+                    if (filterType === 'NO_SHOW') return b.status === 'PENDING' && bDate < new Date(now.setHours(0,0,0,0));
                     return true; // ALL
                   })
                   .map((booking) => (
@@ -889,9 +935,8 @@ export default function AdminDashboard() {
             </table>
           </div>
         )}
-          </>
-        )}
       </motion.section>
+      )}
 
       {/* ── User History Drawer (Portal) ── */}
       {selectedUser && typeof document !== 'undefined' && createPortal(
