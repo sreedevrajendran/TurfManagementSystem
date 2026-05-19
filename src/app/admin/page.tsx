@@ -43,6 +43,7 @@ const formatHour = (hour: number) => {
 export default function AdminDashboard() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [blockDate, setBlockDate] = useState('');
   const [blockEndDate, setBlockEndDate] = useState('');
   const [blockStart, setBlockStart] = useState('');
@@ -161,10 +162,14 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     // Initial load
-    fetchBookings();
-    fetchOffers();
-    fetchUsers();
-    fetchActiveBlocks();
+    Promise.all([
+      fetchBookings(),
+      fetchOffers(),
+      fetchUsers(),
+      fetchActiveBlocks()
+    ]).finally(() => {
+      setInitialLoad(false);
+    });
 
     // Auto-poll every 30 seconds (silent background refresh)
     const pollInterval = setInterval(() => fetchBookings(true), 30_000);
@@ -388,6 +393,24 @@ export default function AdminDashboard() {
       }
     });
   };
+
+  if (initialLoad) {
+    return (
+      <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-color)' }}>
+        <div style={{ display: 'flex', gap: '24px', fontSize: '3rem', marginBottom: '8px' }}>
+          <div style={{ animation: 'bounce 0.6s infinite alternate' }}>⚽</div>
+          <div style={{ animation: 'bounce 0.6s infinite alternate', animationDelay: '0.3s' }}>🏏</div>
+        </div>
+        <style>{`
+          @keyframes bounce {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-30px) scale(1.1); }
+          }
+        `}</style>
+        <p style={{ marginTop: 20, color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '2px' }}>LOADING DASHBOARD...</p>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -855,7 +878,10 @@ export default function AdminDashboard() {
           )}
         </div>
         {loading ? (
-          <p style={{ color: 'var(--text-secondary)' }}>Loading bookings...</p>
+          <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--text-secondary)' }}>
+            <RefreshCw size={24} style={{ animation: 'spin 1s linear infinite', marginBottom: 12, color: 'var(--primary-accent)' }} />
+            <p>Refreshing bookings...</p>
+          </div>
         ) : bookings.length === 0 ? (
           <p style={{ color: 'var(--text-secondary)' }}>No bookings yet. They'll appear here once users start booking.</p>
         ) : (

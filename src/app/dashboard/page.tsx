@@ -7,6 +7,7 @@ import styles from "./page.module.css";
 import { AlertCircle, CheckCircle, Home } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 import CancelBookingButton from "@/components/CancelBookingButton";
+import PastBookingsList from "@/components/PastBookingsList";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -96,25 +97,7 @@ export default async function DashboardPage() {
 
         <section className={styles.card}>
           <h2 className={styles.cardTitle}>Past Bookings & Cleared Dues</h2>
-          {pastBookings.length === 0 ? (
-            <p style={{ color: "var(--text-secondary)" }}>No past bookings found.</p>
-          ) : (
-            <ul className={styles.list}>
-              {pastBookings.map(booking => (
-                <li key={booking.id} className={styles.historyItem}>
-                  <div>
-                    <strong>{booking.date.toDateString()}</strong>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                      {formatTime(booking.startTime)} – {formatTime((booking.startTime + booking.durationHours) % 24)}
-                    </p>
-                  </div>
-                  <span className={booking.status === "PAID" ? styles.paidStatus : styles.cancelledStatus}>
-                    {booking.status}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <PastBookingsList bookings={pastBookings.map((b: any) => ({ ...b, date: b.date.toISOString(), createdAt: b.createdAt.toISOString(), updatedAt: b.updatedAt.toISOString() }))} />
         </section>
       </div>
     </div>

@@ -1,21 +1,23 @@
 export default function GlobalLoading() {
   return (
     <div style={{
-      width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', 
-      alignItems: 'center', justifyContent: 'center', background: '#0a0a0f',
-      position: 'fixed', top: 0, left: 0, zIndex: 9999
+      position: 'fixed', top: 0, left: 0, width: '100%', height: '4px', zIndex: 9999,
+      background: 'rgba(255,255,255,0.05)'
     }}>
       <div style={{
-        width: '60px', height: '60px', border: '3px solid rgba(0, 230, 118, 0.15)',
-        borderTop: '3px solid #00e676', borderRadius: '50%',
-        animation: 'spin 0.8s ease-in-out infinite'
+        height: '100%',
+        background: '#00e676',
+        animation: 'loadingBar 1.5s infinite ease-in-out',
+        width: '30%',
+        boxShadow: '0 0 10px #00e676'
       }} />
       <style>{`
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes loadingBar {
+          0% { transform: translateX(-100%); width: 30%; }
+          50% { width: 50%; }
+          100% { transform: translateX(400%); width: 10%; }
+        }
       `}</style>
-      <p style={{ marginTop: '24px', color: '#00e676', fontWeight: 700, letterSpacing: '4px', fontSize: '13px' }}>
-        LOADING...
-      </p>
     </div>
   );
 }

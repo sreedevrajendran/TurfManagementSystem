@@ -58,7 +58,7 @@ export default function Home() {
 
           <motion.h1 variants={itemVariants} className={styles.title}>EAST WELFARE TURF</motion.h1>
           <motion.p variants={itemVariants} className={styles.subtitle}>
-            Premium 6-a-side football on high-quality artificial grass with LED floodlights.
+            Premium 6-a-side Football & Cricket on high-quality artificial grass with LED floodlights.
             Fast bookings, dynamic pricing — play day or night.
           </motion.p>
           <motion.div variants={itemVariants} className={styles.ctaWrapper}>
@@ -131,9 +131,9 @@ export default function Home() {
           viewport={{ amount: 0.4 }}
           className={styles.snapContent}
         >
-          <h2>The Heart of Local Football</h2>
+          <h2>The Heart of Local Sports</h2>
           <p>
-            Nestled inside the historic Mannar East Welfare School, our turf isn't just a football ground—it's a vibrant community hub built to foster local athletic talent and bring people together.
+            Nestled inside the historic Mannar East Welfare School, our turf isn't just a football and cricket ground—it's a vibrant community hub built to foster local athletic talent and bring people together.
           </p>
         </motion.div>
       </section>
@@ -209,9 +209,9 @@ export default function Home() {
           viewport={{ amount: 0.4 }}
           className={styles.snapContent}
         >
-          <h2>A World Cup Atmosphere</h2>
+          <h2>A World-Class Atmosphere</h2>
           <p>
-            Surrounded by the flags of world football giants, playing here feels like stepping onto a World Cup pitch right in Kerala. Open 24/7—book any hour of the day or night!
+            Surrounded by the flags of world football giants and cricket legends, playing here feels like stepping onto a premier stadium pitch right in Kerala. Open 24/7—book any hour of the day or night!
           </p>
         </motion.div>
       </section>
@@ -265,7 +265,7 @@ export default function Home() {
         <div className={styles.footerBottom}>
           <p>© {new Date().getFullYear()} East Welfare Turf · Mannar, Kerala · All Rights Reserved</p>
           <p style={{ marginTop: 4, fontSize: '0.78rem', opacity: 0.5 }}>
-            Built with ❤️ for the football community
+            Built with ❤️ for the football & cricket community
           </p>
         </div>
       </footer>

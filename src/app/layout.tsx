@@ -10,8 +10,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "EAST WELFARE TURF | Premium 6-a-Side Football",
-  description: "Book your premium 6-a-side artificial grass football turf at EAST WELFARE TURF. Experience high-end facilities, dynamic pricing, and easy booking.",
+  title: "EAST WELFARE TURF | Premium 6-a-Side Football & Cricket",
+  description: "Book your premium artificial grass turf for Football and Cricket at EAST WELFARE TURF. Experience high-end facilities, dynamic pricing, and easy booking.",
 };
 
 import AlertBanner from "@/components/AlertBanner";
