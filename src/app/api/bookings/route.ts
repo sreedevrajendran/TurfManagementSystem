@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
   const isAdmin = (session.user as any).role === "ADMIN";
 
   try {
-    const { date, startTime, durationHours, teamName, phone, amount } = await req.json();
+    const { date, startTime, durationHours, teamName, phone, amount, sport = 'FOOTBALL' } = await req.json();
 
     if (!date || startTime === undefined || !teamName || !amount) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -122,6 +122,7 @@ export async function POST(req: NextRequest) {
         startTime: Number(startTime),
         durationHours: Number(durationHours),
         amount: Number(amount),
+        sport,
         status: "DUE",
         teamId: team?.id ?? undefined,
         userId: dbUser.id,
@@ -164,6 +165,7 @@ export async function POST(req: NextRequest) {
         amount: Number(amount),
         originalAmount,
         offer: appliedOffer,
+        sport,
       });
     } catch (e) {
       console.error("Confirmation email failed:", e);
@@ -179,6 +181,7 @@ export async function POST(req: NextRequest) {
         startTime: Number(startTime),
         duration: Number(durationHours),
         amount: Number(amount),
+        sport,
       });
     } catch (e) {
       console.error("Admin booking alert email failed:", e);

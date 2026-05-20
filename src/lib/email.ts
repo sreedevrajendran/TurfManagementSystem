@@ -39,6 +39,7 @@ export async function sendBookingConfirmation({
   amount,
   originalAmount,
   offer,
+  sport,
 }: {
   to: string;
   name: string;
@@ -49,6 +50,7 @@ export async function sendBookingConfirmation({
   amount: number;
   originalAmount?: number;
   offer?: { title: string; discountPct: number; slotType: string } | null;
+  sport?: string;
 }) {
   const formatHour = (hour: number) => {
     const h = hour % 24;
@@ -84,7 +86,7 @@ export async function sendBookingConfirmation({
       <p style="margin: 0 0 8px;"><strong>Duration:</strong> ${duration} hour(s)</p>
       <p style="margin: 0;"><strong>Amount Due at Venue:</strong> ${amountHtml}</p>
     </div>
-    <p style="color: #aaa;">Please arrive 10 minutes early. Payment is collected at the venue. See you on the pitch! ⚽</p>
+    <p style="color: #aaa;">Please arrive 10 minutes early. Payment is collected at the venue. See you on the pitch! ${sport === 'CRICKET' ? '🏏' : '⚽'}</p>
   `);
 
   await transporter.sendMail({ from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`, to, subject, html });
@@ -224,6 +226,7 @@ export async function sendCancellationEmail({
   startTime,
   duration,
   reason,
+  sport,
 }: {
   to: string;
   name: string;
@@ -232,6 +235,7 @@ export async function sendCancellationEmail({
   startTime: number;
   duration: number;
   reason?: string;
+  sport?: string;
 }) {
   const formatHour = (hour: number) => {
     const h = hour % 24;
@@ -249,7 +253,7 @@ export async function sendCancellationEmail({
       <p style="margin: 0;"><strong>Time:</strong> ${formatHour(startTime)} – ${formatHour((startTime + duration) % 24)}</p>
       ${reason ? `<p style="margin: 8px 0 0; color: #FF6B6B;"><strong>Reason:</strong> ${reason}</p>` : ''}
     </div>
-    <p style="color: #aaa;">${reason ? 'We deeply apologize for the inconvenience caused by this emergency block. You can book another available slot from our website.' : 'Your slot has been released. We hope to see you on the pitch next time! ⚽'}</p>
+    <p style="color: #aaa;">${reason ? 'We deeply apologize for the inconvenience caused by this emergency block. You can book another available slot from our website.' : `Your slot has been released. We hope to see you on the pitch next time! ${sport === 'CRICKET' ? '🏏' : '⚽'}`}</p>
   `);
 
   await transporter.sendMail({ from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`, to, subject, html });
@@ -265,6 +269,7 @@ export async function sendAdminBookingAlert({
   startTime,
   duration,
   amount,
+  sport,
 }: {
   userName: string;
   userEmail: string;
@@ -273,6 +278,7 @@ export async function sendAdminBookingAlert({
   startTime: number;
   duration: number;
   amount: number;
+  sport?: string;
 }) {
   const formatHour = (hour: number) => {
     const h = hour % 24;
@@ -288,6 +294,7 @@ export async function sendAdminBookingAlert({
       <p style="margin: 0 0 8px;"><strong>Team:</strong> ${teamName}</p>
       <p style="margin: 0 0 8px;"><strong>Booked By:</strong> ${userName} (${userEmail})</p>
       <p style="margin: 0 0 8px;"><strong>Date:</strong> ${date}</p>
+      <p style="margin: 0 0 8px;"><strong>Sport:</strong> ${sport === 'CRICKET' ? 'Cricket 🏏' : 'Football ⚽'}</p>
       <p style="margin: 0 0 8px;"><strong>Time:</strong> ${formatHour(startTime)} to ${formatHour((startTime + duration) % 24)}</p>
       <p style="margin: 0 0 8px;"><strong>Duration:</strong> ${duration} hour(s)</p>
       <p style="margin: 0;"><strong>Amount Due:</strong> <span style="color: #00e676; font-size: 18px;">Rs.${amount}</span></p>

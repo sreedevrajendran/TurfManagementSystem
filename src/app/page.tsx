@@ -34,7 +34,9 @@ export default function Home() {
               <MapPin size={14} className={styles.badgeIcon} /> Mannar East Welfare School, Kerala
             </span>
           </motion.div>
-          <motion.h1 variants={fadeUp} className={styles.title}>EAST WELFARE TURF</motion.h1>
+          <motion.h1 variants={fadeUp} className={styles.title}>
+            {session?.user?.name ? `Welcome, ${session.user.name.split(' ')[0]}!` : 'EAST WELFARE TURF'}
+          </motion.h1>
           <motion.p variants={fadeUp} className={styles.subtitle}>
             Premium Football &amp; Cricket on high-quality artificial grass with LED floodlights.
             Fast bookings, dynamic pricing — play day or night.
@@ -107,9 +109,6 @@ export default function Home() {
                   <li key={f}><span className={styles.featureDot} style={{ background: s.color }} />  {f}</li>
                 ))}
               </ul>
-              <Link href="/book" className={styles.sportBookBtn} style={{ background: s.color }}>
-                Book {s.sport} Slot →
-              </Link>
             </motion.div>
           ))}
         </div>

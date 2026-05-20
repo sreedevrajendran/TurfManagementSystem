@@ -66,6 +66,7 @@ export default function BookPage() {
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [duration, setDuration] = useState<number>(1);
+  const [sport, setSport] = useState<'FOOTBALL' | 'CRICKET'>('FOOTBALL');
   const [teamName, setTeamName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -154,6 +155,7 @@ export default function BookPage() {
     }
     setSelectedSlot(hour);
     setDuration(1);
+    setSport('FOOTBALL');
     setIsModalOpen(true);
   };
 
@@ -221,13 +223,14 @@ export default function BookPage() {
           teamName: teamName.trim(),
           phone: phoneNumber.trim(),
           amount: totalFinal,
+          sport,
         }),
       });
 
       if (res.ok) {
         showAlert(
           'Booking Confirmed!', 
-          `Team: ${teamName}\nTime: ${formatTime(selectedSlot)} for ${duration} hour(s)\nTotal: ₹${totalFinal}\n\nPay at the venue.`,
+          `Team: ${teamName}\nSport: ${sport === 'CRICKET' ? 'Cricket' : 'Football'}\nTime: ${formatTime(selectedSlot)} for ${duration} hour(s)\nTotal: ₹${totalFinal}\n\nPay at the venue.`,
           'success',
           () => {
             setIsModalOpen(false);
@@ -463,6 +466,22 @@ export default function BookPage() {
                 {/* drag handle */}
                 <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.15)', borderRadius: 4, margin: '0 auto 20px' }} />
                 <h2 className={styles.modalTitle}>Book Slot</h2>
+
+                <div className={styles.inputGroup}>
+                  <label>Sport</label>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button 
+                      onClick={() => setSport('FOOTBALL')}
+                      style={{ flex: 1, padding: '10px', borderRadius: '8px', border: sport === 'FOOTBALL' ? '2px solid #00e676' : '1px solid var(--border-color)', background: sport === 'FOOTBALL' ? 'rgba(0,230,118,0.1)' : 'transparent', color: '#fff', cursor: 'pointer' }}>
+                      ⚽ Football
+                    </button>
+                    <button 
+                      onClick={() => setSport('CRICKET')}
+                      style={{ flex: 1, padding: '10px', borderRadius: '8px', border: sport === 'CRICKET' ? '2px solid #00b0ff' : '1px solid var(--border-color)', background: sport === 'CRICKET' ? 'rgba(0,176,255,0.1)' : 'transparent', color: '#fff', cursor: 'pointer' }}>
+                      🏏 Cricket
+                    </button>
+                  </div>
+                </div>
 
                 <div className={styles.inputGroup}>
                   <label>Team Name</label>

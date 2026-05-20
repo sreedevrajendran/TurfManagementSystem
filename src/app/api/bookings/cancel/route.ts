@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
           date: booking.date.toISOString().split('T')[0],
           startTime: booking.startTime,
           duration: booking.durationHours,
+          sport: booking.sport,
         });
       }
     } catch (e) {
