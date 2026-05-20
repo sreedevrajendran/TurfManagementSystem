@@ -243,17 +243,20 @@ export async function sendCancellationEmail({
     const displayHour = h % 12 || 12;
     return `${displayHour}:00 ${ampm}`;
   };
-  const subject = "❌ Booking Cancelled – East Welfare Turf";
+  const subject = reason 
+    ? `⚠️ Emergency Booking Cancellation – East Welfare Turf (${date})` 
+    : "❌ Booking Cancelled – East Welfare Turf";
   const html = baseTemplate(`
-    <h2 style="color: #FF4444; font-size: 22px;">Booking Cancelled</h2>
-    <p>Hi <strong>${name}</strong>, your booking has been cancelled.</p>
+    <h2 style="color: #FF4444; font-size: 22px;">${reason ? "⚠️ Emergency Cancellation" : "Booking Cancelled"}</h2>
+    <p>Hi <strong>${name}</strong>, ${reason ? "we regret to inform you that your booking had to be cancelled due to an emergency block." : "your booking has been cancelled."}</p>
     <div style="background: #141420; border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #FF4444;">
       <p style="margin: 0 0 8px;"><strong>Team:</strong> ${teamName}</p>
       <p style="margin: 0 0 8px;"><strong>Date:</strong> ${date}</p>
-      <p style="margin: 0;"><strong>Time:</strong> ${formatHour(startTime)} – ${formatHour((startTime + duration) % 24)}</p>
-      ${reason ? `<p style="margin: 8px 0 0; color: #FF6B6B;"><strong>Reason:</strong> ${reason}</p>` : ''}
+      <p style="margin: 0 0 8px;"><strong>Time:</strong> ${formatHour(startTime)} – ${formatHour((startTime + duration) % 24)}</p>
+      ${reason ? `<p style="margin: 12px 0 0; padding-top: 12px; border-top: 1px dashed rgba(255,255,255,0.1); color: #FF8B8B; font-size: 14px;"><strong>Reason for Block:</strong> ${reason}</p>` : ''}
     </div>
-    <p style="color: #aaa;">${reason ? 'We deeply apologize for the inconvenience caused by this emergency block. You can book another available slot from our website.' : `Your slot has been released. We hope to see you on the pitch next time! ${sport === 'CRICKET' ? '🏏' : '⚽'}`}</p>
+    <p style="color: #aaa; font-size: 14px;">${reason ? 'We deeply apologize for this inconvenience. You can view other available slots and book a new session directly on our website.' : `Your slot has been released. We hope to see you on the pitch next time! ${sport === 'CRICKET' ? '🏏' : '⚽'}`}</p>
+    <a href="https://eastwelfareturf.vercel.app/book" style="display: inline-block; margin-top: 16px; padding: 12px 24px; background: #FF4444; color: #fff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px;">📅 Book a New Session</a>
   `);
 
   await transporter.sendMail({ from: `"East Welfare Turf" <${process.env.EMAIL_FROM}>`, to, subject, html });
