@@ -11,13 +11,34 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const bookings = await prisma.booking.findMany({
-      where: { user: { email: session.user.email } },
-      include: { team: true },
-      orderBy: [{ date: "desc" }, { startTime: "desc" }],
-    });
+    // Use userId directly from JWT token (set in auth.ts session callback)
+    const userId = (session.user as any).id as string | undefined;
 
-    // Safely serialize — handles both Date objects and strings
+    // Build where clause — prefer userId (faster), fallback to email lookup
+    let bookings;
+    if (userId) {
+      bookings = await prisma.booking.findMany({
+        where: { userId },
+        include: { team: true },
+        orderBy: [{ date: "desc" }, { startTime: "desc" }],
+      });
+    } else {
+      // Fallback: look up user by email first
+      const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+        select: { id: true },
+      });
+      if (!user) {
+        return NextResponse.json([]);
+      }
+      bookings = await prisma.booking.findMany({
+        where: { userId: user.id },
+        include: { team: true },
+        orderBy: [{ date: "desc" }, { startTime: "desc" }],
+      });
+    }
+
+    // Safely serialize dates
     const serialized = bookings.map((b) => ({
       id: b.id,
       date: b.date ? new Date(b.date).toISOString() : null,
@@ -30,9 +51,9 @@ export async function GET() {
 
     return NextResponse.json(serialized);
   } catch (err: any) {
-    console.error("[/api/user/bookings] Error:", err);
+    console.error("[/api/user/bookings] Error:", err?.message, err?.stack);
     return NextResponse.json(
-      { error: "Failed to load bookings", detail: err?.message ?? "Unknown error" },
+      { error: "Failed to load bookings", detail: err?.message ?? "Unknown" },
       { status: 500 }
     );
   }
