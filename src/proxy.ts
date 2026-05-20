@@ -11,7 +11,8 @@ export async function proxy(request: NextRequest) {
     });
 
     if (!token || token.role !== "ADMIN") {
-      const homeUrl = new URL("/", request.url);
+      const homeUrl = request.nextUrl.clone();
+      homeUrl.pathname = '/';
       return NextResponse.redirect(homeUrl);
     }
   }

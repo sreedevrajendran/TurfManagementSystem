@@ -96,7 +96,7 @@ export default async function DashboardPage() {
 
         <section className={styles.card}>
           <h2 className={styles.cardTitle}>Past Bookings & Cleared Dues</h2>
-          <PastBookingsList bookings={pastBookings.map((b) => ({ ...b, date: b.date.toISOString(), createdAt: b.createdAt.toISOString(), updatedAt: b.updatedAt.toISOString() }))} />
+          <PastBookingsList bookings={pastBookings.map((b) => ({ id: b.id, date: b.date.toISOString(), startTime: b.startTime, durationHours: b.durationHours, status: b.status }))} />
         </section>
       </div>
     </div>
