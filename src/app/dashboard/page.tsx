@@ -11,7 +11,7 @@ import PastBookingsList from "@/components/PastBookingsList";
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user) {
+  if (!session?.user?.email) {
     redirect("/");
   }
 
@@ -69,7 +69,7 @@ export default async function DashboardPage() {
               {pendingDues.map(due => (
                 <li key={due.id} className={styles.dueItem}>
                   <div>
-                    <strong>{due.date.toDateString()}</strong>
+                    <strong>{new Date(due.date).toDateString()}</strong>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '4px 0' }}>
                       {formatTime(due.startTime)} – {formatTime((due.startTime + due.durationHours) % 24)}
                     </p>
@@ -96,7 +96,7 @@ export default async function DashboardPage() {
 
         <section className={styles.card}>
           <h2 className={styles.cardTitle}>Past Bookings & Cleared Dues</h2>
-          <PastBookingsList bookings={pastBookings.map((b) => ({ id: b.id, date: b.date.toISOString(), startTime: b.startTime, durationHours: b.durationHours, status: b.status }))} />
+          <PastBookingsList bookings={pastBookings.map((b) => ({ id: b.id, date: new Date(b.date).toISOString(), startTime: b.startTime, durationHours: b.durationHours, status: b.status }))} />
         </section>
       </div>
     </div>
