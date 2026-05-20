@@ -1,11 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import CustomModal from '@/components/CustomModal';
 
-export default function CancelBookingButton({ bookingId }: { bookingId: string }) {
-  const router = useRouter();
+export default function CancelBookingButton({
+  bookingId,
+  onSuccess,
+}: {
+  bookingId: string;
+  onSuccess?: () => void;
+}) {
   const [isCancelling, setIsCancelling] = useState(false);
   const [customModal, setCustomModal] = useState<{
     isOpen: boolean;
@@ -29,11 +33,11 @@ export default function CancelBookingButton({ bookingId }: { bookingId: string }
           const res = await fetch('/api/bookings/cancel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bookingId })
+            body: JSON.stringify({ bookingId }),
           });
-          
+
           if (res.ok) {
-            router.refresh(); // Refresh the server component to update the list
+            if (onSuccess) onSuccess();
           } else {
             const err = await res.json();
             setCustomModal({
@@ -41,29 +45,29 @@ export default function CancelBookingButton({ bookingId }: { bookingId: string }
               type: 'alert',
               title: 'Cannot Cancel',
               message: err.error || 'Failed to cancel the booking.',
-              onConfirm: () => setCustomModal(null)
+              onConfirm: () => setCustomModal(null),
             });
           }
-        } catch (error) {
+        } catch {
           setCustomModal({
             isOpen: true,
             type: 'alert',
             title: 'Network Error',
             message: 'Please try again later.',
-            onConfirm: () => setCustomModal(null)
+            onConfirm: () => setCustomModal(null),
           });
         } finally {
           setIsCancelling(false);
         }
       },
-      onCancel: () => setCustomModal(null)
+      onCancel: () => setCustomModal(null),
     });
   };
 
   return (
     <>
-      <button 
-        onClick={handleCancelClick} 
+      <button
+        onClick={handleCancelClick}
         disabled={isCancelling}
         style={{
           background: 'rgba(255, 68, 68, 0.1)',
@@ -76,7 +80,7 @@ export default function CancelBookingButton({ bookingId }: { bookingId: string }
           fontWeight: 600,
           marginTop: '8px',
           transition: 'all 0.2s',
-          opacity: isCancelling ? 0.5 : 1
+          opacity: isCancelling ? 0.5 : 1,
         }}
       >
         {isCancelling ? 'Cancelling...' : 'Cancel Slot'}
