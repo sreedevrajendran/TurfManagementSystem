@@ -2,6 +2,11 @@
   "buildCommand": "prisma generate && next build",
   "installCommand": "npm install",
   "framework": "nextjs",
+  "build": {
+    "env": {
+      "NEXTAUTH_URL": "https://localhost:3000"
+    }
+  },
   "crons": [
     {
       "path": "/api/cron/slot-reminders",
