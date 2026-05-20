@@ -29,14 +29,19 @@ export default function Home() {
         </video>
         <div className={styles.heroOverlay} />
         <motion.div className={styles.heroContent} initial="hidden" animate="visible" variants={stagger}>
+          {session?.user?.name && (
+            <motion.div variants={fadeUp} style={{ marginBottom: 16 }}>
+              <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px 16px', borderRadius: '12px', display: 'inline-block', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontWeight: 600, fontSize: '0.9rem' }}>
+                👋 Welcome back, {session.user.name.split(' ')[0]}!
+              </div>
+            </motion.div>
+          )}
           <motion.div variants={fadeUp} className={styles.badgeWrapper}>
             <span className={styles.badge}>
               <MapPin size={14} className={styles.badgeIcon} /> Mannar East Welfare School, Kerala
             </span>
           </motion.div>
-          <motion.h1 variants={fadeUp} className={styles.title}>
-            {session?.user?.name ? `Welcome, ${session.user.name.split(' ')[0]}!` : 'EAST WELFARE TURF'}
-          </motion.h1>
+          <motion.h1 variants={fadeUp} className={styles.title}>EAST WELFARE TURF</motion.h1>
           <motion.p variants={fadeUp} className={styles.subtitle}>
             Premium Football &amp; Cricket on high-quality artificial grass with LED floodlights.
             Fast bookings, dynamic pricing — play day or night.

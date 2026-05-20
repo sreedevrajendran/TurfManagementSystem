@@ -17,7 +17,7 @@ export default async function DashboardPage() {
 
   // Find bookings for the logged-in user
   const userBookings = await prisma.booking.findMany({
-    where: { userId: (session.user as { id?: string }).id },
+    where: { user: { email: session.user.email } },
     include: { team: true },
     orderBy: [
       { date: "desc" },
