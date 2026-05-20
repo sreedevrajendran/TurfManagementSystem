@@ -4,9 +4,9 @@ import { sendSlotReminder } from "@/lib/email";
 
 /**
  * Vercel Cron — runs every minute.
- * When the current time is HH:30 (any half-hour mark),
+ * When the current time is HH:50 (10 minutes before the next hour),
  * we find all active bookings starting at HH+1:00 today
- * and send a "30 minutes away" reminder email to the user.
+ * and send a "10 minutes away" reminder email to the user.
  *
  * Secured by CRON_SECRET env var.
  */
@@ -24,12 +24,12 @@ export async function GET(req: NextRequest) {
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
 
-  // Only fire at the :30 mark (within a 1-minute window to handle cron jitter)
-  if (currentMinute < 29 || currentMinute > 31) {
-    return NextResponse.json({ skipped: true, reason: "Not the :30 mark", time: `${currentHour}:${currentMinute}` });
+  // Only fire at the :50 mark (within a 1-minute window to handle cron jitter)
+  if (currentMinute < 49 || currentMinute > 51) {
+    return NextResponse.json({ skipped: true, reason: "Not the :50 mark", time: `${currentHour}:${currentMinute}` });
   }
 
-  // The slot we need to remind about starts 30 min from now → next hour
+  // The slot we need to remind about starts 10 min from now → next hour
   const targetHour = (currentHour + 1) % 24;
 
   // Get today's date range in IST

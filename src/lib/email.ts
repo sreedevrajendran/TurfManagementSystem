@@ -536,10 +536,10 @@ export async function sendSlotReminder({
     return `${displayHour}:00 ${ampm}`;
   };
 
-  const subject = `⏰ Reminder: Your slot starts in 30 minutes! – East Welfare Turf`;
+  const subject = `⏰ Reminder: Your slot starts in 10 minutes! – East Welfare Turf`;
   const html = baseTemplate(`
-    <h2 style="color: #FFD700; font-size: 22px;">⏰ Your Slot Starts in 30 Minutes!</h2>
-    <p>Hi <strong>${name}</strong>, this is a friendly reminder that your turf slot is starting soon!</p>
+    <h2 style="color: #FFD700; font-size: 22px;">⏰ Your Slot Starts in 10 Minutes!</h2>
+    <p>Hi <strong>${name}</strong>, this is a friendly reminder that your turf slot is starting in 10 minutes!</p>
     <div style="background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,140,0,0.05)); border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #FFD700;">
       <p style="margin: 0 0 8px;"><strong>Team:</strong> ${teamName}</p>
       <p style="margin: 0 0 8px;"><strong>Date:</strong> ${date}</p>
