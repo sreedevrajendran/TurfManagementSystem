@@ -9,7 +9,7 @@ export async function GET() {
     
     if (!pricing) {
       pricing = await prisma.pricing.create({
-        data: { id: "default", offPeak: 800, peak: 1100, peakStart: 19 }
+        data: { id: "default", offPeak: 800, peak: 1200, peakStart: 19 }
       });
     }
     

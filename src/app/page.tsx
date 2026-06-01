@@ -155,7 +155,7 @@ export default function Home() {
               <div className={styles.priceLabel}>Night Slots (Peak + Lights)</div>
               <div className={styles.priceTime}>7:00 PM – 6:00 AM</div>
             </div>
-            <div className={styles.priceAmount}>₹1100<span>/hr</span></div>
+            <div className={styles.priceAmount}>₹1200<span>/hr</span></div>
           </motion.div>
         </div>
       </section>
