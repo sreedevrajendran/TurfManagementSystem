@@ -430,7 +430,15 @@ export default function BookPage() {
             <motion.div
               variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1 } }}
               key={hour}
-              onClick={() => !isDisabled && handleSlotClick(hour)}
+              onClick={() => {
+                if (isBlocked) {
+                  showAlert('Slot Blocked 🔒', `This slot is currently unavailable.\nReason: ${blockingBlock.reason}`);
+                } else if (isBooked) {
+                  showAlert('Already Booked', 'This slot has already been booked by another team.');
+                } else if (!isDisabled) {
+                  handleSlotClick(hour);
+                }
+              }}
               className={`${styles.slot} ${
                 isFetchingSlots ? styles.fetching : isBooked ? styles.booked : styles.available
               }`}
