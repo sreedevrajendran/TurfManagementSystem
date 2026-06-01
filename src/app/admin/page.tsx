@@ -9,6 +9,7 @@ import { AlertTriangle, CalendarOff, Mail, Tag, RefreshCw, Home, Users } from 'l
 import styles from './page.module.css';
 import LogoutButton from '@/components/LogoutButton';
 import CustomModal from '@/components/CustomModal';
+import { generateReceiptImage } from '@/lib/generateReceipt';
 
 type Booking = {
   id: string;
@@ -19,6 +20,7 @@ type Booking = {
   durationHours: number;
   amount: number;
   status: 'PENDING' | 'PAID' | 'DUE' | 'CANCELLED' | 'BLOCKED';
+  sport?: string;
   userEmail?: string;
 };
 
@@ -973,6 +975,29 @@ export default function AdminDashboard() {
                             <button onClick={() => markNoShow(booking.id)} className={`${styles.actionBtn} ${styles.markDue}`}>No-Show</button>
                           )}
                           <button onClick={() => cancelBooking(booking.id)} className={`${styles.actionBtn} ${styles.cancel}`}>Cancel</button>
+                          <button
+                            onClick={() => {
+                              const payStatus = booking.status === 'PAID' ? 'CONFIRMED' : booking.status === 'DUE' ? 'DUE' : 'PENDING';
+                              const img = generateReceiptImage({
+                                teamName: booking.teamName || 'Team',
+                                sport: booking.sport === 'CRICKET' ? 'Cricket' : 'Football',
+                                date: new Date(booking.date).toLocaleDateString('en-IN'),
+                                time: `${formatHour(booking.startTime)} – ${formatHour((booking.startTime + booking.durationHours) % 24)}`,
+                                duration: booking.durationHours,
+                                phone: booking.phone || '',
+                                amount: booking.amount,
+                                paymentStatus: payStatus,
+                              });
+                              const a = document.createElement('a');
+                              a.href = img;
+                              a.download = `Receipt_${booking.teamName}_${booking.status}.png`;
+                              a.click();
+                            }}
+                            className={styles.actionBtn}
+                            style={{ background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF' }}
+                          >
+                            🧲 Receipt
+                          </button>
                         </div>
                       )}
                     </td>

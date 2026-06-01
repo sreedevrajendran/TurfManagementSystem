@@ -4,12 +4,13 @@
 export interface ReceiptData {
   teamName: string;
   sport: string;
-  date: string;        // e.g. "01/06/2026"
-  time: string;        // e.g. "7:00 PM"
-  duration: number;    // hours
+  date: string;
+  time: string;
+  duration: number;
   phone: string;
   amount: number;
   bookingId?: string;
+  paymentStatus?: 'CONFIRMED' | 'PENDING' | 'DUE';
 }
 
 export function generateReceiptImage(data: ReceiptData): string {
@@ -153,6 +154,32 @@ export function generateReceiptImage(data: ReceiptData): string {
   ctx.font = 'bold 11px Arial';
   ctx.fillStyle = 'rgba(0,230,118,0.5)';
   ctx.fillText('eastwelfareturf.vercel.app', W / 2, footerY + 50);
+
+  // ── Payment Status Stamp ─────────────────────────────────────
+  if (data.paymentStatus) {
+    const stampConfig = {
+      CONFIRMED: { text: '✓ PAYMENT CONFIRMED', color: '#00e676', border: 'rgba(0,230,118,0.6)', bg: 'rgba(0,230,118,0.1)' },
+      PENDING:   { text: '⏳ PAYMENT PENDING',  color: '#FFAB00', border: 'rgba(255,171,0,0.6)',  bg: 'rgba(255,171,0,0.1)' },
+      DUE:       { text: '⚠ PAYMENT DUE',       color: '#FF4444', border: 'rgba(255,68,68,0.6)',  bg: 'rgba(255,68,68,0.1)' },
+    }[data.paymentStatus];
+
+    const stampW = 240;
+    const stampH = 36;
+    const stampX = W / 2 - stampW / 2;
+    const stampY = footerY + 68;
+
+    roundRect(ctx, stampX, stampY, stampW, stampH, 8);
+    ctx.fillStyle = stampConfig.bg;
+    ctx.fill();
+    ctx.strokeStyle = stampConfig.border;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.font = 'bold 13px Arial';
+    ctx.fillStyle = stampConfig.color;
+    ctx.textAlign = 'center';
+    ctx.fillText(stampConfig.text, W / 2, stampY + 23);
+  }
 
   // ── Bottom accent strip ──────────────────────────────────────
   const botGrad = ctx.createLinearGradient(0, H - 6, W, H - 6);

@@ -7,6 +7,7 @@ import styles from './page.module.css';
 import { AlertCircle, CheckCircle, Home, Loader2 } from 'lucide-react';
 import CancelBookingButton from '@/components/CancelBookingButton';
 import PastBookingsList from '@/components/PastBookingsList';
+import { generateReceiptImage } from '@/lib/generateReceipt';
 
 type Booking = {
   id: string;
@@ -15,7 +16,9 @@ type Booking = {
   durationHours: number;
   amount: number;
   status: string;
+  sport: string;
   teamName: string | null;
+  phone?: string | null;
 };
 
 const formatTime = (hour: number) => {
@@ -119,13 +122,36 @@ export default function DashboardPage() {
                         {formatTime(due.startTime)} – {formatTime((due.startTime + due.durationHours) % 24)}
                       </p>
                       {due.teamName && <p>Team: {due.teamName}</p>}
-                      {canCancel ? (
-                        <CancelBookingButton bookingId={due.id} onSuccess={() => setBookings((prev) => prev.map((b) => b.id === due.id ? { ...b, status: 'CANCELLED' } : b))} />
-                      ) : (
-                        <span style={{ fontSize: '0.8rem', color: '#FF6B6B', marginTop: '8px', display: 'inline-block' }}>
-                          Too late to cancel
-                        </span>
-                      )}
+                      <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                        {canCancel ? (
+                          <CancelBookingButton bookingId={due.id} onSuccess={() => setBookings((prev) => prev.map((b) => b.id === due.id ? { ...b, status: 'CANCELLED' } : b))} />
+                        ) : (
+                          <span style={{ fontSize: '0.8rem', color: '#FF6B6B', display: 'inline-block' }}>
+                            Too late to cancel
+                          </span>
+                        )}
+                        <button
+                          onClick={() => {
+                            const img = generateReceiptImage({
+                              teamName: due.teamName || session?.user?.name || 'Team',
+                              sport: due.sport === 'CRICKET' ? 'Cricket' : 'Football',
+                              date: new Date(due.date).toLocaleDateString('en-IN'),
+                              time: `${formatTime(due.startTime)} – ${formatTime((due.startTime + due.durationHours) % 24)}`,
+                              duration: due.durationHours,
+                              phone: due.phone || '',
+                              amount: due.amount,
+                              paymentStatus: due.status === 'DUE' ? 'DUE' : 'PENDING',
+                            });
+                            const a = document.createElement('a');
+                            a.href = img;
+                            a.download = `Receipt_${due.teamName || 'booking'}.png`;
+                            a.click();
+                          }}
+                          style={{ padding: '6px 14px', background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF', borderRadius: 8, cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, fontFamily: 'inherit' }}
+                        >
+                          🧲 Receipt
+                        </button>
+                      </div>
                     </div>
                     <span className={styles.dueAmount}>₹{due.amount}</span>
                   </li>

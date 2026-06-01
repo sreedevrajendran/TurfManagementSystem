@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import styles from '@/app/dashboard/page.module.css';
+import { generateReceiptImage } from '@/lib/generateReceipt';
 
 const formatTime = (hour: number) => {
   const h = hour % 24;
@@ -15,7 +16,11 @@ type BookingRecord = {
   date: string;
   startTime: number;
   durationHours: number;
+  amount?: number;
   status: string;
+  sport?: string;
+  teamName?: string | null;
+  phone?: string | null;
 };
 
 export default function PastBookingsList({ bookings }: { bookings: BookingRecord[] }) {
@@ -25,6 +30,23 @@ export default function PastBookingsList({ bookings }: { bookings: BookingRecord
   if (bookings.length === 0) {
     return <p style={{ color: "var(--text-secondary)" }}>No past bookings found.</p>;
   }
+
+  const handleDownload = (booking: BookingRecord) => {
+    const img = generateReceiptImage({
+      teamName: booking.teamName || 'Team',
+      sport: booking.sport === 'CRICKET' ? 'Cricket' : 'Football',
+      date: new Date(booking.date).toLocaleDateString('en-IN'),
+      time: `${formatTime(booking.startTime)} – ${formatTime((booking.startTime + booking.durationHours) % 24)}`,
+      duration: booking.durationHours,
+      phone: booking.phone || '',
+      amount: booking.amount ?? 0,
+      paymentStatus: booking.status === 'PAID' ? 'CONFIRMED' : 'PENDING',
+    });
+    const a = document.createElement('a');
+    a.href = img;
+    a.download = `Receipt_${booking.teamName || 'booking'}_${booking.status}.png`;
+    a.click();
+  };
 
   return (
     <>
@@ -36,6 +58,15 @@ export default function PastBookingsList({ bookings }: { bookings: BookingRecord
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
                 {formatTime(booking.startTime)} – {formatTime((booking.startTime + booking.durationHours) % 24)}
               </p>
+              {booking.amount !== undefined && (
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>₹{booking.amount}</p>
+              )}
+              <button
+                onClick={() => handleDownload(booking)}
+                style={{ marginTop: 8, padding: '5px 12px', background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF', borderRadius: 8, cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, fontFamily: 'inherit' }}
+              >
+                🧾 Receipt
+              </button>
             </div>
             <span className={booking.status === "PAID" ? styles.paidStatus : styles.cancelledStatus}>
               {booking.status}
