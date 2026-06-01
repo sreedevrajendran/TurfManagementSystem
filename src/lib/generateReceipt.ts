@@ -10,7 +10,7 @@ export interface ReceiptData {
   phone: string;
   amount: number;
   bookingId?: string;
-  paymentStatus?: 'CONFIRMED' | 'PENDING' | 'DUE';
+  paymentStatus?: 'CONFIRMED' | 'PENDING' | 'DUE' | 'CANCELLED';
 }
 
 export function generateReceiptImage(data: ReceiptData): string {
@@ -161,6 +161,7 @@ export function generateReceiptImage(data: ReceiptData): string {
       CONFIRMED: { text: '✓ PAYMENT CONFIRMED', color: '#00e676', border: 'rgba(0,230,118,0.6)', bg: 'rgba(0,230,118,0.1)' },
       PENDING:   { text: '⏳ PAYMENT PENDING',  color: '#FFAB00', border: 'rgba(255,171,0,0.6)',  bg: 'rgba(255,171,0,0.1)' },
       DUE:       { text: '⚠ PAYMENT DUE',       color: '#FF4444', border: 'rgba(255,68,68,0.6)',  bg: 'rgba(255,68,68,0.1)' },
+      CANCELLED: { text: '✕ BOOKING CANCELLED', color: '#9e9e9e', border: 'rgba(158,158,158,0.6)', bg: 'rgba(158,158,158,0.1)' },
     }[data.paymentStatus];
 
     const stampW = 240;

@@ -40,7 +40,7 @@ export default function PastBookingsList({ bookings }: { bookings: BookingRecord
       duration: booking.durationHours,
       phone: booking.phone || '',
       amount: booking.amount ?? 0,
-      paymentStatus: booking.status === 'PAID' ? 'CONFIRMED' : 'PENDING',
+      paymentStatus: booking.status === 'PAID' ? 'CONFIRMED' : booking.status === 'CANCELLED' ? 'CANCELLED' : 'PENDING',
     });
     const a = document.createElement('a');
     a.href = img;

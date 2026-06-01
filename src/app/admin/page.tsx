@@ -977,7 +977,7 @@ export default function AdminDashboard() {
                           <button onClick={() => cancelBooking(booking.id)} className={`${styles.actionBtn} ${styles.cancel}`}>Cancel</button>
                           <button
                             onClick={() => {
-                              const payStatus = booking.status === 'PAID' ? 'CONFIRMED' : booking.status === 'DUE' ? 'DUE' : 'PENDING';
+                              const payStatus = booking.status === 'PAID' ? 'CONFIRMED' : booking.status === 'DUE' ? 'DUE' : booking.status === 'CANCELLED' ? 'CANCELLED' : 'PENDING';
                               const img = generateReceiptImage({
                                 teamName: booking.teamName || 'Team',
                                 sport: booking.sport === 'CRICKET' ? 'Cricket' : 'Football',
