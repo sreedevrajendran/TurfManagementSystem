@@ -16,6 +16,7 @@ export const metadata: Metadata = {
 };
 
 import AlertBanner from "@/components/AlertBanner";
+import TermsModal from "@/components/TermsModal";
 
 export default function RootLayout({
   children,
@@ -29,6 +30,7 @@ export default function RootLayout({
           <AlertBanner />
           <Navbar />
           {children}
+          <TermsModal />
         </Providers>
       </body>
     </html>

@@ -10,6 +10,7 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import CustomModal from '@/components/CustomModal';
 import { generateReceiptImage } from '@/lib/generateReceipt';
+import { openTermsModal } from '@/components/TermsModal';
 
 type SpecialOffer = {
   id: string;
@@ -608,6 +609,10 @@ export default function BookPage() {
                       );
                     })()}
                   </div>
+                </div>
+                
+                <div style={{ textAlign: 'center', marginTop: 16, marginBottom: -10, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                  By confirming, you agree to our <button onClick={(e) => { e.preventDefault(); openTermsModal(); }} style={{ background: 'none', border: 'none', color: 'var(--primary-accent)', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}>Terms & Conditions</button>.
                 </div>
 
                 <div className={styles.modalActions}>

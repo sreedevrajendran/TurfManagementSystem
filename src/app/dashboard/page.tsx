@@ -8,6 +8,7 @@ import { AlertCircle, CheckCircle, Home, Loader2 } from 'lucide-react';
 import CancelBookingButton from '@/components/CancelBookingButton';
 import PastBookingsList from '@/components/PastBookingsList';
 import { generateReceiptImage } from '@/lib/generateReceipt';
+import { openTermsModal } from '@/components/TermsModal';
 
 type Booking = {
   id: string;
@@ -114,6 +115,12 @@ export default function DashboardPage() {
           </Link>
         </div>
       </header>
+      
+      <div style={{ marginBottom: 24 }}>
+        <button onClick={() => openTermsModal()} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', textAlign: 'left', font: 'inherit', fontSize: '0.85rem' }}>
+          📜 View Terms & Conditions
+        </button>
+      </div>
 
       <div className={styles.grid}>
         <section className={styles.card}>

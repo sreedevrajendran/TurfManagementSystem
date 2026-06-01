@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { MapPin, LogIn, User, Phone, Mail, Sun, Moon, Clock, Zap, Shield, Users } from 'lucide-react';
 import { useSession, signIn } from 'next-auth/react';
+import { openTermsModal } from '@/components/TermsModal';
 import styles from './page.module.css';
 
 const fadeUp = {
@@ -270,6 +271,9 @@ export default function Home() {
               style={{ display: 'block', color: '#25D366', textDecoration: 'none', marginBottom: 8 }}>
               💬 WhatsApp Us
             </a>
+            <button onClick={() => openTermsModal()} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', textDecoration: 'none', cursor: 'pointer', textAlign: 'left', font: 'inherit' }}>
+              📜 Terms & Conditions
+            </button>
           </div>
         </div>
         <div className={styles.footerBottom}>
