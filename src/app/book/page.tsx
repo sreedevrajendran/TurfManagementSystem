@@ -368,7 +368,11 @@ export default function BookPage() {
         )}
       </motion.header>
 
-
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <button onClick={() => openTermsModal()} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', font: 'inherit', fontSize: '0.85rem' }}>
+          📜 View Terms & Conditions
+        </button>
+      </div>
 
       <motion.div
         initial={{ opacity: 0 }}
@@ -609,10 +613,6 @@ export default function BookPage() {
                       );
                     })()}
                   </div>
-                </div>
-                
-                <div style={{ textAlign: 'center', marginTop: 16, marginBottom: -10, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  By confirming, you agree to our <button onClick={(e) => { e.preventDefault(); openTermsModal(); }} style={{ background: 'none', border: 'none', color: 'var(--primary-accent)', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}>Terms & Conditions</button>.
                 </div>
 
                 <div className={styles.modalActions}>

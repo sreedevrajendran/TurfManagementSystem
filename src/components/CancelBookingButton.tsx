@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import CustomModal from '@/components/CustomModal';
+import { openTermsModal } from '@/components/TermsModal';
 
 export default function CancelBookingButton({
   bookingId,
@@ -18,6 +19,7 @@ export default function CancelBookingButton({
     message: string;
     onConfirm: () => void;
     onCancel?: () => void;
+    children?: React.ReactNode;
   } | null>(null);
 
   const handleCancelClick = () => {
@@ -26,6 +28,11 @@ export default function CancelBookingButton({
       type: 'confirm',
       title: 'Cancel Booking?',
       message: 'Are you sure you want to cancel this booking? This action cannot be undone and the slot will be released for others.',
+      children: (
+        <div style={{ marginTop: 12, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+          Please note our <button onClick={(e) => { e.preventDefault(); setCustomModal(null); setTimeout(openTermsModal, 100); }} style={{ background: 'none', border: 'none', color: '#FF4444', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}>Terms & Conditions</button> regarding cancellations.
+        </div>
+      ),
       onConfirm: async () => {
         setCustomModal(null);
         setIsCancelling(true);
