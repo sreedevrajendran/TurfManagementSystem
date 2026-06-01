@@ -97,7 +97,7 @@ export default function AlertBanner() {
   // Scroll speed: ~80px per second. Wider content = longer duration.
   // We estimate ~220px per item as a rough average.
   const estimatedWidth = items.length * 260;
-  const durationSec = Math.max(12, estimatedWidth / 80);
+  const durationSec = Math.max(8, estimatedWidth / 120);
 
   const bg = hasUrgent
     ? 'linear-gradient(90deg, #b91c1c, #991b1b)'

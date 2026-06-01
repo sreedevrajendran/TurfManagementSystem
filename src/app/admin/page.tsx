@@ -9,7 +9,7 @@ import { AlertTriangle, CalendarOff, Mail, Tag, RefreshCw, Home, Users } from 'l
 import styles from './page.module.css';
 import LogoutButton from '@/components/LogoutButton';
 import CustomModal from '@/components/CustomModal';
-import { generateReceiptImage } from '@/lib/generateReceipt';
+import { generateReceiptImage, generateOfferImage, generateBlockImage } from '@/lib/generateReceipt';
 
 type Booking = {
   id: string;
@@ -20,6 +20,7 @@ type Booking = {
   durationHours: number;
   amount: number;
   status: 'PENDING' | 'PAID' | 'DUE' | 'CANCELLED' | 'BLOCKED';
+  reason?: string;
   sport?: string;
   userEmail?: string;
 };
@@ -135,6 +136,7 @@ export default function AdminDashboard() {
         durationHours: b.durationHours,
         amount: b.amount,
         status: b.status,
+        reason: b.reason,
         userEmail: b.user?.email,
       }));
       setBookings(mapped);
@@ -626,6 +628,26 @@ export default function AdminDashboard() {
                         <button onClick={() => deleteOffer(offer.id)} className={`${styles.actionBtn} ${styles.cancel}`}>
                           Delete
                         </button>
+                        <button onClick={() => {
+                          let priceText = '';
+                          if (offer.fixedPrice !== null && offer.fixedPrice !== undefined) {
+                            priceText = `₹${offer.fixedPrice}/hr flat`;
+                          } else {
+                            priceText = `${offer.discountPct}% OFF`;
+                          }
+                          const img = generateOfferImage({
+                            title: offer.title,
+                            priceText,
+                            slotType: offer.slotType,
+                            validUntil: new Date(offer.endDate).toLocaleDateString('en-IN')
+                          });
+                          const a = document.createElement('a');
+                          a.href = img;
+                          a.download = `Offer_${offer.title}_${Date.now()}.png`;
+                          a.click();
+                        }} className={styles.actionBtn} style={{ background: 'rgba(255,215,0,0.1)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.3)' }}>
+                          ⬇️ PNG
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -680,12 +702,20 @@ export default function AdminDashboard() {
           </div>
           <div className={styles.inputGroup} style={{ gridColumn: '1 / -1' }}>
             <label>Reason</label>
-            <select className={styles.selectField} value={blockReason} onChange={e => setBlockReason(e.target.value)}>
-              <option>Panchayath Event</option>
-              <option>Maintenance</option>
-              <option>Weather Condition</option>
-              <option>Other</option>
-            </select>
+            <input
+              list="blockReasons"
+              className={styles.inputField}
+              value={blockReason}
+              onChange={e => setBlockReason(e.target.value)}
+              placeholder="e.g. Tournament Booked, Panchayath Event..."
+            />
+            <datalist id="blockReasons">
+              <option value="Panchayath Event" />
+              <option value="Tournament Booked" />
+              <option value="Maintenance" />
+              <option value="Weather Condition" />
+              <option value="Other" />
+            </datalist>
           </div>
           <button className={styles.blockBtn} onClick={handleBlockSlots} style={{ gridColumn: '1 / -1' }}>
             🚫 Block Turf
@@ -747,6 +777,20 @@ export default function AdminDashboard() {
                                 onClick={() => handleUnblock(b.id, b.reason)}
                                 style={{ background: 'rgba(255,68,68,0.1)', border: '1px solid rgba(255,68,68,0.3)', color: '#FF4444', padding: '5px 12px', borderRadius: 8, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700, fontFamily: 'inherit' }}
                               >🗑️ Delete</button>
+                              <button
+                                onClick={() => {
+                                  const img = generateBlockImage({
+                                    dateLabel: b.durationHours === 24 ? new Date(b.date).toLocaleDateString('en-IN') : `${new Date(b.date).toLocaleDateString('en-IN')}`,
+                                    timeLabel: b.durationHours === 24 ? 'All Day' : `${fh(b.startTime)} – ${fh((b.startTime + b.durationHours) % 24)}`,
+                                    reason: b.reason
+                                  });
+                                  const a = document.createElement('a');
+                                  a.href = img;
+                                  a.download = `Block_${b.date}_${Date.now()}.png`;
+                                  a.click();
+                                }}
+                                style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '5px 12px', borderRadius: 8, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700, fontFamily: 'inherit' }}
+                              >⬇️ Share PNG</button>
                           </div>
                         </td>
                       </tr>
@@ -987,6 +1031,7 @@ export default function AdminDashboard() {
                                 phone: booking.phone || '',
                                 amount: booking.amount,
                                 paymentStatus: payStatus,
+                                cancelReason: booking.status === 'CANCELLED' ? booking.reason : undefined
                               });
                               const a = document.createElement('a');
                               a.href = img;

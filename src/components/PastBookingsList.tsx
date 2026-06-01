@@ -18,6 +18,7 @@ type BookingRecord = {
   durationHours: number;
   amount?: number;
   status: string;
+  reason?: string | null;
   sport?: string;
   teamName?: string | null;
   phone?: string | null;
@@ -41,6 +42,7 @@ export default function PastBookingsList({ bookings }: { bookings: BookingRecord
       phone: booking.phone || '',
       amount: booking.amount ?? 0,
       paymentStatus: booking.status === 'PAID' ? 'CONFIRMED' : booking.status === 'CANCELLED' ? 'CANCELLED' : 'PENDING',
+      cancelReason: booking.status === 'CANCELLED' ? booking.reason : undefined,
     });
     const a = document.createElement('a');
     a.href = img;

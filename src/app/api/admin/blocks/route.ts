@@ -62,9 +62,8 @@ export async function POST(req: NextRequest) {
     });
 
     for (const b of overlapping) {
-      await prisma.booking.update({ where: { id: b.id }, data: { status: "CANCELLED" } });
+      await prisma.booking.update({ where: { id: b.id }, data: { status: "CANCELLED", reason: `Cancelled due to: ${reason}` } });
       cancelledCount++;
-
     }
   }
 

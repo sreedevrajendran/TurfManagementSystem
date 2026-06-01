@@ -47,6 +47,7 @@ export async function GET() {
       amount: b.amount,
       status: b.status,
       sport: b.sport,
+      reason: b.reason,
       teamName: b.team?.name ?? null,
       phone: b.team?.phone ?? null,
       updatedAt: b.updatedAt ? new Date(b.updatedAt).toISOString() : null,

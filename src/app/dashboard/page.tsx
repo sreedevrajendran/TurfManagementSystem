@@ -16,6 +16,7 @@ type Booking = {
   durationHours: number;
   amount: number;
   status: string;
+  reason?: string | null;
   sport: string;
   teamName: string | null;
   phone?: string | null;
@@ -157,6 +158,7 @@ export default function DashboardPage() {
                               phone: due.phone || '',
                               amount: due.amount,
                               paymentStatus: due.status === 'DUE' ? 'DUE' : 'PENDING',
+                              cancelReason: due.status === 'CANCELLED' ? due.reason : undefined,
                             });
                             const a = document.createElement('a');
                             a.href = img;

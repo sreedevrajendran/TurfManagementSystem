@@ -11,6 +11,7 @@ export interface ReceiptData {
   amount: number;
   bookingId?: string;
   paymentStatus?: 'CONFIRMED' | 'PENDING' | 'DUE' | 'CANCELLED';
+  cancelReason?: string | null;
 }
 
 export function generateReceiptImage(data: ReceiptData): string {
@@ -182,6 +183,12 @@ export function generateReceiptImage(data: ReceiptData): string {
     ctx.fillStyle = stampConfig.color;
     ctx.textAlign = 'center';
     ctx.fillText(stampConfig.text, W / 2, stampY + 23);
+
+    if (data.cancelReason) {
+      ctx.font = 'bold 12px Arial';
+      ctx.fillStyle = '#ff4444';
+      ctx.fillText(data.cancelReason, W / 2, stampY + 50);
+    }
   }
 
   // ── Bottom accent strip ──────────────────────────────────────
@@ -220,4 +227,112 @@ function dashedLine(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: n
   ctx.lineTo(x2, y2);
   ctx.stroke();
   ctx.restore();
+}
+
+export interface OfferImageData {
+  title: string;
+  priceText: string;
+  slotType: string;
+  validUntil: string;
+}
+
+export function generateOfferImage(data: OfferImageData): string {
+  const W = 800;
+  const H = 800;
+  const canvas = document.createElement('canvas');
+  canvas.width = W * 2;
+  canvas.height = H * 2;
+  const ctx = canvas.getContext('2d')!;
+  ctx.scale(2, 2);
+
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#1a1005');
+  bg.addColorStop(1, '#331a00');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = 'rgba(255, 215, 0, 0.1)';
+  ctx.fillRect(40, 40, W - 80, H - 80);
+  ctx.strokeStyle = '#ffd700';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(40, 40, W - 80, H - 80);
+
+  ctx.font = 'bold 64px Arial';
+  ctx.fillStyle = '#ffd700';
+  ctx.textAlign = 'center';
+  ctx.fillText('SPECIAL OFFER', W / 2, 160);
+
+  ctx.font = 'bold 80px Arial';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(data.title.toUpperCase(), W / 2, 320);
+
+  ctx.font = 'bold 64px Arial';
+  ctx.fillStyle = '#00e676';
+  ctx.fillText(data.priceText, W / 2, 460);
+
+  ctx.font = '32px Arial';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.fillText(`Valid for: ${data.slotType === 'BOTH' ? 'All Slots' : data.slotType === 'PEAK' ? 'Peak Slots' : 'Off-Peak Slots'}`, W / 2, 560);
+  ctx.fillText(`Valid until: ${data.validUntil}`, W / 2, 620);
+
+  ctx.font = 'bold 24px Arial';
+  ctx.fillStyle = '#ffd700';
+  ctx.fillText('EAST WELFARE TURF', W / 2, 720);
+
+  return canvas.toDataURL('image/png');
+}
+
+export interface BlockImageData {
+  dateLabel: string;
+  timeLabel: string;
+  reason: string;
+}
+
+export function generateBlockImage(data: BlockImageData): string {
+  const W = 800;
+  const H = 800;
+  const canvas = document.createElement('canvas');
+  canvas.width = W * 2;
+  canvas.height = H * 2;
+  const ctx = canvas.getContext('2d')!;
+  ctx.scale(2, 2);
+
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#1a0505');
+  bg.addColorStop(1, '#330a0a');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = 'rgba(255, 68, 68, 0.1)';
+  ctx.fillRect(40, 40, W - 80, H - 80);
+  ctx.strokeStyle = '#ff4444';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(40, 40, W - 80, H - 80);
+
+  ctx.font = 'bold 64px Arial';
+  ctx.fillStyle = '#ff4444';
+  ctx.textAlign = 'center';
+  ctx.fillText('TURF UPDATE', W / 2, 160);
+
+  ctx.font = 'bold 48px Arial';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(data.dateLabel, W / 2, 320);
+
+  ctx.font = 'bold 40px Arial';
+  ctx.fillStyle = '#ffaaaa';
+  ctx.fillText(data.timeLabel, W / 2, 420);
+
+  ctx.font = 'bold 48px Arial';
+  ctx.fillStyle = '#ff4444';
+  ctx.fillText('CLOSED DUE TO:', W / 2, 540);
+
+  ctx.font = 'bold 56px Arial';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(data.reason.toUpperCase(), W / 2, 620);
+
+  ctx.font = 'bold 24px Arial';
+  ctx.fillStyle = '#ff4444';
+  ctx.fillText('EAST WELFARE TURF', W / 2, 720);
+
+  return canvas.toDataURL('image/png');
 }

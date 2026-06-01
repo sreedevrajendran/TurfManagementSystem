@@ -12,7 +12,7 @@ export async function GET() {
       active: true,
       endDate: { gte: now }, // not expired
     },
-    orderBy: { discountPct: "desc" }
+    orderBy: { createdAt: "desc" }
   });
   return NextResponse.json(offers);
 }
