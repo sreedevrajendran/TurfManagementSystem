@@ -141,9 +141,9 @@ export default function Home() {
             <Sun size={36} />
             <div>
               <div className={styles.priceLabel}>Day Slots (Off-Peak)</div>
-              <div className={styles.priceTime}>6:00 AM – 6:00 PM</div>
+              <div className={styles.priceTime}>6:00 AM – 7:00 PM</div>
             </div>
-            <div className={styles.priceAmount}>₹400<span>/hr</span></div>
+            <div className={styles.priceAmount}>₹800<span>/hr</span></div>
           </motion.div>
           <motion.div
             className={`${styles.priceCard} ${styles.peak}`}
@@ -153,9 +153,9 @@ export default function Home() {
             <Moon size={36} />
             <div>
               <div className={styles.priceLabel}>Night Slots (Peak + Lights)</div>
-              <div className={styles.priceTime}>6:00 PM – 6:00 AM</div>
+              <div className={styles.priceTime}>7:00 PM – 6:00 AM</div>
             </div>
-            <div className={styles.priceAmount}>₹800<span>/hr</span></div>
+            <div className={styles.priceAmount}>₹1100<span>/hr</span></div>
           </motion.div>
         </div>
       </section>
