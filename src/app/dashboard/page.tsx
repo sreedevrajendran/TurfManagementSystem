@@ -78,22 +78,21 @@ export default function DashboardPage() {
   }
 
   const pendingDues = bookings.filter((b) => b.status === 'DUE');
-  const pastBookings = [...bookings]
-    .filter((b) => b.status === 'PAID' || b.status === 'CANCELLED')
+  
+  const clearedBookings = bookings
+    .filter((b) => b.status === 'PAID')
     .sort((a, b) => {
-      // 1. All CANCELLED above PAID
-      if (a.status === 'CANCELLED' && b.status !== 'CANCELLED') return -1;
-      if (a.status !== 'CANCELLED' && b.status === 'CANCELLED') return 1;
-      
-      // 2. If both are CANCELLED, sort by most recently updated (cancelled) first
-      if (a.status === 'CANCELLED' && b.status === 'CANCELLED') {
-        const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
-        const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
-        return timeB - timeA;
-      }
-      
-      // 3. For PAID, sort by booking date descending
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
+      const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : new Date(a.date).getTime();
+      const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : new Date(b.date).getTime();
+      return timeB - timeA;
+    });
+
+  const cancelledBookings = bookings
+    .filter((b) => b.status === 'CANCELLED')
+    .sort((a, b) => {
+      const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+      const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+      return timeB - timeA;
     });
 
   return (
@@ -179,8 +178,13 @@ export default function DashboardPage() {
         </section>
 
         <section className={styles.card}>
-          <h2 className={styles.cardTitle}>Past Bookings &amp; Cleared Dues</h2>
-          <PastBookingsList bookings={pastBookings} />
+          <h2 className={styles.cardTitle}>Cleared Dues &amp; Past Bookings</h2>
+          <PastBookingsList bookings={clearedBookings} />
+        </section>
+
+        <section className={styles.card} style={{ marginTop: '24px' }}>
+          <h2 className={styles.cardTitle}>Cancelled Bookings</h2>
+          <PastBookingsList bookings={cancelledBookings} />
         </section>
       </div>
     </div>
