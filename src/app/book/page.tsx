@@ -9,6 +9,7 @@ import { LogIn, ShieldCheck, Tag } from 'lucide-react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import CustomModal from '@/components/CustomModal';
+import { generateReceiptImage } from '@/lib/generateReceipt';
 
 type SpecialOffer = {
   id: string;
@@ -246,23 +247,37 @@ export default function BookPage() {
       });
 
       if (res.ok) {
-        const receiptText = `*East Welfare Turf Booking*\nTeam: ${teamName}\nSport: ${sport === 'CRICKET' ? 'Cricket' : 'Football'}\nDate: ${selectedDate.toLocaleDateString('en-IN')}\nTime: ${formatTime(selectedSlot)} for ${duration} hr(s)\nPhone: ${phoneNumber}\nTotal: ₹${totalFinal}`;
-
-        const handleShareReceipt = () => {
-          if (navigator.share) {
-            navigator.share({ title: 'Booking Receipt', text: receiptText }).catch(() => {});
-          } else {
-            window.open(`https://wa.me/?text=${encodeURIComponent(receiptText)}`);
-          }
+        const receiptData = {
+          teamName,
+          sport: sport === 'CRICKET' ? 'Cricket' : 'Football',
+          date: selectedDate.toLocaleDateString('en-IN'),
+          time: `${formatTime(selectedSlot)} – ${formatTime((selectedSlot + duration) % 24)}`,
+          duration,
+          phone: phoneNumber,
+          amount: totalFinal,
         };
 
         const handleDownloadReceipt = () => {
-          const blob = new Blob([receiptText.replace(/\*/g, '')], { type: 'text/plain' });
-          const url = URL.createObjectURL(blob);
+          const dataUrl = generateReceiptImage(receiptData);
           const a = document.createElement('a');
-          a.href = url;
-          a.download = `Turf_Receipt_${teamName}.txt`;
+          a.href = dataUrl;
+          a.download = `EastWelfareTurf_Receipt_${teamName.replace(/\s+/g, '_')}.png`;
           a.click();
+        };
+
+        const handleShareReceipt = async () => {
+          const dataUrl = generateReceiptImage(receiptData);
+          // Convert data URL to blob for native share
+          const res = await fetch(dataUrl);
+          const blob = await res.blob();
+          const file = new File([blob], `Receipt_${teamName}.png`, { type: 'image/png' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({ files: [file], title: 'Booking Receipt' }).catch(() => {});
+          } else {
+            // Fallback: share text via WhatsApp
+            const text = `*East Welfare Turf Booking*\nTeam: ${teamName}\nDate: ${receiptData.date}\nTime: ${receiptData.time}\nTotal: \u20b9${totalFinal}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+          }
         };
 
         showAlert(
