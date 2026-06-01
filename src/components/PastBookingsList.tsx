@@ -58,6 +58,9 @@ export default function PastBookingsList({ bookings }: { bookings: BookingRecord
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
                 {formatTime(booking.startTime)} – {formatTime((booking.startTime + booking.durationHours) % 24)}
               </p>
+              {booking.teamName && (
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '4px 0' }}>Team: {booking.teamName}</p>
+              )}
               {booking.amount !== undefined && (
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>₹{booking.amount}</p>
               )}
