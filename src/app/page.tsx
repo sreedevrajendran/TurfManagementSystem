@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { MapPin, LogIn, User, Phone, Mail, Sun, Moon, Clock, Zap, Shield, Users } from 'lucide-react';
 import { useSession, signIn } from 'next-auth/react';
 import { openTermsModal } from '@/components/TermsModal';
+import { openPrivacyModal } from '@/components/PrivacyModal';
 import styles from './page.module.css';
 
 const fadeUp = {
@@ -271,8 +272,11 @@ export default function Home() {
               style={{ display: 'block', color: '#25D366', textDecoration: 'none', marginBottom: 8 }}>
               💬 WhatsApp Us
             </a>
-            <button onClick={() => openTermsModal()} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', textDecoration: 'none', cursor: 'pointer', textAlign: 'left', font: 'inherit' }}>
+            <button onClick={() => openTermsModal()} style={{ display: 'block', background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', textDecoration: 'none', cursor: 'pointer', textAlign: 'left', font: 'inherit', marginBottom: 8 }}>
               📜 Terms & Conditions
+            </button>
+            <button onClick={() => openPrivacyModal()} style={{ display: 'block', background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', textDecoration: 'none', cursor: 'pointer', textAlign: 'left', font: 'inherit' }}>
+              🔒 Privacy Policy
             </button>
           </div>
         </div>
