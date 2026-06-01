@@ -1,36 +1,40 @@
 .container {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 20px 16px;
   min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 40px;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 28px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
 }
 
 .title {
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: #fff;
 }
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 24px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
 }
 
 .emailActionGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
   margin-top: 16px;
 }
 
@@ -38,7 +42,7 @@
   background: rgba(0, 176, 255, 0.05);
   border: 1px solid rgba(0, 176, 255, 0.2);
   border-radius: 16px;
-  padding: 24px;
+  padding: 20px;
 }
 
 .emailActionCard h4 {
@@ -79,41 +83,43 @@
 .statCard {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  padding: 24px;
+  padding: 18px 16px;
   border-radius: 16px;
 }
 
 .statCard h3 {
   color: var(--text-secondary);
-  font-size: 1rem;
-  margin-bottom: 12px;
+  font-size: 0.8rem;
+  margin-bottom: 10px;
 }
 
 .statCard p {
-  font-size: 2.5rem;
+  font-size: 1.8rem;
   font-weight: 800;
   color: var(--primary-accent);
+  word-break: break-all;
 }
 
 .chartGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-bottom: 40px;
+  gap: 20px;
+  margin-bottom: 32px;
 }
 
 .chartCard {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  padding: 24px;
+  padding: 20px 12px;
   border-radius: 16px;
-  min-height: 350px;
+  min-height: 300px;
+  overflow: hidden;
 }
 
 .chartCard h3 {
   color: #fff;
-  font-size: 1.25rem;
-  margin-bottom: 24px;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
   text-align: center;
 }
 
@@ -121,31 +127,36 @@
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 20px;
-  padding: 30px;
-  margin-bottom: 40px;
+  padding: 20px 16px;
+  margin-bottom: 32px;
 }
 
 .sectionTitle {
-  font-size: 1.5rem;
-  margin-bottom: 24px;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
   color: #fff;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
+/* ── Tables: horizontal scroll on mobile ── */
 .tableContainer {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  min-width: 700px;
 }
 
 .table th, .table td {
-  padding: 16px;
+  padding: 12px 10px;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
 }
@@ -153,19 +164,22 @@
 .table th {
   color: var(--text-secondary);
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .table td {
   color: var(--text-primary);
+  font-size: 0.9rem;
 }
 
 .badge {
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 99px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .badge.due {
@@ -190,18 +204,20 @@
 
 .actionBtnGroup {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .actionBtn {
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 8px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
   border: none;
   transition: all var(--transition-fast);
+  white-space: nowrap;
+  font-family: inherit;
 }
 
 .actionBtn.markPaid {
@@ -251,11 +267,11 @@
 /* Block Slots Form */
 .blockForm {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
   background: rgba(255, 68, 68, 0.05);
   border: 1px solid rgba(255, 68, 68, 0.2);
-  padding: 24px;
+  padding: 20px 16px;
   border-radius: 16px;
   margin-top: 20px;
 }
@@ -267,18 +283,21 @@
 }
 
 .inputGroup label {
-  font-size: 0.875rem;
+  font-size: 0.82rem;
   color: var(--text-secondary);
   font-weight: 600;
 }
 
 .inputField, .selectField {
-  padding: 12px 16px;
+  padding: 11px 14px;
   background: var(--bg-color);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   color: var(--text-primary);
   font-size: 1rem;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .inputField:focus, .selectField:focus {
@@ -290,7 +309,7 @@
   background: #FF4444;
   color: #fff;
   border: none;
-  padding: 12px 24px;
+  padding: 12px 20px;
   border-radius: 8px;
   font-weight: 700;
   font-size: 1rem;
@@ -298,6 +317,9 @@
   align-self: flex-end;
   height: 46px;
   transition: all var(--transition-fast);
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .blockBtn:hover {
@@ -308,16 +330,89 @@
 
 .emergencyNotice {
   grid-column: 1 / -1;
-  font-size: 0.875rem;
+  font-size: 0.82rem;
   color: #FFAB00;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
+/* ── Mobile breakpoints ── */
 @media (max-width: 768px) {
+  .container {
+    padding: 16px 12px;
+  }
+
+  .header {
+    margin-bottom: 20px;
+  }
+
+  .title {
+    font-size: 1.3rem;
+  }
+
   .chartGrid {
     grid-template-columns: 1fr;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .statCard {
+    padding: 14px 12px;
+  }
+
+  .statCard p {
+    font-size: 1.4rem;
+  }
+
+  .section {
+    padding: 16px 12px;
+    border-radius: 14px;
+  }
+
+  .sectionTitle {
+    font-size: 1.05rem;
+  }
+
+  .blockForm {
+    grid-template-columns: 1fr 1fr;
+    padding: 16px 12px;
+    gap: 12px;
+  }
+
+  .blockBtn {
+    grid-column: 1 / -1;
+    align-self: stretch;
+    height: auto;
+    padding: 14px;
+  }
+
+  .table th, .table td {
+    padding: 10px 8px;
+    font-size: 0.82rem;
+  }
+
+  .actionBtn {
+    padding: 6px 8px;
+    font-size: 0.68rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .blockForm {
+    grid-template-columns: 1fr;
+  }
+
+  .chartCard {
+    min-height: 240px;
   }
 }
 
@@ -330,3 +425,4 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
