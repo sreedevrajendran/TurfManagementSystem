@@ -50,13 +50,18 @@ export async function POST(req: NextRequest) {
       data: { status: "CANCELLED" }
     });
 
+    // Format time in 12-hour format
+    const start12Hour = booking.startTime % 12 || 12;
+    const ampm = booking.startTime >= 12 ? 'PM' : 'AM';
+
     // Notify admin
     await sendAdminCancelBookingNotification({
       date: new Date(booking.date).toLocaleDateString(),
-      startTime: `${booking.startTime}:00`,
+      startTime: `${booking.startTime}:00 (${start12Hour}:00 ${ampm})`,
       court: booking.sport,
       userName: session.user.name,
       userEmail: session.user.email,
+      phone: booking.team?.phone,
     });
 
     return NextResponse.json({ success: true, booking: updatedBooking });

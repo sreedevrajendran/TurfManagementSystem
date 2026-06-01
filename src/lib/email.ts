@@ -67,6 +67,7 @@ export const sendAdminCancelBookingNotification = async (bookingDetails: {
   court: string;
   userName?: string | null;
   userEmail?: string | null;
+  phone?: string | null;
 }) => {
   const transporter = getTransporter();
   if (!transporter) return;
@@ -87,6 +88,7 @@ export const sendAdminCancelBookingNotification = async (bookingDetails: {
       <ul>
         <li><strong>Name:</strong> ${bookingDetails.userName || 'N/A'}</li>
         <li><strong>Email:</strong> ${bookingDetails.userEmail || 'N/A'}</li>
+        <li><strong>Phone:</strong> ${bookingDetails.phone || 'N/A'}</li>
       </ul>
     `,
   };
