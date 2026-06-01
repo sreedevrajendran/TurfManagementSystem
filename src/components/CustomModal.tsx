@@ -13,6 +13,7 @@ type CustomModalProps = {
   onCancel?: () => void;
   confirmText?: string;
   cancelText?: string;
+  children?: React.ReactNode;
 };
 
 export default function CustomModal({
@@ -24,6 +25,7 @@ export default function CustomModal({
   onCancel,
   confirmText = 'OK',
   cancelText = 'Cancel',
+  children,
 }: CustomModalProps) {
   if (typeof document === 'undefined') return null;
 
@@ -73,6 +75,8 @@ export default function CustomModal({
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', lineHeight: 1.5, marginBottom: '32px', whiteSpace: 'pre-line' }}>
               {message}
             </p>
+
+            {children && <div style={{ marginBottom: '24px' }}>{children}</div>}
 
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
               {type === 'confirm' && (

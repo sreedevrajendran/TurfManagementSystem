@@ -70,6 +70,10 @@ export default function AdminDashboard() {
   const [offerEndDate, setOfferEndDate] = useState('');
   const [offerLoading, setOfferLoading] = useState(false);
 
+  // Pricing State
+  const [pricing, setPricing] = useState({ offPeak: 800, peak: 1100, peakStart: 19 });
+  const [pricingLoading, setPricingLoading] = useState(false);
+
   const [customModal, setCustomModal] = useState<{
     isOpen: boolean;
     type: 'alert' | 'confirm' | 'success';
@@ -166,7 +170,8 @@ export default function AdminDashboard() {
       fetchBookings(),
       fetchOffers(),
       fetchUsers(),
-      fetchActiveBlocks()
+      fetchActiveBlocks(),
+      fetch('/api/pricing').then(r => r.json()).then(p => { if(p && !p.error) setPricing(p); }).catch(() => {})
     ]).finally(() => {
       setInitialLoad(false);
     });
@@ -211,9 +216,9 @@ export default function AdminDashboard() {
   const markPaid = async (id: string) => {
     const booking = bookings.find(b => b.id === id);
     if (!booking) return;
-    showConfirm('Mark as Paid?', `Mark ₹${booking.amount} as PAID for ${booking.teamName}? A thank-you email will be sent.`, async () => {
+    showConfirm('Mark as Paid?', `Mark ₹${booking.amount} as PAID for ${booking.teamName}?`, async () => {
       const res = await fetch('/api/admin/mark-paid', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bookingId: id }) });
-      if (res.ok) { await fetchBookings(); showAlert('Success', 'Marked as paid ✅ Thank-you email sent!', 'success'); }
+      if (res.ok) { await fetchBookings(); showAlert('Success', 'Marked as paid ✅', 'success'); }
     });
   };
 
@@ -222,7 +227,7 @@ export default function AdminDashboard() {
     if (!booking) return;
     showConfirm('Mark as No-Show?', `Apply a 50% penalty (₹${booking.amount * 0.5}) for ${booking.teamName}?`, async () => {
       const res = await fetch('/api/admin/mark-no-show', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bookingId: id }) });
-      if (res.ok) { await fetchBookings(); showAlert('Applied', 'No-show penalty applied & email sent!', 'success'); }
+      if (res.ok) { await fetchBookings(); showAlert('Applied', 'No-show penalty applied!', 'success'); }
       else { showAlert('Error', 'Failed to apply no-show penalty.'); }
     });
   };
@@ -249,7 +254,7 @@ export default function AdminDashboard() {
     const endDate = blockEndDate || blockDate;
     const label = blockDate === endDate ? blockDate : `${blockDate} → ${endDate}`;
     showConfirm('Block Turf?',
-      `Block turf from ${label}, ${blockStart}:00 to ${blockEnd}:00?\nReason: ${blockReason}\n\nOverlapping bookings will be cancelled. All users will be notified.`,
+      `Block turf from ${label}, ${blockStart}:00 to ${blockEnd}:00?\nReason: ${blockReason}\n\nOverlapping bookings will be cancelled.`,
       async () => {
         try {
           const res = await fetch('/api/admin/blocks', {
@@ -260,19 +265,19 @@ export default function AdminDashboard() {
           const data = await res.json();
           if (!res.ok) { showAlert('Error', data.error || 'Block failed.'); return; }
           await fetchBookings(); await fetchActiveBlocks();
-          showAlert('Blocked ✅', `Turf blocked for ${label}. ${data.cancelledCount} overlapping booking(s) cancelled. All users notified.`, 'success');
+          showAlert('Blocked ✅', `Turf blocked for ${label}. ${data.cancelledCount} overlapping booking(s) cancelled.`, 'success');
           setBlockDate(''); setBlockEndDate(''); setBlockStart(''); setBlockEnd('');
         } catch { showAlert('Error', 'Failed to block turf. Please try again.'); }
       });
   };
 
   const handleUnblock = (id: string, reason: string) => {
-    showConfirm('Remove Block?', `Remove this block?\nReason: ${reason}\n\nAll users will be notified that slots are available again.`, async () => {
+    showConfirm('Remove Block?', `Remove this block?\nReason: ${reason}`, async () => {
       try {
         const res = await fetch('/api/admin/blocks', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
         if (!res.ok) { showAlert('Error', 'Could not remove block.'); return; }
         await fetchBookings(); await fetchActiveBlocks();
-        showAlert('Block Lifted ✅', 'Block removed. All users notified by email.', 'success');
+        showAlert('Block Lifted ✅', 'Block removed.', 'success');
       } catch { showAlert('Error', 'Failed to remove block.'); }
     });
   };
@@ -287,29 +292,24 @@ export default function AdminDashboard() {
     } catch { showAlert('Error', 'Failed to update.'); }
   };
 
-  const handleResendBlockMail = async (block: any) => {
-    const fh = (h: number) => `${h % 12 || 12}:00 ${h >= 12 ? 'PM' : 'AM'}`;
-    showConfirm('Resend Email?', `Resend the block notification email to all users?\nDate: ${new Date(block.date).toLocaleDateString('en-IN')}\nReason: ${block.reason}`, async () => {
-      try {
-        const users = await fetch('/api/admin/users').then(r => r.json());
-        const emails = users.map((u: any) => u.email).filter(Boolean);
-        await fetch('/api/admin/send-block-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ emails, date: new Date(block.date).toLocaleDateString('en-IN'), startTime: fh(block.startTime), endTime: fh((block.startTime + block.durationHours) % 24), reason: block.reason }),
-        });
-        showAlert('Sent ✅', 'Block notification re-sent to all users.', 'success');
-      } catch { showAlert('Error', 'Failed to resend emails.'); }
-    });
-  };
-
-  const sendDueAlerts = async () => {
-    setDueAlertLoading(true);
-    setEmailStatus('Sending...');
-    const res = await fetch('/api/admin/send-due-alerts', { method: 'POST' });
-    const data = await res.json();
-    setEmailStatus(`✅ Sent ${data.sent} due alert email(s)!`);
-    setDueAlertLoading(false);
+  const handleUpdatePricing = async () => {
+    setPricingLoading(true);
+    try {
+      const res = await fetch('/api/admin/pricing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pricing),
+      });
+      if (res.ok) {
+        showAlert('Success', 'Pricing updated successfully!', 'success');
+      } else {
+        showAlert('Error', 'Failed to update pricing.');
+      }
+    } catch {
+      showAlert('Error', 'Network error.');
+    } finally {
+      setPricingLoading(false);
+    }
   };
 
   const handleCreateOffer = async () => {
@@ -376,23 +376,7 @@ export default function AdminDashboard() {
     });
   };
 
-  const sendOfferEmail = async (id: string) => {
-    showConfirm('Send Mass Email?', 'This will email ALL registered users about this offer. Are you sure?', async () => {
-      try {
-        setEmailStatus('Sending offer emails...');
-        const res = await fetch('/api/admin/send-offer-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ offerId: id })
-        });
-        const data = await res.json();
-        setEmailStatus(`✅ Sent special offer to ${data.sent} user(s)!`);
-      } catch (e) {
-        console.error('Failed to send offer emails:', e);
-        setEmailStatus('❌ Failed to send emails.');
-      }
-    });
-  };
+
 
   if (initialLoad) {
     return (
@@ -486,27 +470,7 @@ export default function AdminDashboard() {
         </div>
       </motion.div>
 
-      {/* ── EMAIL ACTIONS ── */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className={styles.section}
-      >
-        <h2 className={styles.sectionTitle}>
-          Email Actions <Mail size={22} color="#00b0ff" />
-        </h2>
-        <div className={styles.emailActionGrid}>
-          <div className={styles.emailActionCard}>
-            <h4>Due Payment Reminders</h4>
-            <p>Send reminder emails to all users with pending dues.</p>
-            <button className={styles.emailBtn} onClick={sendDueAlerts} disabled={dueAlertLoading}>
-              {dueAlertLoading ? 'Sending...' : '📧 Send Due Alerts'}
-            </button>
-          </div>
-        </div>
-        {emailStatus && <p style={{ marginTop: 16, color: '#00E676' }}>{emailStatus}</p>}
-      </motion.section>
+
         </>
       )}
 
@@ -519,6 +483,37 @@ export default function AdminDashboard() {
         transition={{ delay: 0.18 }}
         className={styles.section}
       >
+        <h2 className={styles.sectionTitle}>
+          Global Pricing Settings
+        </h2>
+        
+        <div className={styles.blockForm} style={{ background: 'rgba(0, 230, 118, 0.05)', borderColor: 'rgba(0, 230, 118, 0.2)', marginBottom: 40 }}>
+          <div className={styles.inputGroup}>
+            <label>Morning/Off-Peak Price (₹)</label>
+            <input type="number" className={styles.inputField} value={pricing.offPeak} onChange={e => setPricing({ ...pricing, offPeak: Number(e.target.value) })} />
+          </div>
+          <div className={styles.inputGroup}>
+            <label>Night/Peak Price (₹)</label>
+            <input type="number" className={styles.inputField} value={pricing.peak} onChange={e => setPricing({ ...pricing, peak: Number(e.target.value) })} />
+          </div>
+          <div className={styles.inputGroup}>
+            <label>Night/Peak Starts At</label>
+            <select className={styles.selectField} value={pricing.peakStart} onChange={e => setPricing({ ...pricing, peakStart: Number(e.target.value) })}>
+              {Array.from({ length: 24 }, (_, i) => i).map(h => (
+                <option key={h} value={h}>{h % 12 || 12}:00 {h >= 12 ? 'PM' : 'AM'}</option>
+              ))}
+            </select>
+          </div>
+          <button 
+            className={styles.blockBtn} 
+            style={{ background: '#00E676', color: '#000', gridColumn: '1 / -1' }} 
+            onClick={handleUpdatePricing}
+            disabled={pricingLoading}
+          >
+            {pricingLoading ? 'Saving...' : 'Save Pricing'}
+          </button>
+        </div>
+
         <h2 className={styles.sectionTitle}>
           Special Offers & Discounts <Tag size={24} color="#FFD700" />
         </h2>
@@ -593,9 +588,6 @@ export default function AdminDashboard() {
                         <button onClick={() => toggleOffer(offer.id, offer.active)} className={`${styles.actionBtn} ${styles.reschedule}`}>
                           {offer.active ? 'Disable' : 'Enable'}
                         </button>
-                        <button onClick={() => sendOfferEmail(offer.id)} className={`${styles.actionBtn} ${styles.markPaid}`}>
-                          Email Users
-                        </button>
                         <button onClick={() => deleteOffer(offer.id)} className={`${styles.actionBtn} ${styles.cancel}`}>
                           Delete
                         </button>
@@ -664,7 +656,7 @@ export default function AdminDashboard() {
             🚫 Block Turf
           </button>
           <div className={styles.emergencyNotice} style={{ gridColumn: '1 / -1' }}>
-            <AlertTriangle size={16} /> Use with caution. This forces immediate cancellations and notifies all users by email.
+            <AlertTriangle size={16} /> Use with caution. This forces immediate cancellations.
           </div>
         </div>
 
@@ -716,14 +708,10 @@ export default function AdminDashboard() {
                               onClick={() => setEditingBlock({ id: b.id, reason: b.reason })}
                               style={{ background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF', padding: '5px 12px', borderRadius: 8, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700, fontFamily: 'inherit' }}
                             >✏️ Edit</button>
-                            <button
-                              onClick={() => handleResendBlockMail(b)}
-                              style={{ background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.3)', color: '#FFD700', padding: '5px 12px', borderRadius: 8, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700, fontFamily: 'inherit' }}
-                            >📧 Mail</button>
-                            <button
-                              onClick={() => handleUnblock(b.id, b.reason)}
-                              style={{ background: 'rgba(255,68,68,0.1)', border: '1px solid rgba(255,68,68,0.3)', color: '#FF4444', padding: '5px 12px', borderRadius: 8, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700, fontFamily: 'inherit' }}
-                            >🗑️ Delete</button>
+                              <button
+                                onClick={() => handleUnblock(b.id, b.reason)}
+                                style={{ background: 'rgba(255,68,68,0.1)', border: '1px solid rgba(255,68,68,0.3)', color: '#FF4444', padding: '5px 12px', borderRadius: 8, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700, fontFamily: 'inherit' }}
+                              >🗑️ Delete</button>
                           </div>
                         </td>
                       </tr>

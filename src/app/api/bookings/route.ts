@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { sendBookingConfirmation, sendAdminBookingAlert } from "@/lib/email";
+
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -129,63 +129,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // -- Find active offer that applies to this booking (if any)
-    let appliedOffer: { title: string; discountPct: number; slotType: string } | null = null;
-    let originalAmount: number | undefined;
-    try {
-      const bookingDate = new Date(date);
-      const isPeak = Number(startTime) >= 18 || Number(startTime) < 6;
-      const slotLabel = isPeak ? 'PEAK' : 'OFF_PEAK';
-      const offer = await prisma.specialOffer.findFirst({
-        where: {
-          active: true,
-          startDate: { lte: bookingDate },
-          endDate: { gte: bookingDate },
-          OR: [{ slotType: 'BOTH' }, { slotType: slotLabel }],
-        },
-        select: { title: true, discountPct: true, slotType: true },
-      });
-      appliedOffer = offer;
-      if (offer) {
-        // Compute base price without discount (peak=800, off-peak=400 per hour)
-        const basePerHour = isPeak ? 800 : 400;
-        originalAmount = basePerHour * Number(durationHours);
-      }
-    } catch { /* non-critical */ }
 
-    // -- Send confirmation email to user
-    try {
-      await sendBookingConfirmation({
-        to: session.user.email,
-        name: session.user.name || "Customer",
-        teamName: teamName.trim(),
-        date: new Date(date).toLocaleDateString("en-IN"),
-        startTime: Number(startTime),
-        duration: Number(durationHours),
-        amount: Number(amount),
-        originalAmount,
-        offer: appliedOffer,
-        sport,
-      });
-    } catch (e) {
-      console.error("Confirmation email failed:", e);
-    }
-
-    // -- Send alert email to admin
-    try {
-      await sendAdminBookingAlert({
-        userName: session.user.name || "Unknown",
-        userEmail: session.user.email,
-        teamName: teamName.trim(),
-        date: new Date(date).toLocaleDateString("en-IN"),
-        startTime: Number(startTime),
-        duration: Number(durationHours),
-        amount: Number(amount),
-        sport,
-      });
-    } catch (e) {
-      console.error("Admin booking alert email failed:", e);
-    }
 
     return NextResponse.json({ success: true, booking });
   } catch (err: any) {

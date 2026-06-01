@@ -124,3 +124,10 @@ enum SlotType {
   OFF_PEAK
   BOTH
 }
+
+model Pricing {
+  id        String   @id @default("default")
+  offPeak   Float    @default(800)
+  peak      Float    @default(1100)
+  peakStart Int      @default(19)
+}

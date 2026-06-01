@@ -82,9 +82,16 @@ export default function BookPage() {
     title: string;
     message: string;
     onConfirm: () => void;
+    children?: React.ReactNode;
   }>({ isOpen: false, type: 'alert', title: '', message: '', onConfirm: () => {} });
 
-  const showAlert = (title: string, message: string, type: 'alert' | 'success' = 'alert', callback?: () => void) => {
+  const [pricing, setPricing] = useState({ offPeak: 800, peak: 1100, peakStart: 19 });
+
+  useEffect(() => {
+    fetch('/api/pricing').then(r => r.json()).then(p => { if(p) setPricing(p); }).catch(() => {});
+  }, []);
+
+  const showAlert = (title: string, message: string, type: 'alert' | 'success' = 'alert', callback?: () => void, children?: React.ReactNode) => {
     setCustomModal({
       isOpen: true,
       type,
@@ -93,7 +100,8 @@ export default function BookPage() {
       onConfirm: () => {
         setCustomModal(prev => ({ ...prev, isOpen: false }));
         if (callback) callback();
-      }
+      },
+      children
     });
   };
 
@@ -107,11 +115,9 @@ export default function BookPage() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // Pre-fill team name for regular users
+  // User can now type their own team name and contact
   useEffect(() => {
-    if (session?.user?.name && !isAdmin) {
-      setTeamName(session.user.name);
-    }
+    // Removed autofill
   }, [session, isAdmin]);
 
   useEffect(() => {
@@ -160,8 +166,8 @@ export default function BookPage() {
   };
 
   const getPriceForHour = (hour: number, date: Date) => {
-    const isOffPeak = hour >= 6 && hour < 18;
-    const basePrice = isOffPeak ? 400 : 800;
+    const isOffPeak = hour >= 6 && hour < pricing.peakStart;
+    const basePrice = isOffPeak ? pricing.offPeak : pricing.peak;
     const slotType = isOffPeak ? 'OFF_PEAK' : 'PEAK';
 
     // Find the best applicable offer
@@ -203,7 +209,7 @@ export default function BookPage() {
       showAlert('Missing Info', 'Please enter a Team Name.');
       return;
     }
-    if (isAdmin && !phoneNumber.trim()) {
+    if (!phoneNumber.trim()) {
       showAlert('Missing Info', 'Please enter the team\'s WhatsApp number.');
       return;
     }
@@ -228,6 +234,25 @@ export default function BookPage() {
       });
 
       if (res.ok) {
+        const receiptText = `*East Welfare Turf Booking*\nTeam: ${teamName}\nSport: ${sport === 'CRICKET' ? 'Cricket' : 'Football'}\nDate: ${selectedDate.toLocaleDateString('en-IN')}\nTime: ${formatTime(selectedSlot)} for ${duration} hr(s)\nPhone: ${phoneNumber}\nTotal: ₹${totalFinal}`;
+
+        const handleShareReceipt = () => {
+          if (navigator.share) {
+            navigator.share({ title: 'Booking Receipt', text: receiptText }).catch(() => {});
+          } else {
+            window.open(`https://wa.me/?text=${encodeURIComponent(receiptText)}`);
+          }
+        };
+
+        const handleDownloadReceipt = () => {
+          const blob = new Blob([receiptText.replace(/\*/g, '')], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Turf_Receipt_${teamName}.txt`;
+          a.click();
+        };
+
         showAlert(
           'Booking Confirmed!', 
           `Team: ${teamName}\nSport: ${sport === 'CRICKET' ? 'Cricket' : 'Football'}\nTime: ${formatTime(selectedSlot)} for ${duration} hour(s)\nTotal: ₹${totalFinal}\n\nPay at the venue.`,
@@ -235,16 +260,21 @@ export default function BookPage() {
           () => {
             setIsModalOpen(false);
             setSelectedSlot(null);
-            if (isAdmin) { setTeamName(''); setPhoneNumber(''); }
+            setTeamName(''); setPhoneNumber('');
             
-            // Re-fetch booked slots so the newly booked slot becomes instantly disabled
             fetch(`/api/bookings?date=${encodeURIComponent(selectedDate.toISOString())}`)
               .then(r => r.json())
               .then(data => setBookedSlots(data))
               .catch(console.error);
               
             router.refresh();
-          }
+          },
+          (
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+              <button onClick={handleDownloadReceipt} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>📥 Download</button>
+              <button onClick={handleShareReceipt} style={{ padding: '8px 16px', background: '#25D366', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>📱 Share</button>
+            </div>
+          )
         );
       } else {
         const err = await res.json();
@@ -491,22 +521,19 @@ export default function BookPage() {
                     className={styles.inputField}
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
-                    readOnly={!isAdmin && !!session?.user?.name}
                   />
                 </div>
 
-                {isAdmin && (
-                  <div className={styles.inputGroup}>
-                    <label>Team WhatsApp Number</label>
-                    <input
-                      type="tel"
-                      placeholder="e.g. +91 9876543210"
-                      className={styles.inputField}
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                    />
-                  </div>
-                )}
+                <div className={styles.inputGroup}>
+                  <label>Team WhatsApp Number</label>
+                  <input
+                    type="tel"
+                    placeholder="e.g. +91 9876543210"
+                    className={styles.inputField}
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                  />
+                </div>
 
                 <div className={styles.inputGroup}>
                   <label>Duration</label>
