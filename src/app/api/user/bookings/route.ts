@@ -11,32 +11,21 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Use userId directly from JWT token (set in auth.ts session callback)
-    const userId = (session.user as any).id as string | undefined;
-
-    // Build where clause — prefer userId (faster), fallback to email lookup
-    let bookings;
-    if (userId) {
-      bookings = await prisma.booking.findMany({
-        where: { userId },
-        include: { team: true },
-        orderBy: [{ date: "desc" }, { startTime: "desc" }],
-      });
-    } else {
-      // Fallback: look up user by email first
-      const user = await prisma.user.findUnique({
-        where: { email: session.user.email },
-        select: { id: true },
-      });
-      if (!user) {
-        return NextResponse.json([]);
-      }
-      bookings = await prisma.booking.findMany({
-        where: { userId: user.id },
-        include: { team: true },
-        orderBy: [{ date: "desc" }, { startTime: "desc" }],
-      });
+    // Look up user by email to ensure we get the correct DB id
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
+    
+    if (!user) {
+      return NextResponse.json([]);
     }
+    
+    const bookings = await prisma.booking.findMany({
+      where: { userId: user.id },
+      include: { team: true },
+      orderBy: [{ date: "desc" }, { startTime: "desc" }],
+    });
 
     // Safely serialize dates
     const serialized = bookings.map((b) => ({

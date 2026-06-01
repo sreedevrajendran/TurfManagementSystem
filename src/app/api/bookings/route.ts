@@ -64,6 +64,14 @@ export async function POST(req: NextRequest) {
     if (!date || startTime === undefined || !teamName || !amount) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
+    
+    if (phone) {
+      const digitsOnly = phone.replace(/\D/g, '');
+      const isValidPhone = digitsOnly.length === 10 || (digitsOnly.length === 12 && digitsOnly.startsWith('91'));
+      if (!isValidPhone) {
+        return NextResponse.json({ error: "Invalid phone number. Must be exactly 10 digits." }, { status: 400 });
+      }
+    }
 
     // ── Ensure User exists in DB (upsert by email) ──────────────────────────
     // This handles the case where NextAuth JWT + PrismaAdapter hasn't saved

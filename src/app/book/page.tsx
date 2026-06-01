@@ -227,6 +227,13 @@ export default function BookPage() {
       showAlert('Missing Info', 'Please enter the team\'s WhatsApp number.');
       return;
     }
+    
+    const digitsOnly = phoneNumber.replace(/\D/g, '');
+    const isValidPhone = digitsOnly.length === 10 || (digitsOnly.length === 12 && digitsOnly.startsWith('91'));
+    if (!isValidPhone) {
+      showAlert('Invalid Phone', 'Please enter a valid 10-digit phone number.');
+      return;
+    }
 
     if (selectedSlot === null) return;
     setIsLoading(true);
