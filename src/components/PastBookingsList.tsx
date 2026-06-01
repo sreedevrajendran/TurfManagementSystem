@@ -66,6 +66,11 @@ export default function PastBookingsList({ bookings }: { bookings: BookingRecord
               {booking.amount !== undefined && (
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>₹{booking.amount}</p>
               )}
+              {booking.status === 'CANCELLED' && booking.reason && (
+                <p style={{ fontSize: '0.85rem', color: '#FF4444', marginTop: '4px', fontWeight: 600 }}>
+                  {booking.reason}
+                </p>
+              )}
               <button
                 onClick={() => handleDownload(booking)}
                 style={{ marginTop: 8, padding: '5px 12px', background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF', borderRadius: 8, cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, fontFamily: 'inherit' }}

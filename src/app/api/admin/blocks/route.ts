@@ -43,19 +43,18 @@ export async function POST(req: NextRequest) {
   // Cancel overlapping real bookings across all days
   let cancelledCount = 0;
   for (const day of days) {
-    const dayStart = new Date(day); dayStart.setHours(0, 0, 0, 0);
-    const dayEnd = new Date(day); dayEnd.setHours(23, 59, 59, 999);
-    
-    // Fetch all active bookings for the day to filter mathematically overlapping ones in JS
-    const dayBookings = await prisma.booking.findMany({
+    // Fetch all active bookings and filter by date string to avoid timezone issues
+    const allActiveBookings = await prisma.booking.findMany({
       where: { 
-        date: { gte: dayStart, lte: dayEnd }, 
         status: { notIn: ["CANCELLED", "BLOCKED"] } 
       },
       include: { user: true, team: true },
     });
 
-    const overlapping = dayBookings.filter(b => {
+    const targetDateStr = day.toDateString();
+
+    const overlapping = allActiveBookings.filter(b => {
+      if (new Date(b.date).toDateString() !== targetDateStr) return false;
       const bStart = b.startTime;
       const bEnd = b.startTime + b.durationHours;
       return bStart < endHour && startHour < bEnd;
