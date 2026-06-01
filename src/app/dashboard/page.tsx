@@ -149,7 +149,7 @@ export default function DashboardPage() {
                           }}
                           style={{ padding: '6px 14px', background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF', borderRadius: 8, cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, fontFamily: 'inherit' }}
                         >
-                          🧲 Receipt
+                          🧾 Receipt
                         </button>
                       </div>
                     </div>

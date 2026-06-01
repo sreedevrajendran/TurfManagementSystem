@@ -996,7 +996,7 @@ export default function AdminDashboard() {
                             className={styles.actionBtn}
                             style={{ background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF' }}
                           >
-                            🧲 Receipt
+                            🧾 Receipt
                           </button>
                         </div>
                       )}
