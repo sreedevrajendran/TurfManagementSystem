@@ -100,7 +100,7 @@ export function generateReceiptImage(data: ReceiptData): string {
     ['📅  Date', data.date],
     ['🕐  Time', data.time],
     ['⏱  Duration', `${data.duration} Hour${data.duration > 1 ? 's' : ''}`],
-    ['📱  WhatsApp', data.phone],
+    ['📱  Phone No', data.phone || '-'],
   ];
 
   let rowY = 360;
