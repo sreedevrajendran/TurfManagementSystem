@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { sendOfferAnnouncement } from "@/lib/email";
 
 // GET /api/admin/offers → list all offers
 export async function GET() {
@@ -35,22 +34,7 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Blast offer announcement to all registered users
-  try {
-    const users = await prisma.user.findMany({ select: { email: true } });
-    const emails = users.map((u) => u.email).filter(Boolean) as string[];
-    await sendOfferAnnouncement({
-      toList: emails,
-      offerTitle: title,
-      description: description || '',
-      discountPct: Number(discountPct),
-      slotType,
-      startDate: new Date(startDate).toLocaleDateString('en-IN'),
-      endDate: new Date(endDate).toLocaleDateString('en-IN'),
-    });
-  } catch (e) {
-    console.error('Offer announcement email failed:', e);
-  }
+
 
   return NextResponse.json(offer);
 }

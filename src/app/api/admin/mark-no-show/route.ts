@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { sendNoShowPenalty } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -43,19 +42,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    try {
-      if (booking.user?.email) {
-        await sendNoShowPenalty({
-          to: booking.user.email,
-          name: booking.user.name || "User",
-          teamName: booking.team?.name || "Your Team",
-          penaltyAmount: penaltyAmount,
-          date: new Date(booking.date).toLocaleDateString("en-IN"),
-        });
-      }
-    } catch (e) {
-      console.error("No-show email failed:", e);
-    }
+
 
     return NextResponse.json({ success: true, booking: updatedBooking });
   } catch (err: any) {

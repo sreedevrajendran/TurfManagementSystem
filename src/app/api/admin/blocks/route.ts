@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { sendBlockAnnouncement, sendBlockCancelledAnnouncement, sendCancellationEmail } from "@/lib/email";
 
 const fmtHour = (h: number) => `${h % 12 || 12}:00 ${h >= 12 ? "PM" : "AM"}`;
 const fmtTime = (t: string) => { const [h] = t.split(":").map(Number); return fmtHour(h); };
@@ -65,31 +64,11 @@ export async function POST(req: NextRequest) {
     for (const b of overlapping) {
       await prisma.booking.update({ where: { id: b.id }, data: { status: "CANCELLED" } });
       cancelledCount++;
-      if (b.user?.email) {
-        try {
-          await sendCancellationEmail({
-            to: b.user.email,
-            name: b.user.name || "Customer",
-            teamName: b.team?.name || b.user.name || "Unknown Team",
-            date: new Date(b.date).toLocaleDateString("en-IN"),
-            startTime: b.startTime,
-            duration: b.durationHours,
-            reason,
-          });
-        } catch (e) { console.error("Individual cancel email failed:", e); }
-      }
+
     }
   }
 
-  // Email all users
-  try {
-    const users = await prisma.user.findMany({ select: { email: true } });
-    const emails = users.map(u => u.email).filter(Boolean) as string[];
-    const dateLabel = startDate === endDate
-      ? new Date(startDate).toLocaleDateString("en-IN")
-      : `${new Date(startDate).toLocaleDateString("en-IN")} – ${new Date(endDate).toLocaleDateString("en-IN")}`;
-    await sendBlockAnnouncement({ toList: emails, date: dateLabel, startTime: fmtTime(startTime), endTime: fmtTime(endTime), reason });
-  } catch (e) { console.error("Block email failed:", e); }
+
 
   return NextResponse.json({ success: true, blockIds: blocks.map(b => b.id), cancelledCount });
 }
@@ -118,15 +97,7 @@ export async function DELETE(req: NextRequest) {
 
   await prisma.booking.delete({ where: { id } });
 
-  try {
-    const users = await prisma.user.findMany({ select: { email: true } });
-    const emails = users.map(u => u.email).filter(Boolean) as string[];
-    await sendBlockCancelledAnnouncement({
-      toList: emails,
-      date: new Date(block.date).toLocaleDateString("en-IN"),
-      reason: block.reason || "Scheduled block",
-    });
-  } catch (e) { console.error("Block cancel email failed:", e); }
+
 
   return NextResponse.json({ success: true });
 }

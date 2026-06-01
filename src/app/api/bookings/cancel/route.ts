@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { sendCancellationEmail, sendAdminCancellationAlert } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -50,35 +49,7 @@ export async function POST(req: NextRequest) {
       data: { status: "CANCELLED" }
     });
 
-    try {
-      if (booking.user?.email) {
-        await sendCancellationEmail({
-          to: booking.user.email,
-          name: booking.user.name || "User",
-          teamName: booking.team?.name || "Your Team",
-          date: booking.date.toISOString().split('T')[0],
-          startTime: booking.startTime,
-          duration: booking.durationHours,
-          sport: booking.sport,
-        });
-      }
-    } catch (e) {
-      console.error("Cancellation email failed:", e);
-    }
 
-    // -- Send alert email to admin
-    try {
-      await sendAdminCancellationAlert({
-        userName: booking.user?.name || session.user.name || "Unknown",
-        userEmail: booking.user?.email || session.user.email,
-        teamName: booking.team?.name || "Unknown Team",
-        date: booking.date.toLocaleDateString("en-IN"),
-        startTime: booking.startTime,
-        duration: booking.durationHours,
-      });
-    } catch (e) {
-      console.error("Admin cancellation alert email failed:", e);
-    }
 
     return NextResponse.json({ success: true, booking: updatedBooking });
 
