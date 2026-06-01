@@ -111,7 +111,8 @@ model SpecialOffer {
   id            String   @id @default(cuid())
   title         String
   description   String?
-  discountPct   Float    // e.g. 20 = 20% off
+  discountPct   Float    // e.g. 20 = 20% off; ignored if fixedPrice is set
+  fixedPrice    Float?   // if set, overrides base price entirely (flat ₹ per hour)
   slotType      SlotType @default(BOTH)
   startDate     DateTime
   endDate       DateTime

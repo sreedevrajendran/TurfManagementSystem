@@ -14,6 +14,7 @@ type SpecialOffer = {
   id: string;
   title: string;
   discountPct: number;
+  fixedPrice: number | null;
   slotType: 'PEAK' | 'OFF_PEAK' | 'BOTH';
   startDate: string;
   endDate: string;
@@ -170,10 +171,12 @@ export default function BookPage() {
     const basePrice = isOffPeak ? pricing.offPeak : pricing.peak;
     const slotType = isOffPeak ? 'OFF_PEAK' : 'PEAK';
 
-    // Find the best applicable offer
-    let bestDiscount = 0;
     const checkDate = new Date(date);
     checkDate.setHours(0, 0, 0, 0);
+
+    // Find best applicable offer (fixed price takes priority over % discount)
+    let bestFixedPrice: number | null = null;
+    let bestDiscount = 0;
 
     for (const offer of offers) {
       const start = new Date(offer.startDate);
@@ -183,13 +186,22 @@ export default function BookPage() {
 
       if (checkDate >= start && checkDate <= end) {
         if (offer.slotType === 'BOTH' || offer.slotType === slotType) {
-          if (offer.discountPct > bestDiscount) bestDiscount = offer.discountPct;
+          if (offer.fixedPrice !== null && offer.fixedPrice !== undefined) {
+            // Pick the lowest fixed price
+            if (bestFixedPrice === null || offer.fixedPrice < bestFixedPrice) {
+              bestFixedPrice = offer.fixedPrice;
+            }
+          } else if (offer.discountPct > bestDiscount) {
+            bestDiscount = offer.discountPct;
+          }
         }
       }
     }
 
-    const finalPrice = basePrice - (basePrice * (bestDiscount / 100));
-    return { basePrice, finalPrice, discount: bestDiscount };
+    const finalPrice = bestFixedPrice !== null
+      ? bestFixedPrice
+      : basePrice - (basePrice * (bestDiscount / 100));
+    return { basePrice, finalPrice, discount: bestDiscount, fixedPrice: bestFixedPrice };
   };
 
   const calculateTotal = (startHour: number, dur: number, date: Date) => {
@@ -392,8 +404,9 @@ export default function BookPage() {
           
           const isBooked = bookedSlots.includes(hour) || isBlocked;
           const isDisabled = isPast || isBooked || isFetchingSlots;
-          const { basePrice, finalPrice, discount } = getPriceForHour(hour, selectedDate);
+          const { basePrice, finalPrice, discount, fixedPrice: slotFixedPrice } = getPriceForHour(hour, selectedDate);
           const hasDiscount = discount > 0;
+          const hasFixedPrice = slotFixedPrice !== null && slotFixedPrice !== undefined;
 
           // Skip past slots entirely — no dark empty boxes
           if (isPast) return null;
@@ -416,7 +429,7 @@ export default function BookPage() {
                 borderRadius: '8px',
                 textAlign: 'center',
               } : undefined}
-              title={isBlocked ? `Locked: ${blockingBlock.reason}` : isBooked ? 'Already booked' : hasDiscount ? `${discount}% OFF!` : ''}
+              title={isBlocked ? `Locked: ${blockingBlock.reason}` : isBooked ? 'Already booked' : hasFixedPrice ? `Special Price ₹${slotFixedPrice}/hr!` : hasDiscount ? `${discount}% OFF!` : ''}                                 
             >
               <span>{formatTime(hour)}</span>
               {isCurrentHour ? (
@@ -427,6 +440,11 @@ export default function BookPage() {
                 </div>
               ) : isBooked ? (
                 <div className={styles.priceTag} style={{ color: '#FF4444' }}>✕</div>
+              ) : hasFixedPrice ? (
+                <div className={styles.priceTag} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                  <span style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through', fontSize: '0.6rem' }}>₹{basePrice}</span>
+                  <span style={{ color: '#00E676', fontWeight: 800 }}>₹{slotFixedPrice}</span>
+                </div>
               ) : hasDiscount ? (
                 <div className={styles.priceTag} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                   <span style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through', fontSize: '0.6rem' }}>₹{basePrice}</span>

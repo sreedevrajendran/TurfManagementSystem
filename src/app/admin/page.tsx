@@ -27,6 +27,7 @@ type SpecialOffer = {
   title: string;
   description: string | null;
   discountPct: number;
+  fixedPrice: number | null;
   slotType: 'PEAK' | 'OFF_PEAK' | 'BOTH';
   startDate: string;
   endDate: string;
@@ -69,6 +70,8 @@ export default function AdminDashboard() {
   const [offerStartDate, setOfferStartDate] = useState('');
   const [offerEndDate, setOfferEndDate] = useState('');
   const [offerLoading, setOfferLoading] = useState(false);
+  const [offerPriceMode, setOfferPriceMode] = useState<'percent' | 'fixed'>('percent');
+  const [offerFixedPrice, setOfferFixedPrice] = useState('');
 
   // Pricing State
   const [pricing, setPricing] = useState({ offPeak: 800, peak: 1100, peakStart: 19 });
@@ -325,7 +328,8 @@ export default function AdminDashboard() {
         body: JSON.stringify({
           title: offerTitle,
           description: offerDesc,
-          discountPct: Number(offerDiscount),
+          discountPct: offerPriceMode === 'percent' ? Number(offerDiscount) : 0,
+          fixedPrice: offerPriceMode === 'fixed' ? Number(offerFixedPrice) : undefined,
           slotType: offerSlotType,
           startDate: offerStartDate,
           endDate: offerEndDate,
@@ -336,6 +340,7 @@ export default function AdminDashboard() {
         setOfferTitle('');
         setOfferDesc('');
         setOfferDiscount('20');
+        setOfferFixedPrice('');
         setOfferStartDate('');
         setOfferEndDate('');
         fetchOffers();
@@ -524,9 +529,33 @@ export default function AdminDashboard() {
             <input type="text" className={styles.inputField} placeholder="e.g. Weekend Madness" value={offerTitle} onChange={e => setOfferTitle(e.target.value)} />
           </div>
           <div className={styles.inputGroup}>
-            <label>Discount %</label>
-            <input type="number" className={styles.inputField} value={offerDiscount} onChange={e => setOfferDiscount(e.target.value)} />
+            <label>Pricing Type</label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => setOfferPriceMode('percent')}
+                style={{ flex: 1, padding: '10px', borderRadius: '8px', border: offerPriceMode === 'percent' ? '2px solid #FFD700' : '1px solid var(--border-color)', background: offerPriceMode === 'percent' ? 'rgba(255,215,0,0.1)' : 'transparent', color: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}
+              >
+                % Discount
+              </button>
+              <button
+                onClick={() => setOfferPriceMode('fixed')}
+                style={{ flex: 1, padding: '10px', borderRadius: '8px', border: offerPriceMode === 'fixed' ? '2px solid #00E676' : '1px solid var(--border-color)', background: offerPriceMode === 'fixed' ? 'rgba(0,230,118,0.1)' : 'transparent', color: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}
+              >
+                ₹ Fixed Price
+              </button>
+            </div>
           </div>
+          {offerPriceMode === 'percent' ? (
+            <div className={styles.inputGroup}>
+              <label>Discount %</label>
+              <input type="number" className={styles.inputField} placeholder="e.g. 20" value={offerDiscount} onChange={e => setOfferDiscount(e.target.value)} />
+            </div>
+          ) : (
+            <div className={styles.inputGroup}>
+              <label>Fixed Price per Hour (₹)</label>
+              <input type="number" className={styles.inputField} placeholder="e.g. 600" value={offerFixedPrice} onChange={e => setOfferFixedPrice(e.target.value)} />
+            </div>
+          )}
           <div className={styles.inputGroup}>
             <label>Slot Type</label>
             <select className={styles.selectField} value={offerSlotType} onChange={e => setOfferSlotType(e.target.value)}>
@@ -575,7 +604,11 @@ export default function AdminDashboard() {
                 {offers.map(offer => (
                   <tr key={offer.id} style={{ opacity: offer.active ? 1 : 0.6 }}>
                     <td><strong>{offer.title}</strong></td>
-                    <td style={{ color: '#FFD700', fontWeight: 'bold' }}>{offer.discountPct}% OFF</td>
+                    <td style={{ color: '#FFD700', fontWeight: 'bold' }}>
+                      {offer.fixedPrice !== null && offer.fixedPrice !== undefined
+                        ? <span style={{ color: '#00E676' }}>₹{offer.fixedPrice}/hr flat</span>
+                        : <>{offer.discountPct}% OFF</>}
+                    </td>
                     <td>{offer.slotType === 'BOTH' ? 'All Slots' : offer.slotType === 'PEAK' ? 'Peak' : 'Off-Peak'}</td>
                     <td>{new Date(offer.endDate).toLocaleDateString('en-IN')}</td>
                     <td>

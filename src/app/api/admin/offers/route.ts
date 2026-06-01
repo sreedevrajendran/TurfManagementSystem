@@ -20,13 +20,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { title, description, discountPct, slotType, startDate, endDate } = await req.json();
+  const { title, description, discountPct, fixedPrice, slotType, startDate, endDate } = await req.json();
 
   const offer = await prisma.specialOffer.create({
     data: {
       title,
       description,
-      discountPct: Number(discountPct),
+      discountPct: Number(discountPct) || 0,
+      fixedPrice: fixedPrice !== undefined && fixedPrice !== '' ? Number(fixedPrice) : null,
       slotType,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
