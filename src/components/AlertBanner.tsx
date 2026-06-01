@@ -5,7 +5,7 @@ import { Tag, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
-type Offer = { id: string; startDate: string; discountPct: number; slotType: string; title: string };
+type Offer = { id: string; startDate: string; discountPct: number; fixedPrice: number | null; slotType: string; title: string };
 type Block = { id: string; date: string; startTime: number; durationHours: number; reason: string };
 
 export default function AlertBanner() {
@@ -62,7 +62,21 @@ export default function AlertBanner() {
             <Link key={offer.id} href={`/book?date=${offerDateStr}`} style={{ textDecoration: 'none' }}>
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                 <Tag size={14} color="#fde047" />
-                <span style={{ color: '#fde047' }}>{isUpcoming ? 'UPCOMING' : 'ACTIVE'} OFFER:</span> {offer.discountPct}% OFF {offer.slotType === 'PEAK' ? '(Night Slots)' : offer.slotType === 'OFF_PEAK' ? '(Day Slots)' : ''} — {offer.title}
+                <span style={{ color: '#fde047' }}>{isUpcoming ? 'UPCOMING' : 'ACTIVE'} OFFER:</span>
+                {(() => {
+                  const slotLabel = offer.slotType === 'PEAK' ? ' (Night Slots)' : offer.slotType === 'OFF_PEAK' ? ' (Day Slots)' : '';
+                  if (offer.fixedPrice !== null && offer.fixedPrice !== undefined) {
+                    // Calculate effective % savings vs the relevant base price
+                    // Morning base = 800, Night base = 1100 (defaults; use lower for BOTH)
+                    const relevantBase = offer.slotType === 'OFF_PEAK' ? 800 : 1100;
+                    const savedPct = Math.round(((relevantBase - offer.fixedPrice) / relevantBase) * 100);
+                    const label = savedPct > 0
+                      ? `₹${offer.fixedPrice}/hr (${savedPct}% OFF)`
+                      : `₹${offer.fixedPrice}/hr flat`;
+                    return <span>{label}{slotLabel} — {offer.title}</span>;
+                  }
+                  return <span>{offer.discountPct}% OFF{slotLabel} — {offer.title}</span>;
+                })()}
               </motion.div>
             </Link>
           );
