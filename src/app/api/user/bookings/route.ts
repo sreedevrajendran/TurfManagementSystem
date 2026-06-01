@@ -46,7 +46,9 @@ export async function GET() {
       durationHours: b.durationHours,
       amount: b.amount,
       status: b.status,
+      sport: b.sport,
       teamName: b.team?.name ?? null,
+      phone: b.team?.phone ?? null,
     }));
 
     return NextResponse.json(serialized);
