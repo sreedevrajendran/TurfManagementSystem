@@ -9,8 +9,8 @@ const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const MAX_REQUESTS_PER_WINDOW = 100; // 100 requests per minute per IP
 
-export async function middleware(req: NextRequest) {
-  const ip = req.headers.get('x-forwarded-for') ?? req.ip ?? '127.0.0.1';
+export async function proxy(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? '127.0.0.1';
   const path = req.nextUrl.pathname;
 
   // 1. Basic Web Application Firewall (WAF) & Rate Limiting
