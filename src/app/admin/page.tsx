@@ -1010,22 +1010,24 @@ export default function AdminDashboard() {
                         >
                           ✅ Unblock
                         </button>
-                      ) : booking.status !== 'CANCELLED' && (
+                      ) : (
                         <div className={styles.actionBtnGroup}>
-                          {booking.status !== 'PAID' && (
+                          {booking.status !== 'CANCELLED' && booking.status !== 'PAID' && (
                             <button onClick={() => markPaid(booking.id)} className={`${styles.actionBtn} ${styles.markPaid}`}>✅ Paid</button>
                           )}
-                          {booking.status === 'PENDING' && (
+                          {booking.status !== 'CANCELLED' && booking.status === 'PENDING' && (
                             <button onClick={() => markNoShow(booking.id)} className={`${styles.actionBtn} ${styles.markDue}`}>No-Show</button>
                           )}
-                          <button onClick={() => cancelBooking(booking.id)} className={`${styles.actionBtn} ${styles.cancel}`}>Cancel</button>
+                          {booking.status !== 'CANCELLED' && (
+                            <button onClick={() => cancelBooking(booking.id)} className={`${styles.actionBtn} ${styles.cancel}`}>Cancel</button>
+                          )}
                           <button
                             onClick={() => {
                               const payStatus = booking.status === 'PAID' ? 'CONFIRMED' : booking.status === 'DUE' ? 'DUE' : booking.status === 'CANCELLED' ? 'CANCELLED' : 'PENDING';
                               const img = generateReceiptImage({
                                 teamName: booking.teamName || 'Team',
                                 sport: booking.sport === 'CRICKET' ? 'Cricket' : 'Football',
-                                date: new Date(booking.date).toLocaleDateString('en-IN'),
+                                date: new Date(booking.date.split('/').reverse().join('-')).toLocaleDateString('en-IN'),
                                 time: `${formatHour(booking.startTime)} – ${formatHour((booking.startTime + booking.durationHours) % 24)}`,
                                 duration: booking.durationHours,
                                 phone: booking.phone || '',
