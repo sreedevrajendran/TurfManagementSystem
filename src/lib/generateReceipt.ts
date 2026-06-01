@@ -199,6 +199,12 @@ export function generateReceiptImage(data: ReceiptData): string {
   ctx.fillStyle = botGrad;
   ctx.fillRect(0, H - 6, W, 6);
 
+  const timestampStr = new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+  ctx.font = '11px Arial';
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.textAlign = 'center';
+  ctx.fillText(`Generated: ${timestampStr}`, W / 2, H - 24);
+
   return canvas.toDataURL('image/png');
 }
 
@@ -354,6 +360,12 @@ export function generateOfferImage(data: OfferImageData): string {
   ctx.fillStyle = headerGrad;
   ctx.fillRect(0, H - 6, W, 6);
 
+  const timestampStr = new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+  ctx.font = '11px Arial';
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.textAlign = 'center';
+  ctx.fillText(`Generated: ${timestampStr}`, W / 2, H - 24);
+
   return canvas.toDataURL('image/png');
 }
 
@@ -480,6 +492,12 @@ export function generateBlockImage(data: BlockImageData): string {
 
   ctx.fillStyle = headerGrad;
   ctx.fillRect(0, H - 6, W, 6);
+
+  const timestampStr = new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+  ctx.font = '11px Arial';
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.textAlign = 'center';
+  ctx.fillText(`Generated: ${timestampStr}`, W / 2, H - 24);
 
   return canvas.toDataURL('image/png');
 }
