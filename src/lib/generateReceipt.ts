@@ -99,8 +99,11 @@ export function generateReceiptImage(data: ReceiptData): string {
     ['📅  Date', data.date],
     ['🕐  Time', data.time],
     ['⏱  Duration', `${data.duration} Hour${data.duration > 1 ? 's' : ''}`],
-    ['📱  Phone No', data.phone || '-'],
   ];
+
+  if (data.phone && data.phone.trim() !== '') {
+    rows.push(['📱  Phone No', data.phone.trim()]);
+  }
 
   let rowY = 360;
   for (const [label, value] of rows) {
