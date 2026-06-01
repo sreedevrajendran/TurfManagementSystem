@@ -50,11 +50,10 @@ export function generateReceiptImage(data: ReceiptData): string {
   ctx.stroke();
 
   // ── Logo / Header area ───────────────────────────────────────
-  const sportEmoji = data.sport === 'Cricket' ? '🏏' : '⚽';
   ctx.font = 'bold 44px Arial';
   ctx.textAlign = 'center';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(sportEmoji, W / 2, 110);
+  ctx.fillText('⚽   🏏', W / 2, 110);
 
   ctx.font = 'bold 22px Arial';
   ctx.fillStyle = '#00e676';
