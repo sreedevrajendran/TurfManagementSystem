@@ -84,21 +84,13 @@ export async function POST(req: NextRequest) {
 
     // ── Find or create Team record ───────────────────────────────────────────
     let team = null;
-    if (isAdmin && phone) {
-      team = await prisma.team.upsert({
-        where: { phone },
-        update: { name: teamName },
-        create: { name: teamName, phone },
-      });
-    } else {
-      // Regular user — use their DB user ID as a unique phone key
-      const userPhone = `USER-${dbUser.id}`;
-      team = await prisma.team.upsert({
-        where: { phone: userPhone },
-        update: { name: teamName },
-        create: { name: teamName, phone: userPhone },
-      });
-    }
+    const teamPhone = phone && phone.trim() !== '' ? phone.trim() : `USER-${dbUser.id}`;
+    
+    team = await prisma.team.upsert({
+      where: { phone: teamPhone },
+      update: { name: teamName },
+      create: { name: teamName, phone: teamPhone },
+    });
 
     // ── Conflict check — prevent double-booking same slot ────────────────────
     const existingBooking = await prisma.booking.findFirst({

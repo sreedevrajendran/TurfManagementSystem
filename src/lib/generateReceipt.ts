@@ -101,7 +101,7 @@ export function generateReceiptImage(data: ReceiptData): string {
     ['⏱  Duration', `${data.duration} Hour${data.duration > 1 ? 's' : ''}`],
   ];
 
-  if (data.phone && data.phone.trim() !== '') {
+  if (data.phone && data.phone.trim() !== '' && !data.phone.startsWith('USER-')) {
     rows.push(['📱  Phone No', data.phone.trim()]);
   }
 
