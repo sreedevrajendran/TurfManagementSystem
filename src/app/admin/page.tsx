@@ -213,7 +213,7 @@ export default function AdminDashboard() {
 
   // ── Derived stats ────────────────────────────────────────────────────────
   const todayStr = new Date().toLocaleDateString('en-IN');
-  const todayBookings = bookings.filter(b => b.date === todayStr && b.status !== 'CANCELLED').length;
+  const todayBookings = bookings.filter(b => b.date === todayStr).length;
   const totalDue = bookings.filter(b => b.status === 'DUE').reduce((s, b) => s + b.amount, 0);
   const totalPaidThisMonth = bookings
     .filter(b => b.status === 'PAID')
@@ -971,14 +971,14 @@ export default function AdminDashboard() {
                     const bDate = new Date(`${year}-${month}-${day}`);
                     const now = new Date();
                     
-                    if (filterType === 'TODAY') return b.date === todayStr && b.status !== 'CANCELLED';
+                    if (filterType === 'TODAY') return b.date === todayStr;
                     if (filterType === 'WEEK') {
                       const diffTime = Math.abs(now.getTime() - bDate.getTime());
                       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-                      return diffDays <= 7 && b.status !== 'CANCELLED';
+                      return diffDays <= 7;
                     }
                     if (filterType === 'MONTH') {
-                      return bDate.getMonth() === now.getMonth() && bDate.getFullYear() === now.getFullYear() && b.status !== 'CANCELLED';
+                      return bDate.getMonth() === now.getMonth() && bDate.getFullYear() === now.getFullYear();
                     }
                     if (filterType === 'DUE') return b.status === 'DUE';
                     if (filterType === 'PAID') return b.status === 'PAID';
