@@ -19,6 +19,7 @@ type Booking = {
   sport: string;
   teamName: string | null;
   phone?: string | null;
+  updatedAt?: string | null;
 };
 
 const formatTime = (hour: number) => {
@@ -80,9 +81,19 @@ export default function DashboardPage() {
   const pastBookings = [...bookings]
     .filter((b) => b.status === 'PAID' || b.status === 'CANCELLED')
     .sort((a, b) => {
+      // 1. All CANCELLED above PAID
       if (a.status === 'CANCELLED' && b.status !== 'CANCELLED') return -1;
       if (a.status !== 'CANCELLED' && b.status === 'CANCELLED') return 1;
-      return 0;
+      
+      // 2. If both are CANCELLED, sort by most recently updated (cancelled) first
+      if (a.status === 'CANCELLED' && b.status === 'CANCELLED') {
+        const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+        const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+        return timeB - timeA;
+      }
+      
+      // 3. For PAID, sort by booking date descending
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
 
   return (

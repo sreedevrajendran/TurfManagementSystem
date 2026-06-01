@@ -49,6 +49,7 @@ export async function GET() {
       sport: b.sport,
       teamName: b.team?.name ?? null,
       phone: b.team?.phone ?? null,
+      updatedAt: b.updatedAt ? new Date(b.updatedAt).toISOString() : null,
     }));
 
     return NextResponse.json(serialized);
