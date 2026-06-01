@@ -77,7 +77,13 @@ export default function DashboardPage() {
   }
 
   const pendingDues = bookings.filter((b) => b.status === 'DUE');
-  const pastBookings = bookings.filter((b) => b.status === 'PAID' || b.status === 'CANCELLED');
+  const pastBookings = [...bookings]
+    .filter((b) => b.status === 'PAID' || b.status === 'CANCELLED')
+    .sort((a, b) => {
+      if (a.status === 'CANCELLED' && b.status !== 'CANCELLED') return -1;
+      if (a.status !== 'CANCELLED' && b.status === 'CANCELLED') return 1;
+      return 0;
+    });
 
   return (
     <div className={styles.container}>
