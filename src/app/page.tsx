@@ -248,7 +248,7 @@ export default function Home() {
         <div className={styles.footerContent}>
           <div className={styles.footerBrand}>
             <h3>⚽🏏 EAST WELFARE TURF</h3>
-            <p>Mannar East Welfare School, Mannar, Kerala</p>
+            <p>East Welfare School, Mannar, Kerala</p>
             <p style={{ marginTop: 12, fontSize: '0.85rem', opacity: 0.6 }}>
               Football &amp; Cricket · Sign in with Google to book · Pay at the venue.
             </p>
