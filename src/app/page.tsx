@@ -256,9 +256,16 @@ export default function Home() {
           </div>
           <div className={styles.footerContact}>
             <h4>Contact Us</h4>
-            <p><Phone size={14} style={{ display: 'inline', marginRight: 6 }} />
-              <a href="tel:+919778518909" style={{ color: 'inherit', textDecoration: 'none' }}>+91 97785 18909</a>
-            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+              <span>
+                <Phone size={14} style={{ display: 'inline', marginRight: 6 }} />
+                <a href="tel:+917994786085" style={{ color: 'inherit', textDecoration: 'none' }}>+91 79947 86085</a>
+              </span>
+              <span>
+                <Phone size={14} style={{ display: 'inline', marginRight: 6 }} />
+                <a href="tel:+919895719280" style={{ color: 'inherit', textDecoration: 'none' }}>+91 98957 19280</a>
+              </span>
+            </div>
             <p><Mail size={14} style={{ display: 'inline', marginRight: 6 }} />
               <a href="mailto:eastwelfareturf@gmail.com" style={{ color: 'inherit', textDecoration: 'none' }}>eastwelfareturf@gmail.com</a>
             </p>
@@ -268,7 +275,7 @@ export default function Home() {
             <h4>Quick Links</h4>
             <Link href="/book" style={{ display: 'block', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: 8 }}>📅 Book a Slot</Link>
             <Link href="/dashboard" style={{ display: 'block', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: 8 }}>👤 My Dashboard</Link>
-            <a href="https://wa.me/919778518909" target="_blank" rel="noopener noreferrer"
+            <a href="https://wa.me/917994786085" target="_blank" rel="noopener noreferrer"
               style={{ display: 'block', color: '#25D366', textDecoration: 'none', marginBottom: 8 }}>
               💬 WhatsApp Us
             </a>
