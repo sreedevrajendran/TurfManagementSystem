@@ -44,7 +44,7 @@ export default function PastBookingsList({ bookings }: { bookings: BookingRecord
     });
     const a = document.createElement('a');
     a.href = img;
-    a.download = `Receipt_${booking.teamName || 'booking'}_${booking.status}.png`;
+    a.download = `Receipt_${booking.teamName || 'booking'}_${booking.status}_${Date.now()}.png`;
     a.click();
   };
 

@@ -990,7 +990,7 @@ export default function AdminDashboard() {
                               });
                               const a = document.createElement('a');
                               a.href = img;
-                              a.download = `Receipt_${booking.teamName}_${booking.status}.png`;
+                              a.download = `Receipt_${booking.teamName}_${booking.status}_${Date.now()}.png`;
                               a.click();
                             }}
                             className={styles.actionBtn}

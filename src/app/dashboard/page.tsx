@@ -144,7 +144,7 @@ export default function DashboardPage() {
                             });
                             const a = document.createElement('a');
                             a.href = img;
-                            a.download = `Receipt_${due.teamName || 'booking'}.png`;
+                            a.download = `Receipt_${due.teamName || 'booking'}_${Date.now()}.png`;
                             a.click();
                           }}
                           style={{ padding: '6px 14px', background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF', borderRadius: 8, cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, fontFamily: 'inherit' }}

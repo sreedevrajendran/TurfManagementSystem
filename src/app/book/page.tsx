@@ -261,7 +261,7 @@ export default function BookPage() {
           const dataUrl = generateReceiptImage(receiptData);
           const a = document.createElement('a');
           a.href = dataUrl;
-          a.download = `EastWelfareTurf_Receipt_${teamName.replace(/\s+/g, '_')}.png`;
+          a.download = `EastWelfareTurf_Receipt_${teamName.replace(/\s+/g, '_')}_${Date.now()}.png`;
           a.click();
         };
 
@@ -270,7 +270,7 @@ export default function BookPage() {
           // Convert data URL to blob for native share
           const res = await fetch(dataUrl);
           const blob = await res.blob();
-          const file = new File([blob], `Receipt_${teamName}.png`, { type: 'image/png' });
+          const file = new File([blob], `Receipt_${teamName}_${Date.now()}.png`, { type: 'image/png' });
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             navigator.share({ files: [file], title: 'Booking Receipt' }).catch(() => {});
           } else {
