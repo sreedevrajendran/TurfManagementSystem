@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { sendAdminCancelBookingNotification } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -49,7 +50,14 @@ export async function POST(req: NextRequest) {
       data: { status: "CANCELLED" }
     });
 
-
+    // Notify admin
+    await sendAdminCancelBookingNotification({
+      date: new Date(booking.date).toLocaleDateString(),
+      startTime: `${booking.startTime}:00`,
+      court: booking.sport,
+      userName: session.user.name,
+      userEmail: session.user.email,
+    });
 
     return NextResponse.json({ success: true, booking: updatedBooking });
 

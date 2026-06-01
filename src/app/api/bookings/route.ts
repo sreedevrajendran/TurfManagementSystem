@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { sendAdminNewBookingNotification } from "@/lib/email";
 
 
 export async function GET(req: NextRequest) {
@@ -129,7 +130,17 @@ export async function POST(req: NextRequest) {
       },
     });
 
-
+    // Notify admin
+    await sendAdminNewBookingNotification({
+      date: new Date(date).toLocaleDateString(),
+      startTime: `${startTime}:00`,
+      durationHours: Number(durationHours),
+      totalPrice: Number(amount),
+      court: sport,
+      userName: session.user.name,
+      userEmail: session.user.email,
+      phone: phone,
+    });
 
     return NextResponse.json({ success: true, booking });
   } catch (err: any) {

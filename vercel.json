@@ -6,11 +6,5 @@
     "env": {
       "NEXTAUTH_URL": "https://localhost:3000"
     }
-  },
-  "crons": [
-    {
-      "path": "/api/cron/slot-reminders",
-      "schedule": "0 0 * * *"
-    }
-  ]
+  }
 }

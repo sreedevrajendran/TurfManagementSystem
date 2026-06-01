@@ -273,17 +273,17 @@ export default function Home() {
           </div>
           <div className={styles.footerLinks}>
             <h4>Quick Links</h4>
-            <Link href="/book" style={{ display: 'block', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: 8 }}>📅 Book a Slot</Link>
-            <Link href="/dashboard" style={{ display: 'block', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: 8 }}>👤 My Dashboard</Link>
+            <Link href="/book" style={{ display: 'block', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: 8 }}>Book a Slot</Link>
+            <Link href="/dashboard" style={{ display: 'block', color: 'var(--text-secondary)', textDecoration: 'none', marginBottom: 8 }}>My Dashboard</Link>
             <a href="https://wa.me/917994786085" target="_blank" rel="noopener noreferrer"
               style={{ display: 'block', color: '#25D366', textDecoration: 'none', marginBottom: 8 }}>
-              💬 WhatsApp Us
+              WhatsApp Us
             </a>
             <button onClick={() => openTermsModal()} style={{ display: 'block', background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', textDecoration: 'none', cursor: 'pointer', textAlign: 'left', font: 'inherit', marginBottom: 8 }}>
-              📜 Terms & Conditions
+              Terms & Conditions
             </button>
             <button onClick={() => openPrivacyModal()} style={{ display: 'block', background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', textDecoration: 'none', cursor: 'pointer', textAlign: 'left', font: 'inherit' }}>
-              🔒 Privacy Policy
+              Privacy Policy
             </button>
           </div>
         </div>
