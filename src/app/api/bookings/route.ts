@@ -101,10 +101,29 @@ export async function POST(req: NextRequest) {
       create: { name: teamName, phone: teamPhone },
     });
 
+    const bookingDate = new Date(date);
+    const serverNow = new Date();
+    
+    const bookingMidnight = new Date(bookingDate);
+    bookingMidnight.setHours(0, 0, 0, 0);
+    
+    const serverMidnight = new Date(serverNow);
+    serverMidnight.setHours(0, 0, 0, 0);
+
+    const isPastDate = bookingMidnight < serverMidnight;
+    const isPastHour = bookingMidnight.getTime() === serverMidnight.getTime() && Number(startTime) < serverNow.getHours();
+
+    if ((isPastDate || isPastHour) && !isAdmin) {
+      return NextResponse.json(
+        { error: 'Cannot book slots in the past. Please select a valid future time.' },
+        { status: 400 }
+      );
+    }
+
     // ── Conflict check — prevent double-booking same slot ────────────────────
     const existingBooking = await prisma.booking.findFirst({
       where: {
-        date: new Date(date),
+        date: bookingDate,
         startTime: Number(startTime),
         status: { not: 'CANCELLED' },
       },
@@ -119,7 +138,7 @@ export async function POST(req: NextRequest) {
     // ── Create Booking ───────────────────────────────────────────────────────
     const booking = await prisma.booking.create({
       data: {
-        date: new Date(date),
+        date: bookingDate,
         startTime: Number(startTime),
         durationHours: Number(durationHours),
         amount: Number(amount),

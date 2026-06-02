@@ -418,8 +418,17 @@ export default function BookPage() {
       >
         {slots.map((hour) => {
           const now = new Date();
-          const isToday = selectedDate.toDateString() === now.toDateString();
-          const isPast = isToday && hour < now.getHours();
+          
+          const selectedMidnight = new Date(selectedDate);
+          selectedMidnight.setHours(0, 0, 0, 0);
+          
+          const todayMidnight = new Date(now);
+          todayMidnight.setHours(0, 0, 0, 0);
+          
+          const isPastDate = selectedMidnight < todayMidnight;
+          const isToday = selectedMidnight.getTime() === todayMidnight.getTime();
+          const isPast = isPastDate || (isToday && hour < now.getHours());
+          
           const isCurrentHour = isToday && hour === now.getHours();
           
           const blockingBlock = blocks.find((b: any) => {
