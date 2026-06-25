@@ -91,7 +91,7 @@ export default function BookPage() {
   const [pricing, setPricing] = useState({ offPeak: 800, peak: 1100, peakStart: 19 });
 
   useEffect(() => {
-    fetch('/api/pricing').then(r => r.json()).then(p => { if(p) setPricing(p); }).catch(() => {});
+    fetch('/api/pricing').then(r => r.json()).then(p => { if(p && !p.error) setPricing(p); }).catch(() => {});
   }, []);
 
   const showAlert = (title: string, message: string, type: 'alert' | 'success' = 'alert', callback?: () => void, children?: React.ReactNode) => {

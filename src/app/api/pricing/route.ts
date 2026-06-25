@@ -15,6 +15,7 @@ export async function GET() {
     
     return NextResponse.json(pricing);
   } catch (error) {
+    console.error("Pricing Error:", error);
     return NextResponse.json({ error: "Failed to fetch pricing" }, { status: 500 });
   }
 }
