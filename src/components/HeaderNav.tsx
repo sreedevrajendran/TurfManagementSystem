@@ -558,12 +558,21 @@ export default function HeaderNav() {
               </>
             )}
 
-            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <Link
                 href="/book"
                 onClick={() => setMobileMenuOpen(false)}
-                className="btn-primary"
-                style={{ width: '100%', textAlign: 'center' }}
+                style={{
+                  width: '100%',
+                  textAlign: 'center',
+                  background: '#00E676',
+                  color: '#000000',
+                  padding: '10px 16px',
+                  borderRadius: '12px',
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                  textDecoration: 'none'
+                }}
               >
                 Book Your Slot Now
               </Link>
@@ -573,8 +582,20 @@ export default function HeaderNav() {
                     setMobileMenuOpen(false);
                     signOut({ callbackUrl: '/' });
                   }}
-                  className="btn-secondary"
-                  style={{ width: '100%', color: '#FF6B6B' }}
+                  style={{
+                    width: '100%',
+                    color: '#FF6B6B',
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    padding: '10px 16px',
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
                 >
                   <LogOut size={16} /> Sign Out
                 </button>
@@ -584,8 +605,16 @@ export default function HeaderNav() {
                     setMobileMenuOpen(false);
                     setShowWelcomeModal(true);
                   }}
-                  className="btn-secondary"
-                  style={{ width: '100%' }}
+                  style={{
+                    width: '100%',
+                    color: '#FFFFFF',
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    padding: '10px 16px',
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    fontSize: '0.9rem'
+                  }}
                 >
                   Sign In with Google
                 </button>
@@ -614,7 +643,7 @@ export default function HeaderNav() {
         }
         .mobile-nav-link {
           color: #E2E8F0;
-          font-size: 1.05rem;
+          font-size: 0.95rem;
           font-weight: 700;
           padding: 8px 12px;
           border-radius: 8px;
