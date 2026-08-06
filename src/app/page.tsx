@@ -272,9 +272,10 @@ export default function HomePage() {
 
             <div className={styles.slotsTimelineGrid}>
               {timeSlots.map((slot) => {
-                const isPast = slot.hour <= currentHour;
+                const isPast = slot.hour < currentHour;
                 const isBooked = bookedSlotsToday.includes(slot.hour);
-                const price = slot.isPeak ? pricing.peak : pricing.offPeak;
+                const isPeak = slot.hour >= pricing.peakStart;
+                const price = isPeak ? pricing.peak : pricing.offPeak;
 
                 return (
                   <Link
@@ -284,13 +285,13 @@ export default function HomePage() {
                     style={{
                       opacity: isPast || isBooked ? 0.35 : 1,
                       pointerEvents: isPast || isBooked ? 'none' : 'auto',
-                      borderColor: slot.isPeak ? 'rgba(255, 184, 0, 0.35)' : 'rgba(0, 230, 118, 0.3)',
+                      borderColor: isPeak ? 'rgba(255, 184, 0, 0.35)' : 'rgba(0, 230, 118, 0.3)',
                     }}
                   >
                     <span className={styles.slotPillTime}>{slot.label}</span>
                     <span className={styles.slotPillPrice}>₹{price}/hr</span>
                     <span className={styles.slotPillPeakBadge}>
-                      {isBooked ? 'Booked' : isPast ? 'Past' : slot.isPeak ? 'Peak LED' : 'Daylight'}
+                      {isBooked ? 'Booked' : isPast ? 'Past' : isPeak ? 'Peak LED' : 'Daylight'}
                     </span>
                   </Link>
                 );
