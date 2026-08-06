@@ -24,7 +24,6 @@ import {
   ArrowRight,
   Phone,
   Compass,
-  Layers,
   Activity
 } from 'lucide-react';
 import styles from './page.module.css';
@@ -274,16 +273,6 @@ export default function HomePage() {
         <div className={styles.specsGrid}>
           <div className={styles.specCard}>
             <div className={styles.specIconBox}>
-              <Layers size={28} />
-            </div>
-            <h3 className={styles.specCardTitle}>FIFA-Grade Monofilament Turf</h3>
-            <p className={styles.specCardDesc}>
-              50mm premium synthetic fibers backed with shock-absorbing organic infill. Provides true ball roll, optimal grip, and zero skin abrasions during slide tackles.
-            </p>
-          </div>
-
-          <div className={styles.specCard}>
-            <div className={styles.specIconBox}>
               <Sun size={28} />
             </div>
             <h3 className={styles.specCardTitle}>4K Stadium Floodlighting</h3>
@@ -319,16 +308,6 @@ export default function HomePage() {
             <h3 className={styles.specCardTitle}>Rapid Sub-Surface Drainage</h3>
             <p className={styles.specCardDesc}>
               Advanced porous stone sub-base engineered to drain heavy monsoons within minutes. Never worry about waterlogged pitches ruining match day.
-            </p>
-          </div>
-
-          <div className={styles.specCard}>
-            <div className={styles.specIconBox}>
-              <Trophy size={28} />
-            </div>
-            <h3 className={styles.specCardTitle}>Secure Parking &amp; Refreshments</h3>
-            <p className={styles.specCardDesc}>
-              Dedicated parking area for cars and two-wheelers with locker rooms, clean restrooms, and chilled hydration refills available 24/7.
             </p>
           </div>
         </div>

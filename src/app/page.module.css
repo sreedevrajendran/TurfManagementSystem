@@ -383,7 +383,7 @@
 /* ── SPECS & AMENITIES ── */
 .specsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 28px;
 }
 
@@ -744,6 +744,9 @@
 }
 
 @media (max-width: 768px) {
+  .specsGrid {
+    grid-template-columns: 1fr;
+  }
   .statsGrid {
     grid-template-columns: 1fr 1fr;
   }
