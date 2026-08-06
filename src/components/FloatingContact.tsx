@@ -22,6 +22,7 @@ export default function FloatingContact() {
         flexDirection: 'column',
         alignItems: 'flex-end',
         gap: '12px',
+        pointerEvents: 'none',
       }}
     >
       {/* WhatsApp Quick Chat */}
@@ -32,6 +33,7 @@ export default function FloatingContact() {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{
+          pointerEvents: 'auto',
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
@@ -55,6 +57,7 @@ export default function FloatingContact() {
       <a
         href="tel:+917994786085"
         style={{
+          pointerEvents: 'auto',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
