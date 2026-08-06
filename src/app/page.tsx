@@ -56,23 +56,35 @@ export default function HomePage() {
   const [pricing, setPricing] = useState({ offPeak: 800, peak: 1100, peakStart: 19 });
   const [bookedSlotsToday, setBookedSlotsToday] = useState<number[]>([]);
 
-  useEffect(() => {
-    // Fetch pricing
-    fetch('/api/pricing')
+  const fetchPricing = () => {
+    fetch('/api/pricing', { cache: 'no-store' })
       .then((r) => r.json())
       .then((p) => {
         if (p && !p.error) setPricing(p);
       })
       .catch(() => {});
+  };
+
+  useEffect(() => {
+    // Fetch pricing
+    fetchPricing();
+
+    // Auto-refresh pricing on tab visibility
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') fetchPricing();
+    };
+    window.addEventListener('visibilitychange', handleVisibility);
 
     // Fetch today's booked slots
     const today = new Date().toISOString().split('T')[0];
-    fetch(`/api/bookings?date=${today}`)
+    fetch(`/api/bookings?date=${today}`, { cache: 'no-store' })
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) setBookedSlotsToday(data);
       })
       .catch(() => {});
+
+    return () => window.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
   const timeSlots = [
@@ -115,12 +127,6 @@ export default function HomePage() {
           animate="visible"
           variants={staggerContainer}
         >
-          {/* Live Status Badge */}
-          <motion.div variants={fadeUp} className={styles.liveBadge}>
-            <span className={styles.livePulseDot} />
-            <span>PITCH OPEN TODAY • MANNAR</span>
-          </motion.div>
-
           {/* Main Athletic Headline */}
           <motion.h1 variants={fadeUp} className={styles.heroTitle}>
             DOMINATE THE <span className={styles.heroHighlight}>PITCH.</span>
@@ -452,7 +458,9 @@ export default function HomePage() {
           {/* Off-Peak Card */}
           <div className={styles.pricingCard}>
             <div className={styles.pricingTag}>Daylight Hours</div>
-            <div className={styles.pricingHours}>6:00 AM – 7:00 PM</div>
+            <div className={styles.pricingHours}>
+              6:00 AM – {pricing.peakStart >= 12 ? (pricing.peakStart === 12 ? '12:00 PM' : `${pricing.peakStart - 12}:00 PM`) : `${pricing.peakStart}:00 AM`}
+            </div>
             <div className={styles.pricingPriceRow}>
               <span className={styles.priceSymbol}>₹</span>
               <span className={styles.priceAmount}>{pricing.offPeak}</span>
@@ -487,7 +495,9 @@ export default function HomePage() {
           <div className={`${styles.pricingCard} ${styles.pricingCardFeatured}`}>
             <div className={styles.featuredBadge}>⚡ Most Popular</div>
             <div className={styles.pricingTag}>Prime Floodlight Hours</div>
-            <div className={styles.pricingHours}>7:00 PM – 12:00 AM Midnight</div>
+            <div className={styles.pricingHours}>
+              {pricing.peakStart >= 12 ? (pricing.peakStart === 12 ? '12:00 PM' : `${pricing.peakStart - 12}:00 PM`) : `${pricing.peakStart}:00 AM`} – 12:00 AM Midnight
+            </div>
             <div className={styles.pricingPriceRow}>
               <span className={styles.priceSymbol}>₹</span>
               <span className={styles.priceAmount}>{pricing.peak}</span>

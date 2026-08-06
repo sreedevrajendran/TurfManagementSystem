@@ -223,80 +223,166 @@ export default function HeaderNav() {
               </Link>
             )}
 
-            {/* Auth Button or User Menu */}
+            {/* Auth Button or User Profile Icon */}
             {session ? (
               <div style={{ position: 'relative' }}>
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  aria-label="User profile and booking status"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
+                    gap: '9px',
                     background: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    padding: '8px 16px',
+                    border: '1px solid rgba(0, 230, 118, 0.3)',
+                    padding: '6px 14px 6px 8px',
                     borderRadius: '99px',
                     color: '#FFFFFF',
                     fontWeight: 700,
                     fontSize: '0.88rem',
                     cursor: 'pointer',
-                    backdropFilter: 'blur(10px)',
-                    transition: 'all 0.2s',
+                    backdropFilter: 'blur(12px)',
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                    boxShadow: userDropdownOpen ? '0 0 16px rgba(0, 230, 118, 0.35)' : 'none',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#00E676';
+                    e.currentTarget.style.boxShadow = '0 0 14px rgba(0, 230, 118, 0.25)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = userDropdownOpen ? '#00E676' : 'rgba(0, 230, 118, 0.3)';
+                    e.currentTarget.style.boxShadow = userDropdownOpen ? '0 0 16px rgba(0, 230, 118, 0.35)' : 'none';
                   }}
                 >
-                  <div
-                    style={{
-                      width: '24px',
-                      height: '24px',
-                      borderRadius: '50%',
-                      background: '#00E676',
-                      color: '#000',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '0.75rem',
-                      fontWeight: 900,
-                    }}
-                  >
-                    {session.user?.name ? session.user.name.charAt(0).toUpperCase() : 'U'}
+                  {/* Profile Avatar / Photo */}
+                  <div style={{ position: 'relative' }}>
+                    {session.user?.image ? (
+                      <img
+                        src={session.user.image}
+                        alt={session.user.name || 'Player'}
+                        style={{
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '50%',
+                          objectFit: 'cover',
+                          border: '1.5px solid #00E676',
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #00E676 0%, #00B0FF 100%)',
+                          color: '#000000',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '0.82rem',
+                          fontWeight: 900,
+                        }}
+                      >
+                        {session.user?.name ? session.user.name.charAt(0).toUpperCase() : <User size={15} />}
+                      </div>
+                    )}
+                    {/* Active online green dot */}
+                    <span
+                      style={{
+                        position: 'absolute',
+                        bottom: '-1px',
+                        right: '-1px',
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        background: '#00E676',
+                        border: '1.5px solid #070709',
+                      }}
+                    />
                   </div>
-                  <span className="hide-mobile" style={{ maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {session.user?.name?.split(' ')[0] || 'Account'}
-                  </span>
-                  <ChevronDown size={14} color="#94A3B8" />
+
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'left' }} className="hide-mobile">
+                    <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#FFFFFF', maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.1 }}>
+                      {session.user?.name?.split(' ')[0] || 'Player'}
+                    </span>
+                    <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#00E676', letterSpacing: '0.3px', lineHeight: 1 }}>
+                      Bookings &amp; Pass
+                    </span>
+                  </div>
+
+                  <ChevronDown size={14} color="#94A3B8" style={{ transform: userDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
                 </button>
 
-                {/* Dropdown Menu */}
+                {/* Profile & Booking Status Dropdown */}
                 {userDropdownOpen && (
                   <div
                     style={{
                       position: 'absolute',
-                      top: 'calc(100% + 8px)',
+                      top: 'calc(100% + 10px)',
                       right: 0,
-                      width: '220px',
-                      background: '#13151D',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
-                      borderRadius: '16px',
-                      padding: '8px',
-                      boxShadow: '0 16px 40px rgba(0, 0, 0, 0.6)',
-                      backdropFilter: 'blur(16px)',
+                      width: '250px',
+                      background: '#11131A',
+                      border: '1px solid rgba(255, 255, 255, 0.14)',
+                      borderRadius: '18px',
+                      padding: '10px',
+                      boxShadow: '0 20px 48px rgba(0, 0, 0, 0.75), 0 0 20px rgba(0, 230, 118, 0.1)',
+                      backdropFilter: 'blur(20px)',
                       zIndex: 110,
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '4px',
+                      gap: '6px',
+                      animation: 'fadeInMenu 0.15s ease-out',
                     }}
                   >
-                    <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#FFFFFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {/* User Header Summary */}
+                    <div style={{ padding: '8px 10px 12px 10px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#FFFFFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {session.user?.name || 'Player'}
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: '#94A3B8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontSize: '0.74rem', color: '#94A3B8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '2px' }}>
                         {session.user?.email}
                       </div>
                     </div>
 
+                    {/* View Booking Status / Pass */}
                     <Link
                       href="/dashboard"
+                      onClick={() => setUserDropdownOpen(false)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '10px 12px',
+                        borderRadius: '12px',
+                        background: 'rgba(0, 230, 118, 0.1)',
+                        border: '1px solid rgba(0, 230, 118, 0.25)',
+                        color: '#FFFFFF',
+                        fontSize: '0.88rem',
+                        fontWeight: 700,
+                        textDecoration: 'none',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(0, 230, 118, 0.18)';
+                        e.currentTarget.style.borderColor = '#00E676';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(0, 230, 118, 0.1)';
+                        e.currentTarget.style.borderColor = 'rgba(0, 230, 118, 0.25)';
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <User size={17} color="#00E676" />
+                        <span>My Booking Status</span>
+                      </div>
+                      <span style={{ fontSize: '0.7rem', background: '#00E676', color: '#000', fontWeight: 900, padding: '2px 6px', borderRadius: '6px' }}>
+                        PASS
+                      </span>
+                    </Link>
+
+                    {/* Quick Book Slot */}
+                    <Link
+                      href="/book"
                       onClick={() => setUserDropdownOpen(false)}
                       style={{
                         display: 'flex',
@@ -304,8 +390,8 @@ export default function HeaderNav() {
                         gap: '10px',
                         padding: '10px 12px',
                         borderRadius: '10px',
-                        color: '#FFFFFF',
-                        fontSize: '0.88rem',
+                        color: '#E2E8F0',
+                        fontSize: '0.86rem',
                         fontWeight: 600,
                         textDecoration: 'none',
                         transition: 'background 0.2s',
@@ -313,8 +399,8 @@ export default function HeaderNav() {
                       onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
                       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
-                      <User size={16} color="#00E676" />
-                      My Bookings &amp; Pass
+                      <Calendar size={16} color="#38BDF8" />
+                      <span>Book Another Slot</span>
                     </Link>
 
                     {isAdmin && (
@@ -328,7 +414,7 @@ export default function HeaderNav() {
                           padding: '10px 12px',
                           borderRadius: '10px',
                           color: '#00E5FF',
-                          fontSize: '0.88rem',
+                          fontSize: '0.86rem',
                           fontWeight: 700,
                           textDecoration: 'none',
                           transition: 'background 0.2s',
@@ -337,9 +423,11 @@ export default function HeaderNav() {
                         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                       >
                         <ShieldCheck size={16} />
-                        Admin Command
+                        <span>Admin Console</span>
                       </Link>
                     )}
+
+                    <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', margin: '4px 0' }} />
 
                     <button
                       onClick={() => {
@@ -350,10 +438,10 @@ export default function HeaderNav() {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '10px',
-                        padding: '10px 12px',
+                        padding: '9px 12px',
                         borderRadius: '10px',
                         color: '#FF6B6B',
-                        fontSize: '0.88rem',
+                        fontSize: '0.86rem',
                         fontWeight: 600,
                         border: 'none',
                         background: 'transparent',
@@ -362,11 +450,11 @@ export default function HeaderNav() {
                         textAlign: 'left',
                         transition: 'background 0.2s',
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 107, 107, 0.1)'}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 107, 107, 0.12)'}
                       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
                       <LogOut size={16} />
-                      Sign Out
+                      <span>Sign Out</span>
                     </button>
                   </div>
                 )}
@@ -440,6 +528,57 @@ export default function HeaderNav() {
               gap: '16px',
             }}
           >
+            {/* Profile banner on mobile when signed in */}
+            {session && (
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 14px',
+                  borderRadius: '14px',
+                  background: 'rgba(0, 230, 118, 0.1)',
+                  border: '1px solid rgba(0, 230, 118, 0.25)',
+                  textDecoration: 'none',
+                }}
+              >
+                {session.user?.image ? (
+                  <img
+                    src={session.user.image}
+                    alt={session.user.name || 'Player'}
+                    style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1.5px solid #00E676' }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #00E676 0%, #00B0FF 100%)',
+                      color: '#000',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.9rem',
+                      fontWeight: 900,
+                    }}
+                  >
+                    {session.user?.name ? session.user.name.charAt(0).toUpperCase() : <User size={18} />}
+                  </div>
+                )}
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#FFFFFF' }}>
+                    {session.user?.name || 'Player'}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#00E676', fontWeight: 700 }}>
+                    View Match Pass &amp; Bookings →
+                  </div>
+                </div>
+              </Link>
+            )}
+
             {pathname === '/' ? (
               <>
                 <a href="#sports" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">⚽ Sports &amp; Pitches</a>
@@ -466,7 +605,18 @@ export default function HeaderNav() {
               >
                 ⚽ Book Your Slot Now
               </Link>
-              {!session && (
+              {session ? (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    signOut({ callbackUrl: '/' });
+                  }}
+                  className="btn-secondary"
+                  style={{ width: '100%', color: '#FF6B6B' }}
+                >
+                  <LogOut size={16} /> Sign Out
+                </button>
+              ) : (
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);

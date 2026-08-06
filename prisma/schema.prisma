@@ -81,6 +81,9 @@ model Booking {
   status        BookingStatus @default(PENDING)
   reason        String?       // Used if status is BLOCKED
 
+  teamName      String?
+  phone         String?
+
   teamId        String?
   team          Team?         @relation(fields: [teamId], references: [id], onDelete: Cascade)
   

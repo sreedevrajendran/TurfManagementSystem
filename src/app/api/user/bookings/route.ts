@@ -3,6 +3,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -27,22 +30,30 @@ export async function GET() {
       orderBy: [{ date: "desc" }, { startTime: "desc" }],
     });
 
-    // Safely serialize dates
-    const serialized = bookings.map((b) => ({
-      id: b.id,
-      date: b.date ? new Date(b.date).toISOString() : null,
-      startTime: b.startTime,
-      durationHours: b.durationHours,
-      amount: b.amount,
-      status: b.status,
-      sport: b.sport,
-      reason: b.reason,
-      teamName: b.team?.name ?? null,
-      phone: b.team?.phone ?? null,
-      updatedAt: b.updatedAt ? new Date(b.updatedAt).toISOString() : null,
-    }));
+    // Safely serialize dates & clean phone
+    const serialized = bookings.map((b) => {
+      let rawPhone = b.team?.phone ?? '';
+      let cleanPhone = rawPhone.includes('_') ? rawPhone.split('_')[0] : rawPhone;
+      if (cleanPhone === 'NO_PHONE' || cleanPhone.startsWith('USER-')) cleanPhone = '';
 
-    return NextResponse.json(serialized);
+      return {
+        id: b.id,
+        date: b.date ? new Date(b.date).toISOString() : null,
+        startTime: b.startTime,
+        durationHours: b.durationHours,
+        amount: b.amount,
+        status: b.status,
+        sport: b.sport,
+        reason: b.reason,
+        teamName: b.team?.name ?? null,
+        phone: cleanPhone || null,
+        updatedAt: b.updatedAt ? new Date(b.updatedAt).toISOString() : null,
+      };
+    });
+
+    return NextResponse.json(serialized, {
+      headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' }
+    });
   } catch (err: any) {
     console.error("[/api/user/bookings] Error:", err?.message, err?.stack);
     return NextResponse.json(

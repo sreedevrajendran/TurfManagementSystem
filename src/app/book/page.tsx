@@ -102,7 +102,7 @@ export default function BookPage() {
   }, []);
 
   useEffect(() => {
-    fetch('/api/pricing')
+    fetch('/api/pricing', { cache: 'no-store' })
       .then(r => r.json())
       .then(p => { if (p && !p.error) setPricing(p); })
       .catch(() => {});
@@ -111,7 +111,7 @@ export default function BookPage() {
   useEffect(() => {
     const fetchOffers = async () => {
       try {
-        const res = await fetch('/api/offers');
+        const res = await fetch('/api/offers', { cache: 'no-store' });
         if (res.ok) setOffers(await res.json());
       } catch (e) {
         console.error('Failed to fetch offers:', e);

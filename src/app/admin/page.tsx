@@ -127,18 +127,24 @@ export default function AdminDashboard() {
     try {
       const res = await fetch('/api/admin/bookings');
       const data = await res.json();
-      const mapped = data.map((b: any) => ({
-        id: b.id,
-        teamName: b.team?.name || b.user?.name || 'Unknown',
-        phone: b.team?.phone?.startsWith('USER-') ? b.user?.email || '—' : (b.team?.phone || '—'),
-        date: new Date(b.date).toLocaleDateString('en-IN'),
-        startTime: b.startTime,
-        durationHours: b.durationHours,
-        amount: b.amount,
-        status: b.status,
-        reason: b.reason,
-        userEmail: b.user?.email,
-      }));
+      const mapped = (Array.isArray(data) ? data : []).map((b: any) => {
+        const rawPhone = b.team?.phone || '';
+        let cleanPhone = rawPhone.includes('_') ? rawPhone.split('_')[0] : rawPhone;
+        if (cleanPhone === 'NO_PHONE' || cleanPhone.startsWith('USER-')) cleanPhone = '';
+
+        return {
+          id: b.id,
+          teamName: b.team?.name || 'Match Booking',
+          phone: cleanPhone || b.user?.email || '—',
+          date: new Date(b.date).toLocaleDateString('en-IN'),
+          startTime: b.startTime,
+          durationHours: b.durationHours,
+          amount: b.amount,
+          status: b.status,
+          reason: b.reason,
+          userEmail: b.user?.email,
+        };
+      });
       setBookings(mapped);
       setLastUpdated(new Date());
       setSecondsAgo(0);

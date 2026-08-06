@@ -92,14 +92,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // ── Find or create Team record ───────────────────────────────────────────
-    let team = null;
-    const teamPhone = phone && phone.trim() !== '' ? phone.trim() : `USER-${dbUser.id}`;
+    // ── Create isolated Team record for this booking ────────────────────────
+    // Using a unique key prevents overwriting team names across past bookings
+    const cleanPhone = phone && phone.trim() !== '' ? phone.trim() : '';
+    const uniqueTeamPhone = `${cleanPhone || 'NO_PHONE'}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
     
-    team = await prisma.team.upsert({
-      where: { phone: teamPhone },
-      update: { name: teamName },
-      create: { name: teamName, phone: teamPhone },
+    const team = await prisma.team.create({
+      data: {
+        name: teamName.trim(),
+        phone: uniqueTeamPhone,
+      },
     });
 
     const bookingDate = new Date(date);
@@ -150,16 +152,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Notify admin safely (don't fail booking if email notification fails)
+    // Notify admin safely (send user-provided booking name, NOT the Gmail name)
     sendAdminNewBookingNotification({
       date: new Date(date).toLocaleDateString('en-IN'),
       startTime: `${startTime}:00`,
       durationHours: Number(durationHours),
       totalPrice: Number(amount),
       court: sport,
-      userName: session.user.name,
+      userName: teamName.trim(),
       userEmail: session.user.email,
-      phone: phone,
+      phone: cleanPhone || 'Not provided',
     }).catch(err => console.error("Email notification failed:", err));
 
     return NextResponse.json({ success: true, booking });
