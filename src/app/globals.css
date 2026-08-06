@@ -123,12 +123,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .glass-card:hover {
-  border-color: var(--border-color-glow);
-  transform: translateY(-4px);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 24px rgba(0, 230, 118, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
 }
 
-/* Glowing text and button gradients */
+/* Typography styles */
 .text-gradient {
   background: linear-gradient(135deg, #FFFFFF 30%, #A7F3D0 100%);
   -webkit-background-clip: text;
@@ -146,23 +146,21 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: linear-gradient(135deg, #00E676 0%, #00C853 100%);
+  background: #00E676;
   color: #000000;
   font-weight: 800;
-  font-size: 1rem;
-  padding: 14px 28px;
+  font-size: 0.95rem;
+  padding: 13px 26px;
   border-radius: 99px;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: all var(--transition-smooth);
-  box-shadow: 0 4px 20px rgba(0, 230, 118, 0.35);
+  transition: all 0.2s ease;
   letter-spacing: 0.02em;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 230, 118, 0.55);
-  background: linear-gradient(135deg, #00FF85 0%, #00E676 100%);
+  background: #00FF85;
 }
 
 .btn-secondary {

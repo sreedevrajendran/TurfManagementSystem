@@ -38,9 +38,9 @@ export default function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
           exit={{ opacity: 0, scale: 0.92, y: 20 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
           style={{
-            background: 'linear-gradient(180deg, #13151D 0%, #0B0C10 100%)',
-            border: '1px solid rgba(0, 230, 118, 0.3)',
-            boxShadow: '0 24px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 230, 118, 0.15)',
+            background: '#11131B',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            boxShadow: '0 24px 60px rgba(0, 0, 0, 0.85)',
             borderRadius: '24px',
             maxWidth: '480px',
             width: '100%',
@@ -50,18 +50,6 @@ export default function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
             overflow: 'hidden',
           }}
         >
-          {/* Ambient Glow */}
-          <div 
-            style={{
-              position: 'absolute',
-              top: '-80px',
-              right: '-80px',
-              width: '200px',
-              height: '200px',
-              background: 'radial-gradient(circle, rgba(0, 230, 118, 0.25) 0%, transparent 70%)',
-              pointerEvents: 'none',
-            }}
-          />
 
           {/* Close button */}
           <button

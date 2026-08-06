@@ -69,7 +69,6 @@
   background: #00E676;
   color: #000000;
   border-color: #00E676;
-  box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4);
 }
 
 /* Date Picker Scroll */
@@ -104,10 +103,9 @@
 }
 
 .dateCardSelected {
-  background: linear-gradient(135deg, #00E676 0%, #00C853 100%) !important;
+  background: #00E676 !important;
   color: #000000 !important;
   border-color: #00E676 !important;
-  box-shadow: 0 8px 24px rgba(0, 230, 118, 0.4);
   transform: translateY(-2px);
 }
 
@@ -183,8 +181,7 @@
 .available:hover {
   background: rgba(0, 230, 118, 0.12);
   border-color: #00E676;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 230, 118, 0.25);
+  transform: translateY(-2px);
 }
 
 .booked {
@@ -360,13 +357,17 @@
 .confirmBtn {
   padding: 16px;
   border-radius: 99px;
-  background: linear-gradient(135deg, #00E676 0%, #00C853 100%);
-  border: none;
+  background: #00E676;
+  border: 1px solid transparent;
   color: #000000;
-  font-weight: 900;
+  font-weight: 800;
   font-size: 1.05rem;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4);
+  transition: all 0.2s;
+}
+
+.confirmBtn:hover:not(:disabled) {
+  background: #00FF85;
 }
 
 .confirmBtn:disabled {

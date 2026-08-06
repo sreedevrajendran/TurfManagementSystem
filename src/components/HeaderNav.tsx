@@ -121,10 +121,10 @@ export default function HeaderNav() {
           >
             {pathname === '/' ? (
               <>
-                <a href="#sports" className="nav-link">Sports</a>
                 <a href="#slots-preview" className="nav-link">Live Slots</a>
                 <a href="#specs" className="nav-link">Specs &amp; Lights</a>
                 <a href="#pricing" className="nav-link">Pricing</a>
+                <a href="#gallery" className="nav-link">Gallery</a>
                 <a href="#reviews" className="nav-link">Reviews</a>
                 <a href="#faq" className="nav-link">FAQ</a>
               </>
@@ -153,24 +153,24 @@ export default function HeaderNav() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  background: 'linear-gradient(135deg, #00E676 0%, #00C853 100%)',
+                  background: '#00E676',
                   color: '#000000',
                   fontWeight: 800,
                   fontSize: '0.92rem',
-                  padding: '10px 22px',
+                  padding: '9px 20px',
                   borderRadius: '99px',
                   textDecoration: 'none',
-                  boxShadow: '0 4px 16px rgba(0, 230, 118, 0.35)',
+                  border: '1px solid transparent',
                   transition: 'all 0.2s',
                   letterSpacing: '0.2px',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 230, 118, 0.5)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.background = '#00FF85';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 230, 118, 0.35)';
+                  e.currentTarget.style.background = '#00E676';
                 }}
               >
                 <Calendar size={16} />
@@ -189,7 +189,7 @@ export default function HeaderNav() {
                     alignItems: 'center',
                     gap: '9px',
                     background: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(0, 230, 118, 0.3)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
                     padding: '6px 14px 6px 8px',
                     borderRadius: '99px',
                     color: '#FFFFFF',
@@ -197,16 +197,15 @@ export default function HeaderNav() {
                     fontSize: '0.88rem',
                     cursor: 'pointer',
                     backdropFilter: 'blur(12px)',
-                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                    boxShadow: userDropdownOpen ? '0 0 16px rgba(0, 230, 118, 0.35)' : 'none',
+                    transition: 'all 0.2s',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#00E676';
-                    e.currentTarget.style.boxShadow = '0 0 14px rgba(0, 230, 118, 0.25)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = userDropdownOpen ? '#00E676' : 'rgba(0, 230, 118, 0.3)';
-                    e.currentTarget.style.boxShadow = userDropdownOpen ? '0 0 16px rgba(0, 230, 118, 0.35)' : 'none';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
                   }}
                 >
                   {/* Profile Avatar / Photo */}
@@ -280,7 +279,7 @@ export default function HeaderNav() {
                       border: '1px solid rgba(255, 255, 255, 0.14)',
                       borderRadius: '18px',
                       padding: '10px',
-                      boxShadow: '0 20px 48px rgba(0, 0, 0, 0.75), 0 0 20px rgba(0, 230, 118, 0.1)',
+                      boxShadow: '0 20px 48px rgba(0, 0, 0, 0.8)',
                       backdropFilter: 'blur(20px)',
                       zIndex: 110,
                       display: 'flex',
@@ -536,10 +535,10 @@ export default function HeaderNav() {
 
             {pathname === '/' ? (
               <>
-                <a href="#sports" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Sports &amp; Pitches</a>
                 <a href="#slots-preview" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Live Slot Availability</a>
                 <a href="#specs" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Stadium Lights &amp; Specs</a>
                 <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Pricing &amp; Offers</a>
+                <a href="#gallery" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Photo Gallery</a>
                 <a href="#reviews" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Player Reviews</a>
                 <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">FAQ &amp; Rules</a>
               </>

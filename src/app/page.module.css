@@ -57,7 +57,7 @@
   align-items: center;
   gap: 10px;
   background: rgba(0, 230, 118, 0.1);
-  border: 1px solid rgba(0, 230, 118, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   padding: 8px 20px;
   border-radius: 99px;
   font-size: 0.85rem;
@@ -65,23 +65,15 @@
   color: #00E676;
   backdrop-filter: blur(16px);
   margin-bottom: 24px;
-  box-shadow: 0 0 25px rgba(0, 230, 118, 0.2);
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
 .livePulseDot {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #00E676;
-  box-shadow: 0 0 10px #00E676;
-  animation: pulseDot 1.5s infinite;
-}
-
-@keyframes pulseDot {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.3); opacity: 0.4; }
 }
 
 .heroTitle {
@@ -122,22 +114,21 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: linear-gradient(135deg, #00E676 0%, #00C853 100%);
+  background: #00E676;
   color: #000000;
-  font-weight: 900;
-  font-size: 1.1rem;
-  padding: 18px 40px;
+  font-weight: 800;
+  font-size: 1.05rem;
+  padding: 16px 36px;
   border-radius: 99px;
   text-decoration: none;
-  box-shadow: 0 8px 30px rgba(0, 230, 118, 0.45);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
   letter-spacing: 0.3px;
 }
 
 .heroCtaPrimary:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 12px 40px rgba(0, 230, 118, 0.65);
-  background: linear-gradient(135deg, #00FF85 0%, #00E676 100%);
+  transform: translateY(-2px);
+  background: #00FF85;
 }
 
 .heroCtaSecondary {
@@ -286,172 +277,6 @@
   line-height: 1.65;
 }
 
-/* ── INTERACTIVE SPORTS SECTION ── */
-.sportsSection {
-  background: #08090C;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.sportsToggleWrapper {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 48px;
-}
-
-.sportsToggle {
-  display: inline-flex;
-  background: #13151D;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 6px;
-  border-radius: 99px;
-  gap: 8px;
-}
-
-.toggleBtn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 28px;
-  border-radius: 99px;
-  font-size: 1rem;
-  font-weight: 800;
-  color: #94A3B8;
-  cursor: pointer;
-  transition: all 0.25s;
-}
-
-.toggleBtnActive {
-  background: #00E676;
-  color: #000000;
-  box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4);
-}
-
-.pitchShowcase {
-  background: linear-gradient(180deg, #10121A 0%, #0B0C10 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 28px;
-  padding: 48px;
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 48px;
-  align-items: center;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
-}
-
-.pitchVisual {
-  position: relative;
-  background: radial-gradient(ellipse at center, #0F3A22 0%, #061A0F 100%);
-  border: 2px solid rgba(0, 230, 118, 0.4);
-  border-radius: 20px;
-  height: 380px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 230, 118, 0.15);
-}
-
-.pitchFieldMarkings {
-  position: absolute;
-  inset: 20px;
-  border: 2px dashed rgba(255, 255, 255, 0.25);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.pitchCenterCircle {
-  width: 120px;
-  height: 120px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-}
-
-.pitchCenterLine {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.pitchBadgeTop {
-  position: absolute;
-  top: 24px;
-  left: 24px;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 6px 14px;
-  border-radius: 99px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #00E676;
-}
-
-.pitchBadgeBottom {
-  position: absolute;
-  bottom: 24px;
-  right: 24px;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 6px 14px;
-  border-radius: 99px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #FFFFFF;
-}
-
-.pitchDetails {
-  display: flex;
-  flex-direction: column;
-}
-
-.pitchTitle {
-  font-size: 2.2rem;
-  font-weight: 900;
-  color: #FFFFFF;
-  margin-bottom: 12px;
-}
-
-.pitchDesc {
-  color: #94A3B8;
-  font-size: 1rem;
-  line-height: 1.65;
-  margin-bottom: 28px;
-}
-
-.specRowGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.specItem {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 14px 16px;
-  border-radius: 14px;
-}
-
-.specItemTitle {
-  font-size: 0.75rem;
-  color: #64748B;
-  text-transform: uppercase;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.specItemVal {
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: #FFFFFF;
-  margin-top: 4px;
-}
-
 /* ── LIVE SLOTS PREVIEW ── */
 .slotsSection {
   background: #0A0B0E;
@@ -575,9 +400,9 @@
 }
 
 .specCard:hover {
-  border-color: rgba(0, 230, 118, 0.4);
-  transform: translateY(-6px);
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 230, 118, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
 }
 
 .specIconBox {
@@ -628,8 +453,8 @@
 
 .pricingCardFeatured {
   background: linear-gradient(180deg, #161A26 0%, #10121B 100%);
-  border: 2px solid rgba(0, 230, 118, 0.5);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 230, 118, 0.2);
+  border: 2px solid rgba(0, 230, 118, 0.4);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
 }
 
 .featuredBadge {
@@ -906,9 +731,6 @@
 
 /* ── RESPONSIVE BREAKPOINTS ── */
 @media (max-width: 992px) {
-  .pitchShowcase {
-    grid-template-columns: 1fr;
-  }
   .pricingGrid {
     grid-template-columns: 1fr;
   }

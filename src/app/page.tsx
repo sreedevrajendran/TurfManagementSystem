@@ -50,7 +50,6 @@ const staggerContainer: Variants = {
 
 export default function HomePage() {
   const { data: session } = useSession();
-  const [selectedSport, setSelectedSport] = useState<'FOOTBALL' | 'CRICKET'>('FOOTBALL');
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [pricing, setPricing] = useState({ offPeak: 800, peak: 1100, peakStart: 19 });
@@ -195,92 +194,6 @@ export default function HomePage() {
             <span className={styles.statNumber}>2 Sports</span>
             <span className={styles.statLabel}>Football &amp; Cricket</span>
             <span className={styles.statSub}>Equipped with Gear</span>
-          </div>
-        </div>
-      </section>
-
-      {/* ── INTERACTIVE SPORTS ARENA SECTION ── */}
-      <section id="sports" className={`${styles.section} ${styles.sportsSection}`}>
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionTag}>Multi-Sport Facility</span>
-          <h2 className={styles.sectionHeading}>Built for Speed &amp; Precision</h2>
-          <p className={styles.sectionDesc}>
-            Switch between Football and Cricket to view customized pitch specs, dimensions, and court configurations.
-          </p>
-        </div>
-
-        {/* Sport Switcher Toggle */}
-        <div className={styles.sportsToggleWrapper}>
-          <div className={styles.sportsToggle}>
-            <button
-              onClick={() => setSelectedSport('FOOTBALL')}
-              className={`${styles.toggleBtn} ${selectedSport === 'FOOTBALL' ? styles.toggleBtnActive : ''}`}
-            >
-              Football (6-a-Side)
-            </button>
-            <button
-              onClick={() => setSelectedSport('CRICKET')}
-              className={`${styles.toggleBtn} ${selectedSport === 'CRICKET' ? styles.toggleBtnActive : ''}`}
-            >
-              Pro Box Cricket
-            </button>
-          </div>
-        </div>
-
-        {/* Pitch Showcase Card */}
-        <div className={styles.pitchShowcase}>
-          <div className={styles.pitchVisual}>
-            <div className={styles.pitchFieldMarkings}>
-              <div className={styles.pitchCenterCircle} />
-              <div className={styles.pitchCenterLine} />
-            </div>
-
-            <div className={styles.pitchBadgeTop}>
-              {selectedSport === 'FOOTBALL' ? 'FIFA PRO GRADE SYNTHETIC TURF' : 'HIGH IMPACT CRICKET BOX'}
-            </div>
-
-            <div className={styles.pitchBadgeBottom}>
-              40m × 20m • 12FT REBOUND NETS
-            </div>
-          </div>
-
-          <div className={styles.pitchDetails}>
-            <h3 className={styles.pitchTitle}>
-              {selectedSport === 'FOOTBALL' ? '6-a-Side Football Arena' : 'Pro Box Cricket Pitch'}
-            </h3>
-            <p className={styles.pitchDesc}>
-              {selectedSport === 'FOOTBALL'
-                ? 'High-traction synthetic grass engineered with superior cushioning to prevent knee fatigue. High-tension boundary netting ensures non-stop ball action with zero downtime.'
-                : 'Pristine flat surface offering true bounce and pace. Full 360-degree rebound nets for power hitting, high-visibility yellow match balls, and calibrated bowling crease.'}
-            </p>
-
-            <div className={styles.specRowGrid}>
-              <div className={styles.specItem}>
-                <div className={styles.specItemTitle}>Recommended Team</div>
-                <div className={styles.specItemVal}>{selectedSport === 'FOOTBALL' ? '5v5 to 7v7' : '6v6 to 8v8'}</div>
-              </div>
-              <div className={styles.specItem}>
-                <div className={styles.specItemTitle}>Footwear Allowed</div>
-                <div className={styles.specItemVal}>Turf Shoes / Flat Rubber</div>
-              </div>
-              <div className={styles.specItem}>
-                <div className={styles.specItemTitle}>Lighting Output</div>
-                <div className={styles.specItemVal}>800+ Lux Stadium LED</div>
-              </div>
-              <div className={styles.specItem}>
-                <div className={styles.specItemTitle}>Equipment Provided</div>
-                <div className={styles.specItemVal}>{selectedSport === 'FOOTBALL' ? 'Match Footballs & Bibs' : 'Stumps & Bats Available'}</div>
-              </div>
-            </div>
-
-            <Link
-              href={`/book?sport=${selectedSport}`}
-              className="btn-primary"
-              style={{ alignSelf: 'flex-start' }}
-            >
-              <Calendar size={18} />
-              <span>Book {selectedSport === 'FOOTBALL' ? 'Football' : 'Cricket'} Pitch</span>
-            </Link>
           </div>
         </div>
       </section>
@@ -734,8 +647,8 @@ export default function HomePage() {
           <div className={styles.footerCol}>
             <h4>Quick Navigation</h4>
             <ul className={styles.footerLinks}>
-              <li><a href="#sports">Sports &amp; Court Specs</a></li>
               <li><a href="#slots-preview">Live Availability</a></li>
+              <li><a href="#specs">Stadium Specs &amp; Lighting</a></li>
               <li><a href="#pricing">Rates &amp; Peak Hours</a></li>
               <li><Link href="/book">Book Pitch Online</Link></li>
               {session && <li><Link href="/dashboard">Player Dashboard</Link></li>}
