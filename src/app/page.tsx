@@ -134,7 +134,7 @@ export default function HomePage() {
 
           {/* Subtitle */}
           <motion.p variants={fadeUp} className={styles.heroSubtitle}>
-            Mannar&apos;s premier FIFA-grade artificial turf engineered for high-intensity 6-a-side Football &amp; Box Cricket. Featuring 4K Stadium Floodlights and frictionless instant booking.
+            Mannar&apos;s premier athletic arena built for high-intensity Football and Box Cricket. Featuring professional stadium floodlighting and instant online reservations.
           </motion.p>
 
           {/* Main CTA Cluster */}
