@@ -12,13 +12,14 @@
 }
 
 .title {
-  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-size: clamp(1.8rem, 7vw, 3.2rem);
   font-weight: 900;
   margin-bottom: 8px;
   background: linear-gradient(135deg, #FFFFFF 40%, #00E676 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.02em;
+  word-wrap: break-word;
 }
 
 .subtitle {
@@ -42,12 +43,13 @@
   margin-top: 10px;
 }
 
-/* Sport Selection Ribbon */
 .sportSelector {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 32px;
+  width: 100%;
 }
 
 .sportBtn {
