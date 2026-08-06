@@ -199,287 +199,328 @@ export default function HomePage() {
 
       {/* ── LIVE TODAY'S SLOTS PREVIEW ── */}
       <section id="slots-preview" className={`${styles.section} ${styles.slotsSection}`}>
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionTag}>Live Court Availability</span>
-          <h2 className={styles.sectionHeading}>Today&apos;s Slot Timeline</h2>
-          <p className={styles.sectionDesc}>
-            Check slot status in real-time. Click any available time to start instant reservation.
-          </p>
-        </div>
-
-        <div className={styles.slotsContainer}>
-          <div className={styles.slotsHeader}>
-            <div className={styles.slotsHeaderTitle}>
-              Live Court Availability (Today)
-            </div>
-            <div className={styles.slotsLegend}>
-              <div className={styles.legendAvailable}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00E676' }} />
-                <span>Available</span>
-              </div>
-              <div className={styles.legendPeak}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#FFB800' }} />
-                <span>Peak Hours (Floodlights)</span>
-              </div>
-            </div>
+        <div className={styles.sectionInner}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionTag}>Live Court Availability</span>
+            <h2 className={styles.sectionHeading}>Today&apos;s Slot Timeline</h2>
+            <p className={styles.sectionDesc}>
+              Check slot status in real-time. Click any available time to start instant reservation.
+            </p>
           </div>
 
-          <div className={styles.slotsTimelineGrid}>
-            {timeSlots.map((slot) => {
-              const isPast = slot.hour <= currentHour;
-              const isBooked = bookedSlotsToday.includes(slot.hour);
-              const price = slot.isPeak ? pricing.peak : pricing.offPeak;
+          <div className={styles.slotsContainer}>
+            <div className={styles.slotsHeader}>
+              <div className={styles.slotsHeaderTitle}>
+                Live Court Availability (Today)
+              </div>
+              <div className={styles.slotsLegend}>
+                <div className={styles.legendAvailable}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00E676' }} />
+                  <span>Available</span>
+                </div>
+                <div className={styles.legendPeak}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#FFB800' }} />
+                  <span>Peak Hours (Floodlights)</span>
+                </div>
+              </div>
+            </div>
 
-              return (
-                <Link
-                  key={slot.hour}
-                  href={isPast || isBooked ? '#' : `/book?slot=${slot.hour}`}
-                  className={styles.slotPill}
-                  style={{
-                    opacity: isPast || isBooked ? 0.35 : 1,
-                    pointerEvents: isPast || isBooked ? 'none' : 'auto',
-                    borderColor: slot.isPeak ? 'rgba(255, 184, 0, 0.35)' : 'rgba(0, 230, 118, 0.3)',
-                  }}
-                >
-                  <span className={styles.slotPillTime}>{slot.label}</span>
-                  <span className={styles.slotPillPrice}>₹{price}/hr</span>
-                  <span className={styles.slotPillPeakBadge}>
-                    {isBooked ? 'Booked' : isPast ? 'Past' : slot.isPeak ? 'Peak LED' : 'Daylight'}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
+            <div className={styles.slotsTimelineGrid}>
+              {timeSlots.map((slot) => {
+                const isPast = slot.hour <= currentHour;
+                const isBooked = bookedSlotsToday.includes(slot.hour);
+                const price = slot.isPeak ? pricing.peak : pricing.offPeak;
 
-          <div style={{ textAlign: 'center' }}>
-            <Link href="/book" className="btn-primary">
-              <Calendar size={18} />
-              <span>View Full Calendar &amp; Reserve</span>
-            </Link>
+                return (
+                  <Link
+                    key={slot.hour}
+                    href={isPast || isBooked ? '#' : `/book?slot=${slot.hour}`}
+                    className={styles.slotPill}
+                    style={{
+                      opacity: isPast || isBooked ? 0.35 : 1,
+                      pointerEvents: isPast || isBooked ? 'none' : 'auto',
+                      borderColor: slot.isPeak ? 'rgba(255, 184, 0, 0.35)' : 'rgba(0, 230, 118, 0.3)',
+                    }}
+                  >
+                    <span className={styles.slotPillTime}>{slot.label}</span>
+                    <span className={styles.slotPillPrice}>₹{price}/hr</span>
+                    <span className={styles.slotPillPeakBadge}>
+                      {isBooked ? 'Booked' : isPast ? 'Past' : slot.isPeak ? 'Peak LED' : 'Daylight'}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+
+            <div style={{ textAlign: 'center' }}>
+              <Link href="/book" className="btn-primary">
+                <Calendar size={18} />
+                <span>View Full Calendar &amp; Reserve</span>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── SPECS & STADIUM AMENITIES ── */}
       <section id="specs" className={`${styles.section} ${styles.specsSection}`}>
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionTag}>World-Class Amenities</span>
-          <h2 className={styles.sectionHeading}>Engineered for Peak Performance</h2>
-          <p className={styles.sectionDesc}>
-            Every detail at East Welfare Turf is designed to deliver a premier sporting experience for casual players and competitive teams alike.
-          </p>
-        </div>
-
-        <div className={styles.specsGrid}>
-          <div className={styles.specCard}>
-            <div className={styles.specIconBox}>
-              <Sun size={28} />
-            </div>
-            <h3 className={styles.specCardTitle}>4K Stadium Floodlighting</h3>
-            <p className={styles.specCardDesc}>
-              High-lux LED array delivering over 800+ Lux with zero shadows or glare. Perfectly calibrated for evening &amp; night matches with broadcast clarity.
+        <div className={styles.sectionInner}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionTag}>World-Class Amenities</span>
+            <h2 className={styles.sectionHeading}>Engineered for Peak Performance</h2>
+            <p className={styles.sectionDesc}>
+              Every detail at East Welfare Turf is designed to deliver a premier sporting experience for casual players and competitive teams alike.
             </p>
           </div>
 
-          <div className={styles.specCard}>
-            <div className={styles.specIconBox}>
-              <ShieldCheck size={28} />
+          <div className={styles.specsGrid}>
+            <div className={styles.specCard}>
+              <div className={styles.specIconBox}>
+                <Sun size={28} />
+              </div>
+              <h3 className={styles.specCardTitle}>4K Stadium Floodlighting</h3>
+              <p className={styles.specCardDesc}>
+                High-lux LED array delivering over 800+ Lux with zero shadows or glare. Perfectly calibrated for evening &amp; night matches with broadcast clarity.
+              </p>
             </div>
-            <h3 className={styles.specCardTitle}>Heavy-Duty Rebound Netting</h3>
-            <p className={styles.specCardDesc}>
-              12-foot high-tension boundary netting encasing the entire arena. Keeps the ball in play continuously for fast, uninterrupted box cricket and football.
-            </p>
-          </div>
 
-          <div className={styles.specCard}>
-            <div className={styles.specIconBox}>
-              <Users size={28} />
+            <div className={styles.specCard}>
+              <div className={styles.specIconBox}>
+                <ShieldCheck size={28} />
+              </div>
+              <h3 className={styles.specCardTitle}>Heavy-Duty Rebound Netting</h3>
+              <p className={styles.specCardDesc}>
+                12-foot high-tension boundary netting encasing the entire arena. Keeps the ball in play continuously for fast, uninterrupted box cricket and football.
+              </p>
             </div>
-            <h3 className={styles.specCardTitle}>Covered Dugouts &amp; Gallery</h3>
-            <p className={styles.specCardDesc}>
-              Ergonomic spectator gallery and team dugout benches sheltered from rain and heat. Ample space for subs, coaches, and cheering fans.
-            </p>
-          </div>
 
-          <div className={styles.specCard}>
-            <div className={styles.specIconBox}>
-              <Activity size={28} />
+            <div className={styles.specCard}>
+              <div className={styles.specIconBox}>
+                <Users size={28} />
+              </div>
+              <h3 className={styles.specCardTitle}>Covered Dugouts &amp; Gallery</h3>
+              <p className={styles.specCardDesc}>
+                Ergonomic spectator gallery and team dugout benches sheltered from rain and heat. Ample space for subs, coaches, and cheering fans.
+              </p>
             </div>
-            <h3 className={styles.specCardTitle}>Rapid Sub-Surface Drainage</h3>
-            <p className={styles.specCardDesc}>
-              Advanced porous stone sub-base engineered to drain heavy monsoons within minutes. Never worry about waterlogged pitches ruining match day.
-            </p>
+
+            <div className={styles.specCard}>
+              <div className={styles.specIconBox}>
+                <Activity size={28} />
+              </div>
+              <h3 className={styles.specCardTitle}>Rapid Sub-Surface Drainage</h3>
+              <p className={styles.specCardDesc}>
+                Advanced porous stone sub-base engineered to drain heavy monsoons within minutes. Never worry about waterlogged pitches ruining match day.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── TRANSPARENT PRICING ── */}
       <section id="pricing" className={`${styles.section} ${styles.pricingSection}`}>
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionTag}>Transparent Rates</span>
-          <h2 className={styles.sectionHeading}>Simple, Honest Pricing</h2>
-          <p className={styles.sectionDesc}>
-            No hidden fees. Book instantly online and pay flexibly at the venue via UPI or cash.
-          </p>
-        </div>
-
-        <div className={styles.pricingGrid}>
-          {/* Off-Peak Card */}
-          <div className={styles.pricingCard}>
-            <div className={styles.pricingTag}>Daylight Hours</div>
-            <div className={styles.pricingHours}>
-              6:00 AM – {pricing.peakStart >= 12 ? (pricing.peakStart === 12 ? '12:00 PM' : `${pricing.peakStart - 12}:00 PM`) : `${pricing.peakStart}:00 AM`}
-            </div>
-            <div className={styles.pricingPriceRow}>
-              <span className={styles.priceSymbol}>₹</span>
-              <span className={styles.priceAmount}>{pricing.offPeak}</span>
-              <span className={styles.pricePer}>/ hour</span>
-            </div>
-
-            <ul className={styles.pricingFeaturesList}>
-              <li className={styles.pricingFeatureItem}>
-                <CheckCircle size={18} color="#00E676" />
-                <span>Full access to Football &amp; Cricket turf</span>
-              </li>
-              <li className={styles.pricingFeatureItem}>
-                <CheckCircle size={18} color="#00E676" />
-                <span>Match footballs &amp; cricket gear included</span>
-              </li>
-              <li className={styles.pricingFeatureItem}>
-                <CheckCircle size={18} color="#00E676" />
-                <span>Changing room &amp; hydration facility</span>
-              </li>
-              <li className={styles.pricingFeatureItem}>
-                <CheckCircle size={18} color="#00E676" />
-                <span>Ideal for team training &amp; casual games</span>
-              </li>
-            </ul>
-
-            <Link href="/book" className="btn-secondary" style={{ width: '100%' }}>
-              Book Daylight Slot
-            </Link>
+        <div className={styles.sectionInner}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionTag}>Transparent Rates</span>
+            <h2 className={styles.sectionHeading}>Simple, Honest Pricing</h2>
+            <p className={styles.sectionDesc}>
+              No hidden fees. Book instantly online and pay flexibly at the venue via UPI or cash.
+            </p>
           </div>
 
-          {/* Prime Peak Card */}
-          <div className={`${styles.pricingCard} ${styles.pricingCardFeatured}`}>
-            <div className={styles.featuredBadge}>Prime Floodlight</div>
-            <div className={styles.pricingTag}>Prime Floodlight Hours</div>
-            <div className={styles.pricingHours}>
-              {pricing.peakStart >= 12 ? (pricing.peakStart === 12 ? '12:00 PM' : `${pricing.peakStart - 12}:00 PM`) : `${pricing.peakStart}:00 AM`} – 12:00 AM Midnight
-            </div>
-            <div className={styles.pricingPriceRow}>
-              <span className={styles.priceSymbol}>₹</span>
-              <span className={styles.priceAmount}>{pricing.peak}</span>
-              <span className={styles.pricePer}>/ hour</span>
+          <div className={styles.pricingGrid}>
+            {/* Off-Peak Card */}
+            <div className={styles.pricingCard}>
+              <div className={styles.pricingTag}>Daylight Hours</div>
+              <div className={styles.pricingHours}>
+                6:00 AM – {pricing.peakStart >= 12 ? (pricing.peakStart === 12 ? '12:00 PM' : `${pricing.peakStart - 12}:00 PM`) : `${pricing.peakStart}:00 AM`}
+              </div>
+              <div className={styles.pricingPriceRow}>
+                <span className={styles.priceSymbol}>₹</span>
+                <span className={styles.priceAmount}>{pricing.offPeak}</span>
+                <span className={styles.pricePer}>/ hour</span>
+              </div>
+
+              <ul className={styles.pricingFeaturesList}>
+                <li className={styles.pricingFeatureItem}>
+                  <CheckCircle size={18} color="#00E676" />
+                  <span>Full access to Football &amp; Cricket turf</span>
+                </li>
+                <li className={styles.pricingFeatureItem}>
+                  <CheckCircle size={18} color="#00E676" />
+                  <span>Match footballs &amp; cricket gear included</span>
+                </li>
+                <li className={styles.pricingFeatureItem}>
+                  <CheckCircle size={18} color="#00E676" />
+                  <span>Changing room &amp; hydration facility</span>
+                </li>
+                <li className={styles.pricingFeatureItem}>
+                  <CheckCircle size={18} color="#00E676" />
+                  <span>Ideal for team training &amp; casual games</span>
+                </li>
+              </ul>
+
+              <Link href="/book" className="btn-secondary" style={{ width: '100%' }}>
+                Book Daylight Slot
+              </Link>
             </div>
 
-            <ul className={styles.pricingFeaturesList}>
-              <li className={styles.pricingFeatureItem}>
-                <CheckCircle size={18} color="#00E676" />
-                <span>Full 4K Stadium LED Floodlight Array</span>
-              </li>
-              <li className={styles.pricingFeatureItem}>
-                <CheckCircle size={18} color="#00E676" />
-                <span>High-octane tournament atmosphere</span>
-              </li>
-              <li className={styles.pricingFeatureItem}>
-                <CheckCircle size={18} color="#00E676" />
-                <span>Match balls, bibs &amp; scoreboard support</span>
-              </li>
-              <li className={styles.pricingFeatureItem}>
-                <CheckCircle size={18} color="#00E676" />
-                <span>Instant WhatsApp booking confirmation</span>
-              </li>
-            </ul>
+            {/* Prime Peak Card */}
+            <div className={`${styles.pricingCard} ${styles.pricingCardFeatured}`}>
+              <div className={styles.featuredBadge}>Prime Floodlight</div>
+              <div className={styles.pricingTag}>Prime Floodlight Hours</div>
+              <div className={styles.pricingHours}>
+                {pricing.peakStart >= 12 ? (pricing.peakStart === 12 ? '12:00 PM' : `${pricing.peakStart - 12}:00 PM`) : `${pricing.peakStart}:00 AM`} – 12:00 AM Midnight
+              </div>
+              <div className={styles.pricingPriceRow}>
+                <span className={styles.priceSymbol}>₹</span>
+                <span className={styles.priceAmount}>{pricing.peak}</span>
+                <span className={styles.pricePer}>/ hour</span>
+              </div>
 
-            <Link href="/book" className="btn-primary" style={{ width: '100%' }}>
-              Book Floodlight Slot
-            </Link>
+              <ul className={styles.pricingFeaturesList}>
+                <li className={styles.pricingFeatureItem}>
+                  <CheckCircle size={18} color="#00E676" />
+                  <span>Full 4K Stadium LED Floodlight Array</span>
+                </li>
+                <li className={styles.pricingFeatureItem}>
+                  <CheckCircle size={18} color="#00E676" />
+                  <span>High-octane tournament atmosphere</span>
+                </li>
+                <li className={styles.pricingFeatureItem}>
+                  <CheckCircle size={18} color="#00E676" />
+                  <span>Match balls, bibs &amp; scoreboard support</span>
+                </li>
+                <li className={styles.pricingFeatureItem}>
+                  <CheckCircle size={18} color="#00E676" />
+                  <span>Instant WhatsApp booking confirmation</span>
+                </li>
+              </ul>
+
+              <Link href="/book" className="btn-primary" style={{ width: '100%' }}>
+                Book Floodlight Slot
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── PHOTO SHOWCASE ── */}
-      <section id="gallery" className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionTag}>Visual Tour</span>
-          <h2 className={styles.sectionHeading}>The Arena in Action</h2>
-          <p className={styles.sectionDesc}>
-            Take a look at matches under the lights and the immaculate playing surface.
-          </p>
-        </div>
+      {/* ── PHOTO SHOWCASE / BENTO GALLERY ── */}
+      <section id="gallery" className={`${styles.section} ${styles.gallerySection}`}>
+        <div className={styles.sectionInner}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionTag}>Visual Tour</span>
+            <h2 className={styles.sectionHeading}>The Arena in Action</h2>
+            <p className={styles.sectionDesc}>
+              Experience the energy of live games under 4K stadium floodlights and the immaculate tournament-grade turf.
+            </p>
+          </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-          <div style={{ position: 'relative', height: '240px', borderRadius: '18px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-            <Image src="/school-1.jpg" alt="East Welfare Turf Action" fill style={{ objectFit: 'cover' }} />
-          </div>
-          <div style={{ position: 'relative', height: '240px', borderRadius: '18px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-            <Image src="/school-2.jpg" alt="East Welfare Turf Night Match" fill style={{ objectFit: 'cover' }} />
-          </div>
-          <div style={{ position: 'relative', height: '240px', borderRadius: '18px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-            <Image src="/school-3.jpg" alt="East Welfare Turf Grass Quality" fill style={{ objectFit: 'cover' }} />
-          </div>
-          <div style={{ position: 'relative', height: '240px', borderRadius: '18px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-            <Image src="/school-4.jpg" alt="East Welfare Turf Facilities" fill style={{ objectFit: 'cover' }} />
+          <div className={styles.galleryBentoGrid}>
+            {/* Main Feature: Night Match Floodlit */}
+            <div className={styles.bentoCardMain}>
+              <Image src="/school-2.jpg" alt="East Welfare Turf Night Derby Match" fill className={styles.bentoImg} style={{ objectFit: 'cover' }} />
+              <div className={styles.bentoOverlay}>
+                <span className={styles.bentoBadge}>⚡ Prime Night Matches</span>
+                <h3 className={styles.bentoTitle}>4K Floodlit Stadium Atmosphere</h3>
+                <p className={styles.bentoDesc}>
+                  Over 800+ Lux calibrated lighting array delivering zero shadows for thrilling night derbies.
+                </p>
+              </div>
+            </div>
+
+            {/* Side Card 1: Fast-paced Gameplay */}
+            <div className={styles.bentoCardSide}>
+              <Image src="/school-1.jpg" alt="6-a-side Football Action" fill className={styles.bentoImg} style={{ objectFit: 'cover' }} />
+              <div className={styles.bentoOverlay}>
+                <span className={styles.bentoBadge}>⚽ 6-a-Side &amp; Box Cricket</span>
+                <h3 className={styles.bentoTitle} style={{ fontSize: '1.15rem' }}>High-Intensity Play</h3>
+                <p className={styles.bentoDesc}>Full-court boundary netting keeps the ball continuously in play.</p>
+              </div>
+            </div>
+
+            {/* Side Card 2: Monofilament Grass */}
+            <div className={styles.bentoCardSide2}>
+              <Image src="/school-3.jpg" alt="All-Weather Synthetic Turf" fill className={styles.bentoImg} style={{ objectFit: 'cover' }} />
+              <div className={styles.bentoOverlay}>
+                <span className={styles.bentoBadge}>🌿 Premium Turf Grass</span>
+                <h3 className={styles.bentoTitle} style={{ fontSize: '1.15rem' }}>Joint-Friendly Cushioning</h3>
+                <p className={styles.bentoDesc}>Engineered with organic infill for optimal traction and knee protection.</p>
+              </div>
+            </div>
+
+            {/* Bottom Card: Facilities & Dugouts */}
+            <div className={styles.bentoCardBottom}>
+              <Image src="/school-4.jpg" alt="East Welfare Turf Gallery & Dugouts" fill className={styles.bentoImg} style={{ objectFit: 'cover' }} />
+              <div className={styles.bentoOverlay}>
+                <span className={styles.bentoBadge}>🏟️ Player Dugouts &amp; Gallery</span>
+                <h3 className={styles.bentoTitle}>Covered Spectator &amp; Sub Dugouts</h3>
+                <p className={styles.bentoDesc}>
+                  Sheltered gallery benches, changing facilities, and dedicated parking for an all-round tournament experience.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── COMMUNITY REVIEWS ── */}
       <section id="reviews" className={`${styles.section} ${styles.reviewsSection}`}>
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionTag}>Player Testimonials</span>
-          <h2 className={styles.sectionHeading}>Loved by Central Travancore Teams</h2>
-          <p className={styles.sectionDesc}>
-            Hear what footballers, cricket captains, and tournament organizers say about East Welfare Turf.
-          </p>
-        </div>
-
-        <div className={styles.reviewsGrid}>
-          <div className={styles.reviewCard}>
-            <div>
-              <div className={styles.reviewStars}>★★★★★</div>
-              <p className={styles.reviewQuote}>
-                &ldquo;Easily the best turf around Mannar &amp; Mavelikkara. The lighting at 9 PM feels like an international stadium, and the grass quality protects your knees completely.&rdquo;
-              </p>
-            </div>
-            <div className={styles.reviewAuthor}>
-              <div className={styles.authorAvatar}>FC</div>
-              <div>
-                <strong style={{ color: '#FFFFFF', display: 'block', fontSize: '0.95rem' }}>Fahad C.</strong>
-                <span style={{ color: '#94A3B8', fontSize: '0.8rem' }}>Captain, Mannar United FC</span>
-              </div>
-            </div>
+        <div className={styles.sectionInner}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionTag}>Player Testimonials</span>
+            <h2 className={styles.sectionHeading}>Loved by Central Travancore Teams</h2>
+            <p className={styles.sectionDesc}>
+              Hear what footballers, cricket captains, and tournament organizers say about East Welfare Turf.
+            </p>
           </div>
 
-          <div className={styles.reviewCard}>
-            <div>
-              <div className={styles.reviewStars}>★★★★★</div>
-              <p className={styles.reviewQuote}>
-                &ldquo;Booking is super smooth on mobile. You get instant WhatsApp confirmation and don&apos;t have to call back and forth. The box cricket rebound action is phenomenal!&rdquo;
-              </p>
-            </div>
-            <div className={styles.reviewAuthor}>
-              <div className={styles.authorAvatar}>AK</div>
+          <div className={styles.reviewsGrid}>
+            <div className={styles.reviewCard}>
               <div>
-                <strong style={{ color: '#FFFFFF', display: 'block', fontSize: '0.95rem' }}>Arjun Krishnan</strong>
-                <span style={{ color: '#94A3B8', fontSize: '0.8rem' }}>Red Bull Strikers Box Cricket</span>
+                <div className={styles.reviewStars}>★★★★★</div>
+                <p className={styles.reviewQuote}>
+                  &ldquo;Easily the best turf around Mannar &amp; Mavelikkara. The lighting at 9 PM feels like an international stadium, and the grass quality protects your knees completely.&rdquo;
+                </p>
+              </div>
+              <div className={styles.reviewAuthor}>
+                <div className={styles.authorAvatar}>FC</div>
+                <div>
+                  <strong style={{ color: '#FFFFFF', display: 'block', fontSize: '0.95rem' }}>Fahad C.</strong>
+                  <span style={{ color: '#94A3B8', fontSize: '0.8rem' }}>Captain, Mannar United FC</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className={styles.reviewCard}>
-            <div>
-              <div className={styles.reviewStars}>★★★★★</div>
-              <p className={styles.reviewQuote}>
-                &ldquo;We played during heavy rains last week and there was zero waterlogging. Sub-drainage is 10/10. Great parking space and friendly staff.&rdquo;
-              </p>
-            </div>
-            <div className={styles.reviewAuthor}>
-              <div className={styles.authorAvatar}>RJ</div>
+            <div className={styles.reviewCard}>
               <div>
-                <strong style={{ color: '#FFFFFF', display: 'block', fontSize: '0.95rem' }}>Rahul Joseph</strong>
-                <span style={{ color: '#94A3B8', fontSize: '0.8rem' }}>Corporate League Organizer</span>
+                <div className={styles.reviewStars}>★★★★★</div>
+                <p className={styles.reviewQuote}>
+                  &ldquo;Booking is super smooth on mobile. You get instant WhatsApp confirmation and don&apos;t have to call back and forth. The box cricket rebound action is phenomenal!&rdquo;
+                </p>
+              </div>
+              <div className={styles.reviewAuthor}>
+                <div className={styles.authorAvatar}>AK</div>
+                <div>
+                  <strong style={{ color: '#FFFFFF', display: 'block', fontSize: '0.95rem' }}>Arjun Krishnan</strong>
+                  <span style={{ color: '#94A3B8', fontSize: '0.8rem' }}>Red Bull Strikers Box Cricket</span>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.reviewCard}>
+              <div>
+                <div className={styles.reviewStars}>★★★★★</div>
+                <p className={styles.reviewQuote}>
+                  &ldquo;We played during heavy rains last week and there was zero waterlogging. Sub-drainage is 10/10. Great parking space and friendly staff.&rdquo;
+                </p>
+              </div>
+              <div className={styles.reviewAuthor}>
+                <div className={styles.authorAvatar}>RJ</div>
+                <div>
+                  <strong style={{ color: '#FFFFFF', display: 'block', fontSize: '0.95rem' }}>Rahul Joseph</strong>
+                  <span style={{ color: '#94A3B8', fontSize: '0.8rem' }}>Corporate League Organizer</span>
+                </div>
               </div>
             </div>
           </div>
@@ -488,127 +529,131 @@ export default function HomePage() {
 
       {/* ── FAQ ACCORDION ── */}
       <section id="faq" className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionTag}>Got Questions?</span>
-          <h2 className={styles.sectionHeading}>Frequently Asked Questions</h2>
-          <p className={styles.sectionDesc}>
-            Everything you need to know before booking your match.
-          </p>
-        </div>
+        <div className={styles.sectionInner}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionTag}>Got Questions?</span>
+            <h2 className={styles.sectionHeading}>Frequently Asked Questions</h2>
+            <p className={styles.sectionDesc}>
+              Everything you need to know before booking your match.
+            </p>
+          </div>
 
-        <div className={styles.faqList}>
-          {[
-            {
-              q: 'What shoes / footwear should we wear?',
-              a: 'Rubber studs, turf trainers, or flat sole sports shoes are recommended. Metal spikes or sharp metal studs are strictly prohibited to preserve the artificial turf.',
-            },
-            {
-              q: 'How does payment work?',
-              a: 'You can reserve your slot online without upfront payment and settle the amount at the venue via UPI (GPay / PhonePe / Paytm) or Cash before kickoff.',
-            },
-            {
-              q: 'What is the cancellation policy?',
-              a: 'You can easily cancel your booking from your dashboard up to 2 hours before the scheduled slot time with zero penalties.',
-            },
-            {
-              q: 'Are footballs, cricket bats, and bibs provided?',
-              a: 'Yes! High-grade match footballs, box cricket tennis balls, cricket bats, wickets, and team bibs are available free of charge at the reception.',
-            },
-            {
-              q: 'What happens if it rains heavily?',
-              a: 'Our turf is engineered with high-capacity sub-surface gravel drainage. Water clears in minutes, allowing continuous safe play in rainy conditions.',
-            },
-          ].map((item, idx) => {
-            const isOpen = openFaq === idx;
-            return (
-              <div
-                key={idx}
-                className={`${styles.faqItem} ${isOpen ? styles.faqItemOpen : ''}`}
-              >
-                <button
-                  onClick={() => setOpenFaq(isOpen ? null : idx)}
-                  className={styles.faqQuestion}
+          <div className={styles.faqList}>
+            {[
+              {
+                q: 'What shoes / footwear should we wear?',
+                a: 'Rubber studs, turf trainers, or flat sole sports shoes are recommended. Metal spikes or sharp metal studs are strictly prohibited to preserve the artificial turf.',
+              },
+              {
+                q: 'How does payment work?',
+                a: 'You can reserve your slot online without upfront payment and settle the amount at the venue via UPI (GPay / PhonePe / Paytm) or Cash before kickoff.',
+              },
+              {
+                q: 'What is the cancellation policy?',
+                a: 'You can easily cancel your booking from your dashboard up to 2 hours before the scheduled slot time with zero penalties.',
+              },
+              {
+                q: 'Are footballs, cricket bats, and bibs provided?',
+                a: 'Yes! High-grade match footballs, box cricket tennis balls, cricket bats, wickets, and team bibs are available free of charge at the reception.',
+              },
+              {
+                q: 'What happens if it rains heavily?',
+                a: 'Our turf is engineered with high-capacity sub-surface gravel drainage. Water clears in minutes, allowing continuous safe play in rainy conditions.',
+              },
+            ].map((item, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <div
+                  key={idx}
+                  className={`${styles.faqItem} ${isOpen ? styles.faqItemOpen : ''}`}
                 >
-                  <span>{item.q}</span>
-                  {isOpen ? <ChevronUp size={20} color="#00E676" /> : <ChevronDown size={20} color="#94A3B8" />}
-                </button>
-                {isOpen && (
-                  <div className={styles.faqAnswer}>
-                    {item.a}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : idx)}
+                    className={styles.faqQuestion}
+                  >
+                    <span>{item.q}</span>
+                    {isOpen ? <ChevronUp size={20} color="#00E676" /> : <ChevronDown size={20} color="#94A3B8" />}
+                  </button>
+                  {isOpen && (
+                    <div className={styles.faqAnswer}>
+                      {item.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       {/* ── LOCATION & DIRECTIONS ── */}
       <section id="location" className={`${styles.section} ${styles.locationSection}`}>
-        <div className={styles.locationGrid}>
-          <div className={styles.locationDetails}>
-            <span className={styles.sectionTag}>Find Our Turf</span>
-            <h3>Easy to Reach in Mannar</h3>
-            <p>
-              Located conveniently in Mannar, Central Travancore with wide road access and dedicated private parking for both cars and two-wheelers.
-            </p>
+        <div className={styles.sectionInner}>
+          <div className={styles.locationGrid}>
+            <div className={styles.locationDetails}>
+              <span className={styles.sectionTag}>Find Our Turf</span>
+              <h3>Easy to Reach in Mannar</h3>
+              <p>
+                Located conveniently in Mannar, Central Travancore with wide road access and dedicated private parking for both cars and two-wheelers.
+              </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '28px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#FFFFFF' }}>
-                <MapPin size={20} color="#00E676" />
-                <span>East Welfare Turf, Mannar, Alappuzha, Kerala</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '28px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#FFFFFF' }}>
+                  <MapPin size={20} color="#00E676" />
+                  <span>East Welfare Turf, Mannar, Alappuzha, Kerala</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#FFFFFF' }}>
+                  <Clock size={20} color="#00E676" />
+                  <span>Open Daily: 6:00 AM – 12:00 AM Midnight</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#FFFFFF' }}>
+                  <Phone size={20} color="#00E676" />
+                  <span>Support: +91 97782 17878</span>
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#FFFFFF' }}>
-                <Clock size={20} color="#00E676" />
-                <span>Open Daily: 6:00 AM – 12:00 AM Midnight</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#FFFFFF' }}>
-                <Phone size={20} color="#00E676" />
-                <span>Support: +91 97782 17878</span>
+
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <a
+                  href="https://maps.google.com/?q=East+Welfare+Turf+Mannar"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary"
+                >
+                  <Compass size={18} />
+                  <span>Open Google Maps</span>
+                </a>
+                <a
+                  href="https://wa.me/919778217878?text=Hello%20East%20Welfare%20Turf,%20I%20would%20like%20directions%20to%20the%20venue"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary"
+                >
+                  <Phone size={18} color="#00E676" />
+                  <span>WhatsApp Location</span>
+                </a>
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <a
-                href="https://maps.google.com/?q=East+Welfare+Turf+Mannar"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary"
-              >
-                <Compass size={18} />
-                <span>Open Google Maps</span>
-              </a>
-              <a
-                href="https://wa.me/919778217878?text=Hello%20East%20Welfare%20Turf,%20I%20would%20like%20directions%20to%20the%20venue"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-secondary"
-              >
-                <Phone size={18} color="#00E676" />
-                <span>WhatsApp Location</span>
-              </a>
+            {/* Styled Map Box */}
+            <div
+              style={{
+                position: 'relative',
+                height: '340px',
+                borderRadius: '24px',
+                overflow: 'hidden',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                boxShadow: '0 16px 40px rgba(0, 0, 0, 0.6)',
+              }}
+            >
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15743.722648782333!2d76.52345!3d9.31234!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOcKwMTgnNDQuNCJOIDc2wrAzMSczNi40IkU!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin"
+                width="100%"
+                height="100%"
+                style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%)' }}
+                allowFullScreen={false}
+                loading="lazy"
+              />
             </div>
-          </div>
-
-          {/* Styled Map Box */}
-          <div
-            style={{
-              position: 'relative',
-              height: '340px',
-              borderRadius: '24px',
-              overflow: 'hidden',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              boxShadow: '0 16px 40px rgba(0, 0, 0, 0.6)',
-            }}
-          >
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15743.722648782333!2d76.52345!3d9.31234!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOcKwMTgnNDQuNCJOIDc2wrAzMSczNi40IkU!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin"
-              width="100%"
-              height="100%"
-              style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%)' }}
-              allowFullScreen={false}
-              loading="lazy"
-            />
           </div>
         </div>
       </section>

@@ -232,10 +232,19 @@
 
 /* ── SECTION COMMON ── */
 .section {
-  padding: 120px 24px;
+  width: 100%;
+  padding: 110px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.sectionInner {
+  width: 100%;
   max-width: 1240px;
   margin: 0 auto;
+  padding: 0 24px;
   position: relative;
+  z-index: 2;
 }
 
 .sectionHeader {
@@ -544,6 +553,135 @@
   gap: 12px;
   font-size: 0.95rem;
   color: #E2E8F0;
+}
+
+/* ── GALLERY SECTION ── */
+.gallerySection {
+  background: linear-gradient(180deg, rgba(8, 10, 15, 0.94) 0%, rgba(6, 8, 12, 0.98) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.galleryBentoGrid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: 240px;
+  gap: 20px;
+}
+
+.bentoCardMain {
+  grid-column: span 7;
+  grid-row: span 2;
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
+}
+
+.bentoCardSide {
+  grid-column: span 5;
+  grid-row: span 1;
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
+}
+
+.bentoCardSide2 {
+  grid-column: span 5;
+  grid-row: span 1;
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
+}
+
+.bentoCardBottom {
+  grid-column: span 12;
+  grid-row: span 1;
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
+}
+
+.bentoCardMain:hover,
+.bentoCardSide:hover,
+.bentoCardSide2:hover,
+.bentoCardBottom:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 230, 118, 0.4);
+}
+
+.bentoImg {
+  transition: transform 0.5s ease;
+}
+
+.bentoCardMain:hover .bentoImg,
+.bentoCardSide:hover .bentoImg,
+.bentoCardSide2:hover .bentoImg,
+.bentoCardBottom:hover .bentoImg {
+  transform: scale(1.04);
+}
+
+.bentoOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(7, 9, 14, 0.4) 40%, rgba(7, 9, 14, 0.92) 100%);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 24px 28px;
+}
+
+.bentoBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 230, 118, 0.15);
+  border: 1px solid rgba(0, 230, 118, 0.35);
+  color: #00E676;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  width: fit-content;
+}
+
+.bentoTitle {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.bentoDesc {
+  font-size: 0.88rem;
+  color: #94A3B8;
+  line-height: 1.45;
+}
+
+@media (max-width: 900px) {
+  .galleryBentoGrid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: 240px;
+  }
+  .bentoCardMain,
+  .bentoCardSide,
+  .bentoCardSide2,
+  .bentoCardBottom {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
 }
 
 /* ── REVIEWS SECTION ── */
