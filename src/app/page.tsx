@@ -689,7 +689,7 @@ export default function HomePage() {
               }}
             >
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15743.722648782333!2d76.52345!3d9.31234!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOcKwMTgnNDQuNCJOIDc2wrAzMSczNi40IkU!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3930.4073893!2d76.5363407!3d9.3203664!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b06218566d37387%3A0xdf56cbab5338f63e!2sEast%20Welfare%20LP%20School!5e0!3m2!1sen!2sin!4v1720000000000!5m2!1sen!2sin"
                 style={{
                   flex: 1,
                   width: '100%',
@@ -733,7 +733,6 @@ export default function HomePage() {
               <li><button onClick={() => openTermsModal()}>Terms of Booking</button></li>
               <li><button onClick={() => openPrivacyModal()}>Privacy Policy</button></li>
               <li><a href="#faq">Rules &amp; Footwear Guide</a></li>
-              <li><Link href="/admin-login">Admin Access</Link></li>
             </ul>
           </div>
         </div>
