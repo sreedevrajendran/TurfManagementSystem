@@ -411,24 +411,6 @@ export default function HomePage() {
                 <span className={styles.pricePer}>/ hour</span>
               </div>
 
-              <ul className={styles.pricingFeaturesList}>
-                <li className={styles.pricingFeatureItem}>
-                  <CheckCircle size={18} color="#00E676" />
-                  <span>Full access to Football &amp; Cricket turf</span>
-                </li>
-                <li className={styles.pricingFeatureItem}>
-                  <CheckCircle size={18} color="#00E676" />
-                  <span>Match footballs &amp; cricket gear included</span>
-                </li>
-                <li className={styles.pricingFeatureItem}>
-                  <CheckCircle size={18} color="#00E676" />
-                  <span>Changing room &amp; hydration facility</span>
-                </li>
-                <li className={styles.pricingFeatureItem}>
-                  <CheckCircle size={18} color="#00E676" />
-                  <span>Ideal for team training &amp; casual games</span>
-                </li>
-              </ul>
 
               <Link href="/book" className="btn-secondary" style={{ width: '100%' }}>
                 Book Daylight Slot
@@ -448,24 +430,6 @@ export default function HomePage() {
                 <span className={styles.pricePer}>/ hour</span>
               </div>
 
-              <ul className={styles.pricingFeaturesList}>
-                <li className={styles.pricingFeatureItem}>
-                  <CheckCircle size={18} color="#00E676" />
-                  <span>Full 4K Stadium LED Floodlight Array</span>
-                </li>
-                <li className={styles.pricingFeatureItem}>
-                  <CheckCircle size={18} color="#00E676" />
-                  <span>High-octane tournament atmosphere</span>
-                </li>
-                <li className={styles.pricingFeatureItem}>
-                  <CheckCircle size={18} color="#00E676" />
-                  <span>Match balls, bibs &amp; scoreboard support</span>
-                </li>
-                <li className={styles.pricingFeatureItem}>
-                  <CheckCircle size={18} color="#00E676" />
-                  <span>Instant WhatsApp booking confirmation</span>
-                </li>
-              </ul>
 
               <Link href="/book" className="btn-primary" style={{ width: '100%' }}>
                 Book Floodlight Slot
