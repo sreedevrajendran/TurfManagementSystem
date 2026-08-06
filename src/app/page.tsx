@@ -261,7 +261,7 @@ export default function HomePage() {
       </section>
 
       {/* ── SPECS & STADIUM AMENITIES ── */}
-      <section id="specs" className={styles.section}>
+      <section id="specs" className={`${styles.section} ${styles.specsSection}`}>
         <div className={styles.sectionHeader}>
           <span className={styles.sectionTag}>World-Class Amenities</span>
           <h2 className={styles.sectionHeading}>Engineered for Peak Performance</h2>
@@ -314,7 +314,7 @@ export default function HomePage() {
       </section>
 
       {/* ── TRANSPARENT PRICING ── */}
-      <section id="pricing" className={`${styles.section} ${styles.sportsSection}`}>
+      <section id="pricing" className={`${styles.section} ${styles.pricingSection}`}>
         <div className={styles.sectionHeader}>
           <span className={styles.sectionTag}>Transparent Rates</span>
           <h2 className={styles.sectionHeading}>Simple, Honest Pricing</h2>
@@ -426,7 +426,7 @@ export default function HomePage() {
       </section>
 
       {/* ── COMMUNITY REVIEWS ── */}
-      <section id="reviews" className={`${styles.section} ${styles.sportsSection}`}>
+      <section id="reviews" className={`${styles.section} ${styles.reviewsSection}`}>
         <div className={styles.sectionHeader}>
           <span className={styles.sectionTag}>Player Testimonials</span>
           <h2 className={styles.sectionHeading}>Loved by Central Travancore Teams</h2>
