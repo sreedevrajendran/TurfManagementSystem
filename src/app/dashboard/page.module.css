@@ -1,51 +1,122 @@
 .container {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 60px 20px;
+  padding: 110px 20px 80px 20px;
   min-height: 100vh;
 }
 
 .header {
-  margin-bottom: 40px;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 24px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  align-items: center;
+  margin-bottom: 36px;
   flex-wrap: wrap;
+  gap: 20px;
 }
 
 .title {
-  font-size: 2.5rem;
-  color: #fff;
-  margin-bottom: 8px;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 900;
+  color: #FFFFFF;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
-  color: var(--text-secondary);
-  font-size: 1.125rem;
+  color: #94A3B8;
+  font-size: 1.05rem;
+  margin-top: 6px;
 }
 
+/* Digital Player Pass Card */
+.playerPassCard {
+  background: linear-gradient(135deg, #161A26 0%, #0F1118 100%);
+  border: 1px solid rgba(0, 230, 118, 0.35);
+  border-radius: 24px;
+  padding: 32px;
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 230, 118, 0.1);
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.playerPassLeft {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.playerAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00E676 0%, #00E5FF 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #000000;
+  box-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
+}
+
+.playerName {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.playerEmail {
+  font-size: 0.85rem;
+  color: #94A3B8;
+}
+
+.playerTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 230, 118, 0.12);
+  border: 1px solid rgba(0, 230, 118, 0.3);
+  color: #00E676;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
+.playerPassRight {
+  display: flex;
+  gap: 12px;
+}
+
+/* Sections Grid */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: 1fr;
   gap: 32px;
 }
 
 .card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
-  padding: 30px;
+  background: #11131B;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 32px;
 }
 
 .cardTitle {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 1.5rem;
-  color: #fff;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #FFFFFF;
   margin-bottom: 24px;
 }
 
@@ -55,9 +126,9 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 40px 0;
+  padding: 48px 20px;
   gap: 16px;
-  color: var(--text-secondary);
+  color: #94A3B8;
 }
 
 .list {
@@ -72,44 +143,55 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  padding: 20px 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+  transition: all 0.2s;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.dueItem:hover, .historyItem:hover {
+  border-color: rgba(0, 230, 118, 0.3);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .dueItem strong, .historyItem strong {
-  color: #fff;
-  font-size: 1.125rem;
+  color: #FFFFFF;
+  font-size: 1.15rem;
+  font-weight: 800;
   display: block;
-  margin-bottom: 4px;
 }
 
 .dueItem p, .historyItem p {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
+  color: #94A3B8;
+  font-size: 0.9rem;
+  margin: 4px 0;
 }
 
 .dueAmount {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #FF4444;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #00E676;
 }
 
 .paidStatus {
   color: #00E676;
-  font-weight: 600;
-  font-size: 0.875rem;
-  background: rgba(0, 230, 118, 0.1);
-  padding: 4px 12px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background: rgba(0, 230, 118, 0.12);
+  border: 1px solid rgba(0, 230, 118, 0.3);
+  padding: 6px 14px;
   border-radius: 99px;
 }
 
 .cancelledStatus {
-  color: #FFAB00;
-  font-weight: 600;
-  font-size: 0.875rem;
-  background: rgba(255, 171, 0, 0.1);
-  padding: 4px 12px;
+  color: #FF6B6B;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background: rgba(255, 107, 107, 0.12);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  padding: 6px 14px;
   border-radius: 99px;
 }

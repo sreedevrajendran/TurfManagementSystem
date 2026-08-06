@@ -1,10 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession, signIn } from 'next-auth/react';
 import Link from 'next/link';
 import styles from './page.module.css';
-import { AlertCircle, CheckCircle, Home, Loader2 } from 'lucide-react';
+import { 
+  AlertCircle, 
+  CheckCircle, 
+  Home, 
+  Loader2, 
+  Calendar, 
+  Trophy, 
+  Share2, 
+  Download, 
+  Clock,
+  Sparkles,
+  MapPin
+} from 'lucide-react';
 import CancelBookingButton from '@/components/CancelBookingButton';
 import PastBookingsList from '@/components/PastBookingsList';
 import { generateReceiptImage } from '@/lib/generateReceipt';
@@ -59,9 +71,9 @@ export default function DashboardPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', flexDirection: 'column', gap: '16px' }}>
-        <Loader2 size={48} color="#00B0FF" style={{ animation: 'spin 1s linear infinite' }} />
-        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1rem' }}>Loading your dashboard...</p>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', flexDirection: 'column', gap: '16px' }}>
+        <Loader2 size={48} color="#00E676" style={{ animation: 'spin 1s linear infinite' }} />
+        <p style={{ color: '#94A3B8', fontSize: '1rem' }}>Loading player dashboard...</p>
         <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       </div>
     );
@@ -69,10 +81,10 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', flexDirection: 'column', gap: '16px' }}>
         <AlertCircle size={48} color="#FF4444" />
         <p style={{ color: '#FF4444', fontSize: '1.1rem' }}>Failed to load bookings. Please refresh the page.</p>
-        <button onClick={() => window.location.reload()} style={{ padding: '10px 24px', background: '#00B0FF', color: '#000', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer', fontSize: '1rem' }}>
+        <button onClick={() => window.location.reload()} className="btn-primary">
           Retry
         </button>
       </div>
@@ -99,38 +111,64 @@ export default function DashboardPage() {
 
   return (
     <div className={styles.container}>
+      {/* Header */}
       <header className={styles.header}>
         <div>
-          <h1 className={styles.title}>Welcome, {session?.user?.name}</h1>
-          <p className={styles.subtitle}>Manage your bookings and view your due status here.</p>
+          <h1 className={styles.title}>PLAYER DASHBOARD</h1>
+          <p className={styles.subtitle}>Welcome back, {session?.user?.name}! Manage your match fixtures and player pass.</p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <Link href="/" style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            background: 'rgba(255,255,255,0.1)', color: '#fff',
-            padding: '8px 16px', borderRadius: '12px', textDecoration: 'none',
-            fontWeight: 600
-          }}>
-            <Home size={18} /> Home
+          <Link href="/book" className="btn-primary">
+            <Calendar size={18} /> Book New Match
           </Link>
         </div>
       </header>
-      
-      <div style={{ marginBottom: 24 }}>
-        <button onClick={() => openTermsModal()} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', textAlign: 'left', font: 'inherit', fontSize: '0.85rem' }}>
-          📜 View Terms & Conditions
+
+      {/* Digital Player Turf Pass */}
+      <div className={styles.playerPassCard}>
+        <div className={styles.playerPassLeft}>
+          <div className={styles.playerAvatar}>
+            {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : 'P'}
+          </div>
+          <div>
+            <div className={styles.playerName}>{session?.user?.name || 'Verified Player'}</div>
+            <div className={styles.playerEmail}>{session?.user?.email}</div>
+            <div className={styles.playerTag}>
+              <Sparkles size={12} /> East Welfare Turf Club Member
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.playerPassRight}>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '0.8rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Bookings</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#00E676' }}>{bookings.length}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 24, textAlign: 'right' }}>
+        <button onClick={() => openTermsModal()} style={{ background: 'none', border: 'none', color: '#94A3B8', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.85rem' }}>
+          📜 View Booking Terms &amp; Policies
         </button>
       </div>
 
       <div className={styles.grid}>
+        {/* Active Fixtures / Pending Dues */}
         <section className={styles.card}>
           <h2 className={styles.cardTitle}>
-            <AlertCircle color="#FF4444" size={24} /> Pending Dues
+            <Clock color="#00E676" size={24} />
+            <span>Active &amp; Upcoming Matches ({pendingDues.length})</span>
           </h2>
+
           {pendingDues.length === 0 ? (
             <div className={styles.emptyState}>
               <CheckCircle color="#00E676" size={48} />
-              <p>You have no pending dues! You are ready to book.</p>
+              <p style={{ fontSize: '1.1rem', color: '#FFFFFF', fontWeight: 700 }}>No pending dues or upcoming matches.</p>
+              <p style={{ color: '#94A3B8', fontSize: '0.9rem' }}>Ready for your next game under the stadium floodlights?</p>
+              <Link href="/book" className="btn-primary" style={{ marginTop: '12px' }}>
+                <Calendar size={18} /> Reserve a Court
+              </Link>
             </div>
           ) : (
             <ul className={styles.list}>
@@ -138,22 +176,33 @@ export default function DashboardPage() {
                 const bd = new Date(due.date);
                 bd.setHours(due.startTime, 0, 0, 0);
                 const canCancel = bd.getTime() - Date.now() >= 30 * 60 * 1000;
+                const sportEmoji = due.sport === 'CRICKET' ? '🏏' : '⚽';
+
                 return (
                   <li key={due.id} className={styles.dueItem}>
                     <div>
-                      <strong>{new Date(due.date).toDateString()}</strong>
-                      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '4px 0' }}>
-                        {formatTime(due.startTime)} – {formatTime((due.startTime + due.durationHours) % 24)}
+                      <strong>
+                        {sportEmoji} {due.teamName || 'Your Match'} • {new Date(due.date).toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}
+                      </strong>
+                      <p>
+                        Time: {formatTime(due.startTime)} – {formatTime((due.startTime + due.durationHours) % 24)} ({due.durationHours} hr)
                       </p>
-                      {due.teamName && <p>Team: {due.teamName}</p>}
-                      <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                      <p style={{ fontSize: '0.82rem', color: '#00E676' }}>
+                        📍 Venue: East Welfare Turf, Mannar
+                      </p>
+
+                      <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap', alignItems: 'center' }}>
                         {canCancel ? (
-                          <CancelBookingButton bookingId={due.id} onSuccess={() => setBookings((prev) => prev.map((b) => b.id === due.id ? { ...b, status: 'CANCELLED' } : b))} />
+                          <CancelBookingButton
+                            bookingId={due.id}
+                            onSuccess={() => setBookings((prev) => prev.map((b) => (b.id === due.id ? { ...b, status: 'CANCELLED' } : b)))}
+                          />
                         ) : (
-                          <span style={{ fontSize: '0.8rem', color: '#FF6B6B', display: 'inline-block' }}>
-                            Too late to cancel
+                          <span style={{ fontSize: '0.8rem', color: '#FF6B6B' }}>
+                            Match starting soon
                           </span>
                         )}
+
                         <button
                           onClick={() => {
                             const img = generateReceiptImage({
@@ -164,21 +213,36 @@ export default function DashboardPage() {
                               duration: due.durationHours,
                               phone: due.phone || '',
                               amount: due.amount,
-                              paymentStatus: due.status === 'DUE' ? 'DUE' : 'PENDING',
-                              cancelReason: due.status === 'CANCELLED' ? due.reason : undefined,
+                              paymentStatus: 'DUE',
                             });
                             const a = document.createElement('a');
                             a.href = img;
-                            a.download = `Receipt_${due.teamName || 'booking'}_${Date.now()}.png`;
+                            a.download = `EastWelfareTurf_Pass_${due.teamName || 'match'}.png`;
                             a.click();
                           }}
-                          style={{ padding: '6px 14px', background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF', borderRadius: 8, cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, fontFamily: 'inherit' }}
+                          style={{
+                            padding: '8px 16px',
+                            background: 'rgba(255,255,255,0.08)',
+                            border: '1px solid rgba(255,255,255,0.15)',
+                            color: '#FFFFFF',
+                            borderRadius: 10,
+                            cursor: 'pointer',
+                            fontSize: '0.85rem',
+                            fontWeight: 700,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}
                         >
-                          🧾 Receipt
+                          <Download size={14} /> Match Pass Receipt
                         </button>
                       </div>
                     </div>
-                    <span className={styles.dueAmount}>₹{due.amount}</span>
+
+                    <div style={{ textAlign: 'right' }}>
+                      <span className={styles.dueAmount}>₹{due.amount}</span>
+                      <div style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: 4 }}>Pay at venue</div>
+                    </div>
                   </li>
                 );
               })}
@@ -186,15 +250,25 @@ export default function DashboardPage() {
           )}
         </section>
 
+        {/* Cleared / Completed Matches */}
         <section className={styles.card}>
-          <h2 className={styles.cardTitle}>Cleared Dues &amp; Past Bookings</h2>
+          <h2 className={styles.cardTitle}>
+            <Trophy color="#00E5FF" size={24} />
+            <span>Match History ({clearedBookings.length})</span>
+          </h2>
           <PastBookingsList bookings={clearedBookings} />
         </section>
 
-        <section className={styles.card} style={{ marginTop: '24px' }}>
-          <h2 className={styles.cardTitle}>Cancelled Bookings</h2>
-          <PastBookingsList bookings={cancelledBookings} />
-        </section>
+        {/* Cancelled Bookings */}
+        {cancelledBookings.length > 0 && (
+          <section className={styles.card}>
+            <h2 className={styles.cardTitle}>
+              <AlertCircle color="#FF6B6B" size={24} />
+              <span>Cancelled Bookings ({cancelledBookings.length})</span>
+            </h2>
+            <PastBookingsList bookings={cancelledBookings} />
+          </section>
+        )}
       </div>
     </div>
   );

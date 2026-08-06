@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   description: "Book your premium artificial grass turf for Football and Cricket at EAST WELFARE TURF. Experience high-end facilities, dynamic pricing, and easy booking.",
 };
 
+import HeaderNav from "@/components/HeaderNav";
 import AlertBanner from "@/components/AlertBanner";
 import TermsModal from "@/components/TermsModal";
 import PrivacyModal from "@/components/PrivacyModal";
@@ -30,7 +31,7 @@ export default function RootLayout({
       <body>
         <Providers>
           <AlertBanner />
-          <Navbar />
+          <HeaderNav />
           {children}
           <FloatingContact />
           <TermsModal />
