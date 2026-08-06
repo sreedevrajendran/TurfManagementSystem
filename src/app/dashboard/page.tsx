@@ -51,19 +51,33 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      fetch('/api/user/bookings')
-        .then((r) => {
-          if (!r.ok) throw new Error('Failed to load bookings');
-          return r.json();
-        })
-        .then((data) => {
-          setBookings(data);
-          setLoading(false);
-        })
-        .catch((e) => {
-          setError(e.message);
-          setLoading(false);
-        });
+      setLoading(true);
+      setError(null);
+
+      const fetchBookings = () =>
+        fetch('/api/user/bookings')
+          .then((r) => {
+            if (!r.ok) throw new Error('Failed to load bookings');
+            return r.json();
+          })
+          .then((data) => {
+            if (Array.isArray(data)) {
+              setBookings(data);
+            } else {
+              throw new Error('Invalid response');
+            }
+            setLoading(false);
+          });
+
+      // Try once, then retry once on failure (handles cold start)
+      fetchBookings().catch(() => {
+        setTimeout(() => {
+          fetchBookings().catch((e) => {
+            setError(e.message);
+            setLoading(false);
+          });
+        }, 2500);
+      });
     } else if (status === 'unauthenticated') {
       signIn('google');
     }

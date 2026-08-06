@@ -4,6 +4,9 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { sendAdminCancelBookingNotification } from "@/lib/email";
 
+export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
+
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 

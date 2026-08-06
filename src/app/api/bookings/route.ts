@@ -4,6 +4,9 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { sendAdminNewBookingNotification } from "@/lib/email";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const maxDuration = 30;
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
