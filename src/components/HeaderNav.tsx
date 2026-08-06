@@ -24,14 +24,24 @@ export default function HeaderNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [showNav, setShowNav] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      const currentScrollY = window.scrollY;
+      setScrolled(currentScrollY > 20);
+      
+      if (currentScrollY > lastScrollY && currentScrollY > 80) {
+        setShowNav(false);
+      } else {
+        setShowNav(true);
+      }
+      setLastScrollY(currentScrollY);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [lastScrollY]);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -39,8 +49,8 @@ export default function HeaderNav() {
     setUserDropdownOpen(false);
   }, [pathname]);
 
-  // Don't render on admin dashboard itself to allow full admin workspace
-  if (pathname.startsWith('/admin')) return null;
+  // Don't render on admin dashboard or user dashboard to keep them clean
+  if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard')) return null;
 
   const isAdmin = (session?.user as any)?.role === 'ADMIN';
 
@@ -53,7 +63,10 @@ export default function HeaderNav() {
           left: 0,
           right: 0,
           zIndex: 100,
-          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+          boxSizing: 'border-box',
+          width: '100%',
+          transform: showNav ? 'translateY(0)' : 'translateY(-100%)',
+          transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s, backdrop-filter 0.3s, padding 0.3s',
           padding: scrolled ? '10px 20px' : '18px 24px',
           background: scrolled 
             ? 'rgba(7, 7, 9, 0.85)' 
@@ -71,6 +84,8 @@ export default function HeaderNav() {
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: '20px',
+            width: '100%',
+            boxSizing: 'border-box',
           }}
         >
           {/* Brand Wordmark - Clean Athletic Typography */}
@@ -325,11 +340,8 @@ export default function HeaderNav() {
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <User size={17} color="#00E676" />
-                        <span>My Booking Status</span>
+                        <span>My Bookings</span>
                       </div>
-                      <span style={{ fontSize: '0.7rem', background: '#00E676', color: '#000', fontWeight: 900, padding: '2px 6px', borderRadius: '6px' }}>
-                        PASS
-                      </span>
                     </Link>
 
                     {/* Quick Book Slot */}
@@ -524,7 +536,7 @@ export default function HeaderNav() {
                     {session.user?.name || 'Player'}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#00E676', fontWeight: 700 }}>
-                    View Match Pass &amp; Bookings →
+                    My Bookings →
                   </div>
                 </div>
               </Link>
