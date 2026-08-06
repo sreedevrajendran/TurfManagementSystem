@@ -620,7 +620,7 @@ export default function HomePage() {
 
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 <a
-                  href="https://maps.google.com/?q=East+Welfare+Turf+Mannar"
+                  href="https://www.google.com/maps/place/East+Welfare+LP+School/@9.3203664,76.5363407,17z/data=!3m1!4b1!4m6!3m5!1s0x3b06218566d37387:0xdf56cbab5338f63e!8m2!3d9.3203664!4d76.5389156!16s%2Fg%2F11cmswf4p3"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-primary"
