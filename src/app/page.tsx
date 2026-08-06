@@ -33,8 +33,8 @@ import { openPrivacyModal } from '@/components/PrivacyModal';
 
 // Animation presets
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+  hidden: { opacity: 0, y: 35 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] } },
 };
 
 const staggerContainer: Variants = {
@@ -43,7 +43,36 @@ const staggerContainer: Variants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.12,
+      delayChildren: 0.05,
     },
+  },
+};
+
+const scrollRevealSection: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.75, ease: [0.16, 1, 0.3, 1] },
+  },
+};
+
+const cardStagger: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+    },
+  },
+};
+
+const cardFadeUp: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
   },
 };
 
@@ -169,46 +198,64 @@ export default function HomePage() {
       </section>
 
       {/* ── STATS BAR ── */}
-      <section className={styles.statsBar}>
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-40px' }}
+        variants={cardStagger}
+        className={styles.statsBar}
+      >
         <div className={styles.statsGrid}>
-          <div className={styles.statCard}>
+          <motion.div variants={cardFadeUp} className={styles.statCard}>
             <span className={styles.statNumber}>4.9 ★</span>
             <span className={styles.statLabel}>Player Rating</span>
             <span className={styles.statSub}>150+ Verified Reviews</span>
-          </div>
+          </motion.div>
 
-          <div className={styles.statCard}>
+          <motion.div variants={cardFadeUp} className={styles.statCard}>
             <span className={styles.statNumber}>24 / 7</span>
             <span className={styles.statLabel}>Match Ready</span>
             <span className={styles.statSub}>Daylight &amp; Night Floodlights</span>
-          </div>
+          </motion.div>
 
-          <div className={styles.statCard}>
+          <motion.div variants={cardFadeUp} className={styles.statCard}>
             <span className={styles.statNumber}>100%</span>
             <span className={styles.statLabel}>Sub-Drainage</span>
             <span className={styles.statSub}>Play even in Monsoons</span>
-          </div>
+          </motion.div>
 
-          <div className={styles.statCard}>
+          <motion.div variants={cardFadeUp} className={styles.statCard}>
             <span className={styles.statNumber}>2 Sports</span>
             <span className={styles.statLabel}>Football &amp; Cricket</span>
             <span className={styles.statSub}>Equipped with Gear</span>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ── LIVE TODAY'S SLOTS PREVIEW ── */}
       <section id="slots-preview" className={`${styles.section} ${styles.slotsSection}`}>
         <div className={styles.sectionInner}>
-          <div className={styles.sectionHeader}>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={scrollRevealSection}
+            className={styles.sectionHeader}
+          >
             <span className={styles.sectionTag}>Live Court Availability</span>
             <h2 className={styles.sectionHeading}>Today&apos;s Slot Timeline</h2>
             <p className={styles.sectionDesc}>
               Check slot status in real-time. Click any available time to start instant reservation.
             </p>
-          </div>
+          </motion.div>
 
-          <div className={styles.slotsContainer}>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={scrollRevealSection}
+            className={styles.slotsContainer}
+          >
             <div className={styles.slotsHeader}>
               <div className={styles.slotsHeaderTitle}>
                 Live Court Availability (Today)
@@ -258,23 +305,35 @@ export default function HomePage() {
                 <span>View Full Calendar &amp; Reserve</span>
               </Link>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* ── SPECS & STADIUM AMENITIES ── */}
       <section id="specs" className={`${styles.section} ${styles.specsSection}`}>
         <div className={styles.sectionInner}>
-          <div className={styles.sectionHeader}>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={scrollRevealSection}
+            className={styles.sectionHeader}
+          >
             <span className={styles.sectionTag}>World-Class Amenities</span>
             <h2 className={styles.sectionHeading}>Engineered for Peak Performance</h2>
             <p className={styles.sectionDesc}>
               Every detail at East Welfare Turf is designed to deliver a premier sporting experience for casual players and competitive teams alike.
             </p>
-          </div>
+          </motion.div>
 
-          <div className={styles.specsGrid}>
-            <div className={styles.specCard}>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={cardStagger}
+            className={styles.specsGrid}
+          >
+            <motion.div variants={cardFadeUp} className={styles.specCard}>
               <div className={styles.specIconBox}>
                 <Sun size={28} />
               </div>
@@ -282,9 +341,9 @@ export default function HomePage() {
               <p className={styles.specCardDesc}>
                 High-lux LED array delivering over 800+ Lux with zero shadows or glare. Perfectly calibrated for evening &amp; night matches with broadcast clarity.
               </p>
-            </div>
+            </motion.div>
 
-            <div className={styles.specCard}>
+            <motion.div variants={cardFadeUp} className={styles.specCard}>
               <div className={styles.specIconBox}>
                 <ShieldCheck size={28} />
               </div>
@@ -292,9 +351,9 @@ export default function HomePage() {
               <p className={styles.specCardDesc}>
                 12-foot high-tension boundary netting encasing the entire arena. Keeps the ball in play continuously for fast, uninterrupted box cricket and football.
               </p>
-            </div>
+            </motion.div>
 
-            <div className={styles.specCard}>
+            <motion.div variants={cardFadeUp} className={styles.specCard}>
               <div className={styles.specIconBox}>
                 <Users size={28} />
               </div>
@@ -302,9 +361,9 @@ export default function HomePage() {
               <p className={styles.specCardDesc}>
                 Ergonomic spectator gallery and team dugout benches sheltered from rain and heat. Ample space for subs, coaches, and cheering fans.
               </p>
-            </div>
+            </motion.div>
 
-            <div className={styles.specCard}>
+            <motion.div variants={cardFadeUp} className={styles.specCard}>
               <div className={styles.specIconBox}>
                 <Activity size={28} />
               </div>
@@ -312,25 +371,37 @@ export default function HomePage() {
               <p className={styles.specCardDesc}>
                 Advanced porous stone sub-base engineered to drain heavy monsoons within minutes. Never worry about waterlogged pitches ruining match day.
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* ── TRANSPARENT PRICING ── */}
       <section id="pricing" className={`${styles.section} ${styles.pricingSection}`}>
         <div className={styles.sectionInner}>
-          <div className={styles.sectionHeader}>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={scrollRevealSection}
+            className={styles.sectionHeader}
+          >
             <span className={styles.sectionTag}>Transparent Rates</span>
             <h2 className={styles.sectionHeading}>Simple, Honest Pricing</h2>
             <p className={styles.sectionDesc}>
               No hidden fees. Book instantly online and pay flexibly at the venue via UPI or cash.
             </p>
-          </div>
+          </motion.div>
 
-          <div className={styles.pricingGrid}>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={cardStagger}
+            className={styles.pricingGrid}
+          >
             {/* Off-Peak Card */}
-            <div className={styles.pricingCard}>
+            <motion.div variants={cardFadeUp} className={styles.pricingCard}>
               <div className={styles.pricingTag}>Daylight Hours</div>
               <div className={styles.pricingHours}>
                 6:00 AM – {pricing.peakStart >= 12 ? (pricing.peakStart === 12 ? '12:00 PM' : `${pricing.peakStart - 12}:00 PM`) : `${pricing.peakStart}:00 AM`}
@@ -363,10 +434,10 @@ export default function HomePage() {
               <Link href="/book" className="btn-secondary" style={{ width: '100%' }}>
                 Book Daylight Slot
               </Link>
-            </div>
+            </motion.div>
 
             {/* Prime Peak Card */}
-            <div className={`${styles.pricingCard} ${styles.pricingCardFeatured}`}>
+            <motion.div variants={cardFadeUp} className={`${styles.pricingCard} ${styles.pricingCardFeatured}`}>
               <div className={styles.featuredBadge}>Prime Floodlight</div>
               <div className={styles.pricingTag}>Prime Floodlight Hours</div>
               <div className={styles.pricingHours}>
@@ -400,83 +471,36 @@ export default function HomePage() {
               <Link href="/book" className="btn-primary" style={{ width: '100%' }}>
                 Book Floodlight Slot
               </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── PHOTO SHOWCASE / BENTO GALLERY ── */}
-      <section id="gallery" className={`${styles.section} ${styles.gallerySection}`}>
-        <div className={styles.sectionInner}>
-          <div className={styles.sectionHeader}>
-            <span className={styles.sectionTag}>Visual Tour</span>
-            <h2 className={styles.sectionHeading}>The Arena in Action</h2>
-            <p className={styles.sectionDesc}>
-              Experience the energy of live games under 4K stadium floodlights and the immaculate tournament-grade turf.
-            </p>
-          </div>
-
-          <div className={styles.galleryBentoGrid}>
-            {/* Main Feature: Night Match Floodlit */}
-            <div className={styles.bentoCardMain}>
-              <Image src="/school-2.jpg" alt="East Welfare Turf Night Derby Match" fill className={styles.bentoImg} style={{ objectFit: 'cover' }} />
-              <div className={styles.bentoOverlay}>
-                <span className={styles.bentoBadge}>⚡ Prime Night Matches</span>
-                <h3 className={styles.bentoTitle}>4K Floodlit Stadium Atmosphere</h3>
-                <p className={styles.bentoDesc}>
-                  Over 800+ Lux calibrated lighting array delivering zero shadows for thrilling night derbies.
-                </p>
-              </div>
-            </div>
-
-            {/* Side Card 1: Fast-paced Gameplay */}
-            <div className={styles.bentoCardSide}>
-              <Image src="/school-1.jpg" alt="6-a-side Football Action" fill className={styles.bentoImg} style={{ objectFit: 'cover' }} />
-              <div className={styles.bentoOverlay}>
-                <span className={styles.bentoBadge}>⚽ 6-a-Side &amp; Box Cricket</span>
-                <h3 className={styles.bentoTitle} style={{ fontSize: '1.15rem' }}>High-Intensity Play</h3>
-                <p className={styles.bentoDesc}>Full-court boundary netting keeps the ball continuously in play.</p>
-              </div>
-            </div>
-
-            {/* Side Card 2: Monofilament Grass */}
-            <div className={styles.bentoCardSide2}>
-              <Image src="/school-3.jpg" alt="All-Weather Synthetic Turf" fill className={styles.bentoImg} style={{ objectFit: 'cover' }} />
-              <div className={styles.bentoOverlay}>
-                <span className={styles.bentoBadge}>🌿 Premium Turf Grass</span>
-                <h3 className={styles.bentoTitle} style={{ fontSize: '1.15rem' }}>Joint-Friendly Cushioning</h3>
-                <p className={styles.bentoDesc}>Engineered with organic infill for optimal traction and knee protection.</p>
-              </div>
-            </div>
-
-            {/* Bottom Card: Facilities & Dugouts */}
-            <div className={styles.bentoCardBottom}>
-              <Image src="/school-4.jpg" alt="East Welfare Turf Gallery & Dugouts" fill className={styles.bentoImg} style={{ objectFit: 'cover' }} />
-              <div className={styles.bentoOverlay}>
-                <span className={styles.bentoBadge}>🏟️ Player Dugouts &amp; Gallery</span>
-                <h3 className={styles.bentoTitle}>Covered Spectator &amp; Sub Dugouts</h3>
-                <p className={styles.bentoDesc}>
-                  Sheltered gallery benches, changing facilities, and dedicated parking for an all-round tournament experience.
-                </p>
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* ── COMMUNITY REVIEWS ── */}
       <section id="reviews" className={`${styles.section} ${styles.reviewsSection}`}>
         <div className={styles.sectionInner}>
-          <div className={styles.sectionHeader}>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={scrollRevealSection}
+            className={styles.sectionHeader}
+          >
             <span className={styles.sectionTag}>Player Testimonials</span>
             <h2 className={styles.sectionHeading}>Loved by Central Travancore Teams</h2>
             <p className={styles.sectionDesc}>
               Hear what footballers, cricket captains, and tournament organizers say about East Welfare Turf.
             </p>
-          </div>
+          </motion.div>
 
-          <div className={styles.reviewsGrid}>
-            <div className={styles.reviewCard}>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={cardStagger}
+            className={styles.reviewsGrid}
+          >
+            <motion.div variants={cardFadeUp} className={styles.reviewCard}>
               <div>
                 <div className={styles.reviewStars}>★★★★★</div>
                 <p className={styles.reviewQuote}>
@@ -490,9 +514,9 @@ export default function HomePage() {
                   <span style={{ color: '#94A3B8', fontSize: '0.8rem' }}>Captain, Mannar United FC</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            <div className={styles.reviewCard}>
+            <motion.div variants={cardFadeUp} className={styles.reviewCard}>
               <div>
                 <div className={styles.reviewStars}>★★★★★</div>
                 <p className={styles.reviewQuote}>
@@ -506,9 +530,9 @@ export default function HomePage() {
                   <span style={{ color: '#94A3B8', fontSize: '0.8rem' }}>Red Bull Strikers Box Cricket</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            <div className={styles.reviewCard}>
+            <motion.div variants={cardFadeUp} className={styles.reviewCard}>
               <div>
                 <div className={styles.reviewStars}>★★★★★</div>
                 <p className={styles.reviewQuote}>
@@ -522,23 +546,35 @@ export default function HomePage() {
                   <span style={{ color: '#94A3B8', fontSize: '0.8rem' }}>Corporate League Organizer</span>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* ── FAQ ACCORDION ── */}
       <section id="faq" className={styles.section}>
         <div className={styles.sectionInner}>
-          <div className={styles.sectionHeader}>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={scrollRevealSection}
+            className={styles.sectionHeader}
+          >
             <span className={styles.sectionTag}>Got Questions?</span>
             <h2 className={styles.sectionHeading}>Frequently Asked Questions</h2>
             <p className={styles.sectionDesc}>
               Everything you need to know before booking your match.
             </p>
-          </div>
+          </motion.div>
 
-          <div className={styles.faqList}>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={cardStagger}
+            className={styles.faqList}
+          >
             {[
               {
                 q: 'What shoes / footwear should we wear?',
@@ -563,8 +599,9 @@ export default function HomePage() {
             ].map((item, idx) => {
               const isOpen = openFaq === idx;
               return (
-                <div
+                <motion.div
                   key={idx}
+                  variants={cardFadeUp}
                   className={`${styles.faqItem} ${isOpen ? styles.faqItemOpen : ''}`}
                 >
                   <button
@@ -579,17 +616,23 @@ export default function HomePage() {
                       {item.a}
                     </div>
                   )}
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* ── LOCATION & DIRECTIONS ── */}
       <section id="location" className={`${styles.section} ${styles.locationSection}`}>
         <div className={styles.sectionInner}>
-          <div className={styles.locationGrid}>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={scrollRevealSection}
+            className={styles.locationGrid}
+          >
             <div className={styles.locationDetails}>
               <span className={styles.sectionTag}>Find Our Turf</span>
               <h3>Easy to Reach in Mannar</h3>
@@ -654,7 +697,7 @@ export default function HomePage() {
                 loading="lazy"
               />
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 

@@ -55,6 +55,7 @@ html {
   overflow-x: hidden;
   overflow-y: auto;
   scroll-behavior: smooth;
+  scroll-padding-top: 90px;
   color-scheme: dark;
   background-color: var(--bg-color);
 }

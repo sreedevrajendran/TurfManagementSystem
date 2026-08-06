@@ -124,7 +124,6 @@ export default function HeaderNav() {
                 <a href="#slots-preview" className="nav-link">Live Slots</a>
                 <a href="#specs" className="nav-link">Specs &amp; Lights</a>
                 <a href="#pricing" className="nav-link">Pricing</a>
-                <a href="#gallery" className="nav-link">Gallery</a>
                 <a href="#reviews" className="nav-link">Reviews</a>
                 <a href="#faq" className="nav-link">FAQ</a>
               </>
@@ -538,7 +537,6 @@ export default function HeaderNav() {
                 <a href="#slots-preview" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Live Slot Availability</a>
                 <a href="#specs" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Stadium Lights &amp; Specs</a>
                 <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Pricing &amp; Offers</a>
-                <a href="#gallery" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Photo Gallery</a>
                 <a href="#reviews" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Player Reviews</a>
                 <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">FAQ &amp; Rules</a>
               </>
