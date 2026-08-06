@@ -271,9 +271,14 @@ export default function HomePage() {
             </div>
 
             <div className={styles.slotsTimelineGrid}>
-              {timeSlots.map((slot) => {
-                const isPast = slot.hour < currentHour;
-                const isBooked = bookedSlotsToday.includes(slot.hour);
+              {timeSlots.filter(slot => slot.hour >= currentHour).length === 0 ? (
+                <div style={{ width: '100%', padding: '24px', textAlign: 'center', color: '#94A3B8', gridColumn: '1 / -1' }}>
+                  All slots for today have concluded. Check tomorrow&apos;s availability!
+                </div>
+              ) : (
+                timeSlots.filter(slot => slot.hour >= currentHour).map((slot) => {
+                  const isPast = slot.hour < currentHour;
+                  const isBooked = bookedSlotsToday.includes(slot.hour);
                 const isPeak = slot.hour >= pricing.peakStart;
                 const price = isPeak ? pricing.peak : pricing.offPeak;
 
@@ -295,7 +300,8 @@ export default function HomePage() {
                     </span>
                   </Link>
                 );
-              })}
+                })
+              )}
             </div>
 
             <div style={{ textAlign: 'center' }}>
