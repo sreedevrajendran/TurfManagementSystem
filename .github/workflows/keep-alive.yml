@@ -1,0 +1,24 @@
+name: Supabase & Vercel Keep-Alive Cron
+
+on:
+  schedule:
+    # Runs every 8 hours (at 00:00, 08:00, 16:00 UTC) every day
+    - cron: '0 0,8,16 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  ping-keep-alive:
+    name: Ping Keep-Alive Endpoint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Keep-Alive Endpoint
+        run: |
+          echo "Sending keep-alive ping to East Welfare Turf database..."
+          HTTP_RESPONSE=$(curl -s -o response.json -w "%{http_code}" https://eastwelfareturf.vercel.app/api/cron/keep-alive)
+          echo "HTTP Status: $HTTP_RESPONSE"
+          cat response.json || true
+          if [ "$HTTP_RESPONSE" -eq 200 ]; then
+            echo "Successfully pinged database and kept it active!"
+          else
+            echo "Warning: Response code was $HTTP_RESPONSE"
+          fi
