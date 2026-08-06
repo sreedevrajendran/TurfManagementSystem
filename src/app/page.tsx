@@ -680,7 +680,9 @@ export default function HomePage() {
             <div
               style={{
                 position: 'relative',
-                height: '340px',
+                minHeight: '340px',
+                height: '100%',
+                alignSelf: 'stretch',
                 borderRadius: '24px',
                 overflow: 'hidden',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
@@ -691,7 +693,7 @@ export default function HomePage() {
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15743.722648782333!2d76.52345!3d9.31234!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOcKwMTgnNDQuNCJOIDc2wrAzMSczNi40IkU!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin"
                 width="100%"
                 height="100%"
-                style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%)' }}
+                style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%)', position: 'absolute', top: 0, left: 0 }}
                 allowFullScreen={false}
                 loading="lazy"
               />

@@ -667,7 +667,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
-  align-items: center;
+  align-items: stretch;
 }
 
 .locationDetails h3 {
