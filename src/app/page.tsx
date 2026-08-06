@@ -52,14 +52,6 @@ export default function Home() {
             Mannar&apos;s premier all-weather turf for 6-a-side Football &amp; Cricket.
             Equipped with stadium-grade LED floodlights and fast, hassle-free slot booking.
           </motion.p>
-          
-          {/* Quick Features Row */}
-          <motion.div variants={fadeUp} className={styles.quickPills}>
-            <span className={styles.quickPill}>⚡ 60s Fast Booking</span>
-            <span className={styles.quickPill}>💡 Stadium LED Floodlights</span>
-            <span className={styles.quickPill}>📱 WhatsApp Receipts</span>
-            <span className={styles.quickPill}>💵 Pay at Venue</span>
-          </motion.div>
 
           <motion.div variants={fadeUp} className={styles.ctaWrapper}>
             <Link href="/book" className={styles.ctaButton}>⚽ Book Your Slot Now</Link>

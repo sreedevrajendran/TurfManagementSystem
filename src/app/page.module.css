@@ -93,31 +93,11 @@
 .subtitle {
   font-size: clamp(1rem, 2vw, 1.2rem);
   color: var(--text-secondary);
-  margin-bottom: 24px;
+  margin-bottom: 36px;
   max-width: 620px;
   margin-left: auto;
   margin-right: auto;
   line-height: 1.7;
-}
-
-/* Quick pills under subtitle */
-.quickPills {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 32px;
-}
-
-.quickPill {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(8px);
-  padding: 6px 14px;
-  border-radius: 99px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #E2E8F0;
 }
 
 .ctaWrapper {
