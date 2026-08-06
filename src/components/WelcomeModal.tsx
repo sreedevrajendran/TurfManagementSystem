@@ -95,78 +95,79 @@ export default function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
             <X size={18} />
           </button>
 
-          {/* Header Badge */}
+          {/* Header Tag */}
           <div
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
               background: 'rgba(0, 230, 118, 0.12)',
-              border: '1px solid rgba(0, 230, 118, 0.3)',
-              padding: '6px 14px',
-              borderRadius: '99px',
-              fontSize: '0.8rem',
-              fontWeight: 700,
+              border: '1px solid rgba(0, 230, 118, 0.25)',
+              padding: '4px 12px',
+              borderRadius: '6px',
+              fontSize: '0.75rem',
+              fontWeight: 800,
               color: '#00E676',
               marginBottom: '16px',
-              letterSpacing: '0.5px',
+              letterSpacing: '0.08em',
               textTransform: 'uppercase',
             }}
           >
-            <Sparkles size={14} /> EAST WELFARE TURF CLUB
+            EAST WELFARE TURF • PLAYER ACCESS
           </div>
 
           <h3
             style={{
-              fontSize: '1.75rem',
+              fontSize: '1.65rem',
               fontWeight: 900,
               lineHeight: 1.2,
               marginBottom: '8px',
               letterSpacing: '-0.02em',
+              textTransform: 'uppercase',
             }}
           >
-            Unlock Instant <span style={{ color: '#00E676' }}>VIP Access</span>
+            Sign In to <span style={{ color: '#00E676' }}>Reserve Slot</span>
           </h3>
 
           <p
             style={{
               color: '#94A3B8',
-              fontSize: '0.95rem',
-              lineHeight: 1.6,
+              fontSize: '0.92rem',
+              lineHeight: 1.5,
               marginBottom: '24px',
             }}
           >
-            Sign in with Google to reserve your court instantly, download digital match receipts, and track your team’s stats.
+            Sign in with Google to confirm court reservations, manage your team fixtures, and download official digital match receipts.
           </p>
 
-          {/* Benefits Grid */}
+          {/* Features List */}
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '12px',
-              marginBottom: '28px',
+              gap: '10px',
+              marginBottom: '26px',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(0, 230, 118, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00E676', flexShrink: 0 }}>
-                <Zap size={16} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'rgba(0, 230, 118, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00E676', flexShrink: 0 }}>
+                <Zap size={15} />
               </div>
-              <span style={{ fontSize: '0.9rem', color: '#E2E8F0' }}><strong>60-Second Fast Booking:</strong> Reserve slots with zero delay</span>
+              <span style={{ fontSize: '0.88rem', color: '#E2E8F0' }}>Instant slot confirmation with zero waiting</span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(0, 229, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00E5FF', flexShrink: 0 }}>
-                <Trophy size={16} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'rgba(0, 230, 118, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00E676', flexShrink: 0 }}>
+                <Trophy size={15} />
               </div>
-              <span style={{ fontSize: '0.9rem', color: '#E2E8F0' }}><strong>Digital Player Match Pass:</strong> Keep track of your fixtures</span>
+              <span style={{ fontSize: '0.88rem', color: '#E2E8F0' }}>Digital Player Match Pass and match history</span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255, 184, 0, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFB800', flexShrink: 0 }}>
-                <Bell size={16} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'rgba(0, 230, 118, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00E676', flexShrink: 0 }}>
+                <Bell size={15} />
               </div>
-              <span style={{ fontSize: '0.9rem', color: '#E2E8F0' }}><strong>Instant WhatsApp Receipts:</strong> Instant confirmation & venue pin</span>
+              <span style={{ fontSize: '0.88rem', color: '#E2E8F0' }}>WhatsApp booking alerts and venue directions</span>
             </div>
           </div>
 

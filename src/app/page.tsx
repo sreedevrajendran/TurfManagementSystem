@@ -161,29 +161,6 @@ export default function HomePage() {
               </button>
             )}
           </motion.div>
-
-          {/* Live Floating HUD Status */}
-          <motion.div variants={fadeUp} className={styles.heroHudBar}>
-            <div className={styles.hudItem}>
-              <Activity size={18} className={styles.hudIcon} />
-              <span>All-Weather Grass</span>
-            </div>
-            <div className={styles.hudDivider} />
-            <div className={styles.hudItem}>
-              <Sun size={18} className={styles.hudIcon} />
-              <span>800+ Lux LED Floodlights</span>
-            </div>
-            <div className={styles.hudDivider} />
-            <div className={styles.hudItem}>
-              <Zap size={18} className={styles.hudIcon} />
-              <span>60s Instant Booking</span>
-            </div>
-            <div className={styles.hudDivider} />
-            <div className={styles.hudItem}>
-              <MapPin size={18} className={styles.hudIcon} />
-              <span>Mannar, Kerala</span>
-            </div>
-          </motion.div>
         </motion.div>
 
         {/* Scroll Indicator */}
@@ -239,13 +216,13 @@ export default function HomePage() {
               onClick={() => setSelectedSport('FOOTBALL')}
               className={`${styles.toggleBtn} ${selectedSport === 'FOOTBALL' ? styles.toggleBtnActive : ''}`}
             >
-              ⚽ 6-a-Side Football
+              Football (6-a-Side)
             </button>
             <button
               onClick={() => setSelectedSport('CRICKET')}
               className={`${styles.toggleBtn} ${selectedSport === 'CRICKET' ? styles.toggleBtnActive : ''}`}
             >
-              🏏 Pro Box Cricket
+              Pro Box Cricket
             </button>
           </div>
         </div>
@@ -259,7 +236,7 @@ export default function HomePage() {
             </div>
 
             <div className={styles.pitchBadgeTop}>
-              {selectedSport === 'FOOTBALL' ? '⚽ FIFA PRO GRADE GRASS' : '🏏 HIGH IMPACT CRICKET BOX'}
+              {selectedSport === 'FOOTBALL' ? 'FIFA PRO GRADE SYNTHETIC TURF' : 'HIGH IMPACT CRICKET BOX'}
             </div>
 
             <div className={styles.pitchBadgeBottom}>
@@ -321,7 +298,7 @@ export default function HomePage() {
         <div className={styles.slotsContainer}>
           <div className={styles.slotsHeader}>
             <div className={styles.slotsHeaderTitle}>
-              ⚡ Real-Time Court Status (Today)
+              Live Court Availability (Today)
             </div>
             <div className={styles.slotsLegend}>
               <div className={styles.legendAvailable}>
@@ -355,7 +332,7 @@ export default function HomePage() {
                   <span className={styles.slotPillTime}>{slot.label}</span>
                   <span className={styles.slotPillPrice}>₹{price}/hr</span>
                   <span className={styles.slotPillPeakBadge}>
-                    {isBooked ? 'Booked' : isPast ? 'Past' : slot.isPeak ? '★ Peak LED' : 'Daylight'}
+                    {isBooked ? 'Booked' : isPast ? 'Past' : slot.isPeak ? 'Peak LED' : 'Daylight'}
                   </span>
                 </Link>
               );
@@ -493,7 +470,7 @@ export default function HomePage() {
 
           {/* Prime Peak Card */}
           <div className={`${styles.pricingCard} ${styles.pricingCardFeatured}`}>
-            <div className={styles.featuredBadge}>⚡ Most Popular</div>
+            <div className={styles.featuredBadge}>Prime Floodlight</div>
             <div className={styles.pricingTag}>Prime Floodlight Hours</div>
             <div className={styles.pricingHours}>
               {pricing.peakStart >= 12 ? (pricing.peakStart === 12 ? '12:00 PM' : `${pricing.peakStart - 12}:00 PM`) : `${pricing.peakStart}:00 AM`} – 12:00 AM Midnight
@@ -748,7 +725,7 @@ export default function HomePage() {
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <div className={styles.footerBrand}>
-            <h3>⚽ EAST WELFARE TURF</h3>
+            <h3>EAST WELFARE <span style={{ color: '#00E676' }}>TURF</span></h3>
             <p>
               Central Travancore&apos;s premier multi-sport turf facility. Built for passion, speed, and unforgettable match nights in Mannar.
             </p>

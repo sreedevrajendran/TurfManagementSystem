@@ -74,84 +74,39 @@ export default function HeaderNav() {
             gap: '20px',
           }}
         >
-          {/* Brand Logo */}
+          {/* Brand Wordmark - Clean Athletic Typography */}
           <Link
             href="/"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
               textDecoration: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
             }}
           >
             <div
               style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #00E676 0%, #00B0FF 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 0 20px rgba(0, 230, 118, 0.4)',
+                fontSize: '1.25rem',
                 fontWeight: 900,
-                color: '#000000',
-                fontSize: '1.2rem',
-                letterSpacing: '-1px',
+                color: '#FFFFFF',
+                letterSpacing: '0.04em',
+                lineHeight: 1.1,
+                textTransform: 'uppercase',
               }}
             >
-              ⚽
+              EAST WELFARE <span style={{ color: '#00E676' }}>TURF</span>
             </div>
-            <div>
-              <div
-                style={{
-                  fontSize: '1.15rem',
-                  fontWeight: 900,
-                  color: '#FFFFFF',
-                  letterSpacing: '0.5px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
-                <span>EAST WELFARE</span>
-                <span
-                  style={{
-                    background: '#00E676',
-                    color: '#000',
-                    fontSize: '0.65rem',
-                    fontWeight: 800,
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    letterSpacing: '1px',
-                  }}
-                >
-                  TURF
-                </span>
-              </div>
-              <div
-                style={{
-                  fontSize: '0.72rem',
-                  color: '#94A3B8',
-                  letterSpacing: '1px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  marginTop: '1px',
-                }}
-              >
-                <span
-                  style={{
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    background: '#00E676',
-                    display: 'inline-block',
-                    boxShadow: '0 0 6px #00E676',
-                  }}
-                />
-                MANNAR • 6-A-SIDE &amp; CRICKET
-              </div>
+            <div
+              style={{
+                fontSize: '0.68rem',
+                color: '#94A3B8',
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                fontWeight: 600,
+                marginTop: '3px',
+              }}
+            >
+              Mannar • Kerala
             </div>
           </Link>
 
@@ -581,18 +536,18 @@ export default function HeaderNav() {
 
             {pathname === '/' ? (
               <>
-                <a href="#sports" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">⚽ Sports &amp; Pitches</a>
-                <a href="#slots-preview" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">⚡ Live Slot Availability</a>
-                <a href="#specs" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">💡 Stadium Lights &amp; Specs</a>
-                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">💵 Pricing &amp; Offers</a>
-                <a href="#reviews" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">⭐ Player Reviews</a>
-                <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">❓ FAQ</a>
+                <a href="#sports" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Sports &amp; Pitches</a>
+                <a href="#slots-preview" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Live Slot Availability</a>
+                <a href="#specs" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Stadium Lights &amp; Specs</a>
+                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Pricing &amp; Offers</a>
+                <a href="#reviews" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Player Reviews</a>
+                <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">FAQ &amp; Rules</a>
               </>
             ) : (
               <>
-                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">🏠 Home</Link>
-                <Link href="/book" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">⚽ Book Slot</Link>
-                {session && <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">📊 My Dashboard</Link>}
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Home</Link>
+                <Link href="/book" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Book Pitch</Link>
+                {session && <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">My Dashboard</Link>}
               </>
             )}
 
@@ -603,7 +558,7 @@ export default function HeaderNav() {
                 className="btn-primary"
                 style={{ width: '100%', textAlign: 'center' }}
               >
-                ⚽ Book Your Slot Now
+                Book Your Slot Now
               </Link>
               {session ? (
                 <button

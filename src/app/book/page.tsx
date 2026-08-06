@@ -301,8 +301,8 @@ export default function BookPage() {
           },
           (
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 14 }}>
-              <button onClick={handleDownloadReceipt} style={{ padding: '10px 18px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem' }}>📥 Download Receipt</button>
-              <button onClick={handleShareReceipt} style={{ padding: '10px 18px', background: '#25D366', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem' }}>📱 WhatsApp Share</button>
+              <button onClick={handleDownloadReceipt} style={{ padding: '10px 18px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem' }}>Download Receipt</button>
+              <button onClick={handleShareReceipt} style={{ padding: '10px 18px', background: '#25D366', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem' }}>Share on WhatsApp</button>
             </div>
           )
         );
@@ -343,7 +343,7 @@ export default function BookPage() {
                   fontWeight: 700,
                 }}
               >
-                💬 WhatsApp Direct Booking
+                Contact via WhatsApp
               </a>
             </div>
           )
