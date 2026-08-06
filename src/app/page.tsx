@@ -7,7 +7,6 @@ import { motion, type Variants } from 'framer-motion';
 import { useSession, signIn } from 'next-auth/react';
 import {
   Calendar,
-  Sparkles,
   Zap,
   ShieldCheck,
   Trophy,
@@ -183,7 +182,6 @@ export default function HomePage() {
                 onClick={() => setShowWelcomeModal(true)}
                 className={styles.heroCtaSecondary}
               >
-                <Sparkles size={18} color="#00E676" />
                 <span>Quick Sign In</span>
               </button>
             )}

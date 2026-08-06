@@ -11,7 +11,6 @@ import {
   X, 
   ShieldCheck, 
   Calendar, 
-  Sparkles,
   ChevronDown,
   Phone,
   Flame
@@ -439,7 +438,6 @@ export default function HeaderNav() {
                   e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.18)';
                 }}
               >
-                <Sparkles size={15} color="#00E676" />
                 <span>Sign In</span>
               </button>
             )}
@@ -577,7 +575,7 @@ export default function HeaderNav() {
                   className="btn-secondary"
                   style={{ width: '100%' }}
                 >
-                  <Sparkles size={16} color="#00E676" /> Sign In with Google
+                  Sign In with Google
                 </button>
               )}
             </div>
