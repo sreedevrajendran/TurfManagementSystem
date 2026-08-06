@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 import AlertBanner from "@/components/AlertBanner";
 import TermsModal from "@/components/TermsModal";
 import PrivacyModal from "@/components/PrivacyModal";
+import FloatingContact from "@/components/FloatingContact";
 
 export default function RootLayout({
   children,
@@ -31,6 +32,7 @@ export default function RootLayout({
           <AlertBanner />
           <Navbar />
           {children}
+          <FloatingContact />
           <TermsModal />
           <PrivacyModal />
         </Providers>

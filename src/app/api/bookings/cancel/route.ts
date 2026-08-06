@@ -55,19 +55,19 @@ export async function POST(req: NextRequest) {
     const ampm = booking.startTime >= 12 ? 'PM' : 'AM';
 
     // Notify admin
-    await sendAdminCancelBookingNotification({
-      date: new Date(booking.date).toLocaleDateString(),
+    sendAdminCancelBookingNotification({
+      date: new Date(booking.date).toLocaleDateString('en-IN'),
       startTime: `${booking.startTime}:00 (${start12Hour}:00 ${ampm})`,
       court: booking.sport,
       userName: session.user.name,
       userEmail: session.user.email,
       phone: booking.team?.phone,
-    });
+    }).catch(err => console.error("Cancel email notification failed:", err));
 
     return NextResponse.json({ success: true, booking: updatedBooking });
 
   } catch (err: any) {
     console.error("Cancel booking error:", err);
-    return NextResponse.json({ error: err.message || "Failed to cancel booking" }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong while cancelling the booking. Please try again or contact us." }, { status: 500 });
   }
 }

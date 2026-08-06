@@ -40,14 +40,27 @@ export default function Home() {
           )}
           <motion.div variants={fadeUp} className={styles.badgeWrapper}>
             <span className={styles.badge}>
-              <MapPin size={14} className={styles.badgeIcon} /> Mannar East Welfare School, Kerala
+              <span className={styles.pulseDot} />
+              <span>Turf Open &amp; Available Today</span>
+              <span style={{ opacity: 0.4 }}>•</span>
+              <MapPin size={13} className={styles.badgeIcon} />
+              <span>Mannar, Kerala</span>
             </span>
           </motion.div>
           <motion.h1 variants={fadeUp} className={styles.title}>EAST WELFARE TURF</motion.h1>
           <motion.p variants={fadeUp} className={styles.subtitle}>
-            Premium Football &amp; Cricket on high-quality artificial grass with LED floodlights.
-            Fast bookings, dynamic pricing — play day or night.
+            Mannar&apos;s premier all-weather turf for 6-a-side Football &amp; Cricket.
+            Equipped with stadium-grade LED floodlights and fast, hassle-free slot booking.
           </motion.p>
+          
+          {/* Quick Features Row */}
+          <motion.div variants={fadeUp} className={styles.quickPills}>
+            <span className={styles.quickPill}>⚡ 60s Fast Booking</span>
+            <span className={styles.quickPill}>💡 Stadium LED Floodlights</span>
+            <span className={styles.quickPill}>📱 WhatsApp Receipts</span>
+            <span className={styles.quickPill}>💵 Pay at Venue</span>
+          </motion.div>
+
           <motion.div variants={fadeUp} className={styles.ctaWrapper}>
             <Link href="/book" className={styles.ctaButton}>⚽ Book Your Slot Now</Link>
             {session ? (
@@ -64,6 +77,31 @@ export default function Home() {
         <div className={styles.scrollHint}>
           <div className={styles.scrollLine} />
           <span>Scroll to explore</span>
+        </div>
+      </section>
+
+      {/* ── STATS BAR ── */}
+      <section className={styles.statsBar}>
+        <div className={styles.statsContainer}>
+          <div className={styles.statItem}>
+            <span className={styles.statNumber}>4.9 ★</span>
+            <span className={styles.statLabel}>Player Rating</span>
+          </div>
+          <div className={styles.statDivider} />
+          <div className={styles.statItem}>
+            <span className={styles.statNumber}>24 / 7</span>
+            <span className={styles.statLabel}>Day &amp; Night Play</span>
+          </div>
+          <div className={styles.statDivider} />
+          <div className={styles.statItem}>
+            <span className={styles.statNumber}>100%</span>
+            <span className={styles.statLabel}>All-Weather Grass</span>
+          </div>
+          <div className={styles.statDivider} />
+          <div className={styles.statItem}>
+            <span className={styles.statNumber}>2 Sports</span>
+            <span className={styles.statLabel}>Football &amp; Cricket</span>
+          </div>
         </div>
       </section>
 
@@ -87,8 +125,8 @@ export default function Home() {
               sport: 'Football',
               color: '#00e676',
               glow: 'rgba(0,230,118,0.15)',
-              desc: '6-a-side matches on premium artificial grass. Perfect for quick matches, training sessions, and local league games.',
-              features: ['6-a-side format', 'Artificial turf', 'LED flood lighting', 'Year-round play'],
+              desc: '6-a-side matches on premium artificial grass. Perfect for quick matches, tournament fixtures, and friendly games.',
+              features: ['6-a-side format', 'FIFA-grade turf grass', 'LED flood lighting', 'Corner & goal markings'],
             },
             {
               emoji: '🏏',
@@ -96,7 +134,7 @@ export default function Home() {
               color: '#00b0ff',
               glow: 'rgba(0,176,255,0.15)',
               desc: 'Practice nets and open pitch for cricket. Sharpen your batting, bowling, and fielding skills any time of day.',
-              features: ['Practice nets', 'Open pitch area', 'Hard & soft ball', '24/7 bookings'],
+              features: ['Practice nets', 'Open pitch area', 'Hard & tennis ball ready', '24/7 night matches'],
             },
           ].map((s, i) => (
             <motion.div
@@ -116,6 +154,9 @@ export default function Home() {
                   <li key={f}><span className={styles.featureDot} style={{ background: s.color }} />  {f}</li>
                 ))}
               </ul>
+              <Link href={`/book?sport=${s.sport.toUpperCase()}`} className={styles.sportBookBtn} style={{ background: s.color }}>
+                Book {s.sport} Slot →
+              </Link>
             </motion.div>
           ))}
         </div>
@@ -130,9 +171,9 @@ export default function Home() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span className={styles.sectionTag}>PRICING</span>
-          <h2 className={styles.sectionTitle}>Simple, Fair Pricing</h2>
-          <p className={styles.sectionSubtitle}>Same rates for Football &amp; Cricket · Pay at venue</p>
+          <span className={styles.sectionTag}>TRANSPARENT PRICING</span>
+          <h2 className={styles.sectionTitle}>Simple, Fair Rates</h2>
+          <p className={styles.sectionSubtitle}>Standard pricing for Football &amp; Cricket · Pay conveniently at venue</p>
         </motion.div>
         <div className={styles.pricingGrid}>
           <motion.div
@@ -173,13 +214,14 @@ export default function Home() {
         >
           <span className={styles.sectionTag}>WHY CHOOSE US</span>
           <h2 className={styles.sectionTitle}>World-Class Facilities</h2>
+          <p className={styles.sectionSubtitle}>Everything you need for an unforgettable match</p>
         </motion.div>
         <div className={styles.featuresGrid}>
           {[
-            { icon: <Zap size={28} />, title: 'Instant Booking', desc: 'Book your slot in under 60 seconds. No calls, no waiting.' },
-            { icon: <Clock size={28} />, title: 'Open 24/7', desc: 'Play whenever you want — day or night, any day of the year.' },
-            { icon: <Shield size={28} />, title: 'Premium Quality', desc: 'High-grade artificial turf for football. Proper pitch for cricket.' },
-            { icon: <Users size={28} />, title: 'Community Hub', desc: 'Bringing local football and cricket fans together since day one.' },
+            { icon: <Zap size={28} />, title: 'Instant Booking', desc: 'Book your slot in under 60 seconds with live slot availability.' },
+            { icon: <Clock size={28} />, title: 'Open 24/7', desc: 'Play whenever you want — day or night under brilliant LED floodlights.' },
+            { icon: <Shield size={28} />, title: 'Premium Turf', desc: 'High-density artificial turf with superior shock absorption for player safety.' },
+            { icon: <Users size={28} />, title: 'Community & Tournaments', desc: 'The hub for local football leagues, cricket clubs, and tournament games.' },
           ].map((f, i) => (
             <motion.div
               key={f.title}
@@ -192,6 +234,59 @@ export default function Home() {
               <div className={styles.iconBox}>{f.icon}</div>
               <h3>{f.title}</h3>
               <p>{f.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS / REVIEWS ── */}
+      <section className={styles.reviewsSection}>
+        <motion.div
+          className={styles.sectionHeader}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <span className={styles.sectionTag}>COMMUNITY REVIEWS</span>
+          <h2 className={styles.sectionTitle}>Loved by Local Teams</h2>
+          <p className={styles.sectionSubtitle}>Here is what our regular players and tournament organizers say</p>
+        </motion.div>
+        <div className={styles.reviewsGrid}>
+          {[
+            {
+              name: "Akhil Varma",
+              team: "Mannar Strikers FC",
+              quote: "The turf quality is top notch! The lighting is bright and even with zero glare. Our weekly matches here are always amazing.",
+              rating: "5.0 ★"
+            },
+            {
+              name: "Rahul Nair",
+              team: "Royal XI Cricket Club",
+              quote: "Great pitch for both bowling and batting. Booking online takes seconds and getting instant receipts on WhatsApp is so convenient.",
+              rating: "5.0 ★"
+            },
+            {
+              name: "Fasalu Rahman",
+              team: "East Welfare Regulars",
+              quote: "Best turf venue in the area. Very clean, great management, and always punctual slot timings. Highly recommended!",
+              rating: "5.0 ★"
+            }
+          ].map((review, i) => (
+            <motion.div
+              key={review.name}
+              className={styles.reviewCard}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.15, duration: 0.5 }}
+            >
+              <div className={styles.reviewRating}>{review.rating}</div>
+              <p className={styles.reviewQuote}>&ldquo;{review.quote}&rdquo;</p>
+              <div className={styles.reviewAuthor}>
+                <strong>{review.name}</strong>
+                <span>{review.team}</span>
+              </div>
             </motion.div>
           ))}
         </div>

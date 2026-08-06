@@ -47,6 +47,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, booking: updatedBooking });
   } catch (err: any) {
     console.error("Mark no-show error:", err);
-    return NextResponse.json({ error: err.message || "Failed to mark no-show" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to mark no-show penalty. Please try again." }, { status: 500 });
   }
 }

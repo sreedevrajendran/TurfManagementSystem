@@ -46,6 +46,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(bookedHours);
   } catch (error) {
+    console.error("GET /api/bookings error:", error);
     return NextResponse.json({ error: "Failed to fetch bookings" }, { status: 500 });
   }
 }
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized. Please sign in to book." }, { status: 401 });
   }
 
   const isAdmin = (session.user as any).role === "ADMIN";
@@ -149,9 +150,9 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Notify admin
-    await sendAdminNewBookingNotification({
-      date: new Date(date).toLocaleDateString(),
+    // Notify admin safely (don't fail booking if email notification fails)
+    sendAdminNewBookingNotification({
+      date: new Date(date).toLocaleDateString('en-IN'),
       startTime: `${startTime}:00`,
       durationHours: Number(durationHours),
       totalPrice: Number(amount),
@@ -159,11 +160,14 @@ export async function POST(req: NextRequest) {
       userName: session.user.name,
       userEmail: session.user.email,
       phone: phone,
-    });
+    }).catch(err => console.error("Email notification failed:", err));
 
     return NextResponse.json({ success: true, booking });
   } catch (err: any) {
     console.error("Booking error:", err);
-    return NextResponse.json({ error: err.message || "Booking failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Something went wrong while processing your booking. Please try again in a moment." },
+      { status: 500 }
+    );
   }
 }

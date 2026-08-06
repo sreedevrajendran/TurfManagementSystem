@@ -46,7 +46,7 @@ export async function GET() {
   } catch (err: any) {
     console.error("[/api/user/bookings] Error:", err?.message, err?.stack);
     return NextResponse.json(
-      { error: "Failed to load bookings", detail: err?.message ?? "Unknown" },
+      { error: "Failed to load bookings. Please try again later." },
       { status: 500 }
     );
   }

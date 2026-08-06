@@ -299,24 +299,97 @@ export default function BookPage() {
             
             fetch(`/api/bookings?date=${encodeURIComponent(selectedDate.toISOString())}`)
               .then(r => r.json())
-              .then(data => setBookedSlots(data))
+              .then(data => setBookedSlots(Array.isArray(data) ? data : []))
               .catch(console.error);
               
             router.refresh();
           },
           (
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-              <button onClick={handleDownloadReceipt} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>📥 Download</button>
-              <button onClick={handleShareReceipt} style={{ padding: '8px 16px', background: '#25D366', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>📱 Share</button>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 12 }}>
+              <button onClick={handleDownloadReceipt} style={{ padding: '10px 18px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem' }}>📥 Download</button>
+              <button onClick={handleShareReceipt} style={{ padding: '10px 18px', background: '#25D366', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem' }}>📱 Share</button>
             </div>
           )
         );
       } else {
-        const err = await res.json();
-        showAlert('Booking Failed', err.error || 'Unknown error occurred.');
+        const err = await res.json().catch(() => ({}));
+        let rawMsg = String(err.error || '');
+        let cleanMsg = 'Something went wrong while confirming your booking. Please try again or contact us directly on WhatsApp.';
+
+        // Keep specific validation errors if they are user-friendly
+        if (rawMsg.includes('slot has already been booked')) {
+          cleanMsg = 'This slot has already been booked by another team. Please choose another time.';
+        } else if (rawMsg.includes('Cannot book slots in the past')) {
+          cleanMsg = 'Cannot book slots in the past. Please select a future time slot.';
+        } else if (rawMsg.includes('Invalid phone number')) {
+          cleanMsg = 'Please enter a valid 10-digit WhatsApp phone number.';
+        } else if (rawMsg.includes('Missing required fields')) {
+          cleanMsg = 'Please fill out all booking details before confirming.';
+        }
+
+        showAlert(
+          'Booking Unavailable',
+          cleanMsg,
+          'alert',
+          undefined,
+          (
+            <div style={{ marginTop: 12 }}>
+              <a
+                href={`https://wa.me/917994786085?text=${encodeURIComponent(`Hi, I would like to book a slot for ${teamName || 'our team'} on ${selectedDate.toLocaleDateString('en-IN')} at ${formatTime(selectedSlot)}.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  background: '#25D366',
+                  color: '#fff',
+                  padding: '10px 20px',
+                  borderRadius: '12px',
+                  textDecoration: 'none',
+                  fontSize: '0.9rem',
+                  fontWeight: 700,
+                  boxShadow: '0 4px 15px rgba(37, 211, 102, 0.3)',
+                }}
+              >
+                💬 Instant WhatsApp Booking (+91 79947 86085)
+              </a>
+            </div>
+          )
+        );
       }
-    } catch {
-      showAlert('Network Error', 'Please check your connection and try again.');
+    } catch (e) {
+      console.error('Booking network error:', e);
+      showAlert(
+        'Something Went Wrong',
+        'We could not process your booking request right now. Please try again in a few moments or contact us via WhatsApp.',
+        'alert',
+        undefined,
+        (
+          <div style={{ marginTop: 12 }}>
+            <a
+              href="https://wa.me/917994786085?text=Hi,%20I%20would%20like%20to%20book%20a%20slot%20at%20East%20Welfare%20Turf"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                background: '#25D366',
+                color: '#fff',
+                padding: '10px 20px',
+                borderRadius: '12px',
+                textDecoration: 'none',
+                fontSize: '0.9rem',
+                fontWeight: 700,
+                boxShadow: '0 4px 15px rgba(37, 211, 102, 0.3)',
+              }}
+            >
+              💬 WhatsApp Booking Support
+            </a>
+          </div>
+        )
+      );
     } finally {
       setIsLoading(false);
     }

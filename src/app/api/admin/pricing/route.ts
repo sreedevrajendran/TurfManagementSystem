@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, pricing });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to update pricing" }, { status: 500 });
+    console.error("Pricing update error:", err);
+    return NextResponse.json({ error: "Failed to update pricing. Please try again." }, { status: 500 });
   }
 }
