@@ -391,11 +391,8 @@ export default function BookPage() {
     );
   }
 
-  // Group slots into time sessions
-  const morningSlots = [6, 7, 8, 9, 10, 11];
-  const afternoonSlots = [12, 13, 14, 15, 16, 17];
-  const eveningSlots = [18, 19, 20];
-  const nightSlots = [21, 22, 23];
+  // All slots in a single list
+  const allSlots = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 
   const renderSlotGrid = (slotHours: number[]) => (
     <div className={styles.slotsGrid}>
@@ -515,37 +512,9 @@ export default function BookPage() {
         ))}
       </div>
 
-      {/* Slot Sessions */}
+      {/* All Slots */}
       <div className={styles.sessionGroup}>
-        <div className={styles.sessionHeader}>
-          <Sun size={18} className={styles.sessionHeaderIcon} />
-          <span>Morning Sessions (6:00 AM – 11:00 AM)</span>
-        </div>
-        {renderSlotGrid(morningSlots)}
-      </div>
-
-      <div className={styles.sessionGroup}>
-        <div className={styles.sessionHeader}>
-          <Sun size={18} className={styles.sessionHeaderIcon} />
-          <span>Afternoon Sessions (12:00 PM – 5:00 PM)</span>
-        </div>
-        {renderSlotGrid(afternoonSlots)}
-      </div>
-
-      <div className={styles.sessionGroup}>
-        <div className={styles.sessionHeader}>
-          <Moon size={18} className={styles.sessionHeaderIcon} />
-          <span>Evening Prime &amp; Floodlights (6:00 PM – 8:00 PM)</span>
-        </div>
-        {renderSlotGrid(eveningSlots)}
-      </div>
-
-      <div className={styles.sessionGroup}>
-        <div className={styles.sessionHeader}>
-          <Sparkles size={18} className={styles.sessionHeaderIcon} />
-          <span>Night Stadium Matches (9:00 PM – 11:00 PM)</span>
-        </div>
-        {renderSlotGrid(nightSlots)}
+        {renderSlotGrid(allSlots)}
       </div>
 
       {/* Legend */}
