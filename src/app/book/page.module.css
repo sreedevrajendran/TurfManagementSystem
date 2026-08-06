@@ -413,10 +413,44 @@
 
 @media (max-width: 768px) {
   .container {
-    padding: 90px 14px 60px 14px;
+    padding: 90px 14px 70px 14px;
   }
+  
   .slotsGrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+    gap: 10px;
+  }
+
+  .slot {
+    padding: 12px 8px;
+    min-height: 75px;
+  }
+
+  .timeLabel {
+    font-size: 0.95rem;
+  }
+
+  .priceTag {
+    font-size: 0.8rem;
+  }
+  
+  .legendBar {
+    gap: 12px;
+    font-size: 0.75rem;
+  }
+
+  .modalSheet {
+    padding: 20px 20px 32px 20px;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .modalTitle {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .slotsGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

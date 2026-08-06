@@ -557,7 +557,7 @@
 
 .reviewsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 28px;
 }
 
@@ -771,5 +771,59 @@
   }
   .statsGrid {
     grid-template-columns: 1fr 1fr;
+  }
+  .heroTitle {
+    font-size: clamp(2.2rem, 8vw, 3rem);
+  }
+  .heroCtaCluster {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+  .heroCtaPrimary, .heroCtaSecondary {
+    width: 100%;
+    justify-content: center;
+  }
+  .sectionHeading {
+    font-size: clamp(1.8rem, 6vw, 2.4rem);
+  }
+
+  /* Make Timeline & Reviews horizontally scrollable to prevent long vertical stacking */
+  .slotsTimelineGrid, .reviewsGrid {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 24px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+  }
+  
+  .slotsTimelineGrid::-webkit-scrollbar,
+  .reviewsGrid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .slotPill {
+    min-width: 130px;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  .reviewCard {
+    min-width: 280px;
+    flex: 0 0 auto;
+    scroll-snap-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+  .section {
+    padding: 70px 0;
+  }
+  .heroSection {
+    padding: 100px 16px 60px 16px;
   }
 }

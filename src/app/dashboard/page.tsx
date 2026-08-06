@@ -87,7 +87,7 @@ export default function DashboardPage() {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', flexDirection: 'column', gap: '16px' }}>
         <Loader2 size={48} color="#00E676" style={{ animation: 'spin 1s linear infinite' }} />
-        <p style={{ color: '#94A3B8', fontSize: '1rem' }}>Loading player dashboard...</p>
+        <p style={{ color: '#94A3B8', fontSize: '1rem' }}>Loading dashboard...</p>
         <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       </div>
     );
@@ -127,39 +127,16 @@ export default function DashboardPage() {
     <div className={styles.container}>
       {/* Header */}
       <header className={styles.header}>
-        <div>
-          <h1 className={styles.title}>PLAYER DASHBOARD</h1>
-          <p className={styles.subtitle}>Welcome back, {session?.user?.name}! Manage your match fixtures and player pass.</p>
+        <div style={{ flex: 1 }}>
+          <h1 className={styles.title}>MY DASHBOARD</h1>
+          <p className={styles.subtitle}>Welcome back, {session?.user?.name}! Manage your bookings and fixtures.</p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <Link href="/book" className="btn-primary">
-            <Calendar size={18} /> Book New Match
+          <Link href="/book" className={styles.bookButtonTop}>
+            <Calendar size={20} /> Book Slot
           </Link>
         </div>
       </header>
-
-      {/* Digital Player Turf Pass */}
-      <div className={styles.playerPassCard}>
-        <div className={styles.playerPassLeft}>
-          <div className={styles.playerAvatar}>
-            {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : 'P'}
-          </div>
-          <div>
-            <div className={styles.playerName}>{session?.user?.name || 'Verified Player'}</div>
-            <div className={styles.playerEmail}>{session?.user?.email}</div>
-            <div className={styles.playerTag}>
-              <Sparkles size={12} /> East Welfare Turf Club Member
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.playerPassRight}>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '0.8rem', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Bookings</div>
-            <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#00E676' }}>{bookings.length}</div>
-          </div>
-        </div>
-      </div>
 
       <div style={{ marginBottom: 24, textAlign: 'right' }}>
         <button onClick={() => openTermsModal()} style={{ background: 'none', border: 'none', color: '#94A3B8', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.85rem' }}>
@@ -248,7 +225,7 @@ export default function DashboardPage() {
                             gap: '6px'
                           }}
                         >
-                          <Download size={14} /> Match Pass Receipt
+                          <Download size={14} /> Match Receipt
                         </button>
                       </div>
                     </div>

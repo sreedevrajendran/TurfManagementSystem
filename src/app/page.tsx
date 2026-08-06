@@ -175,7 +175,7 @@ export default function HomePage() {
             {session ? (
               <Link href="/dashboard" className={styles.heroCtaSecondary}>
                 <Trophy size={18} color="#00E676" />
-                <span>My Player Pass</span>
+                <span>My Dashboard</span>
               </Link>
             ) : (
               <button
@@ -687,7 +687,7 @@ export default function HomePage() {
               <li><a href="#specs">Stadium Specs &amp; Lighting</a></li>
               <li><a href="#pricing">Rates &amp; Peak Hours</a></li>
               <li><Link href="/book">Book Pitch Online</Link></li>
-              {session && <li><Link href="/dashboard">Player Dashboard</Link></li>}
+              {session && <li><Link href="/dashboard">My Dashboard</Link></li>}
             </ul>
           </div>
 
