@@ -46,8 +46,8 @@ export async function GET() {
         status: b.status,
         sport: b.sport,
         reason: b.reason,
-        teamName: b.team?.name ?? null,
-        phone: cleanPhone || null,
+        teamName: b.teamName || b.team?.name || null,
+        phone: b.phone || cleanPhone || null,
         updatedAt: b.updatedAt ? new Date(b.updatedAt).toISOString() : null,
       };
     });

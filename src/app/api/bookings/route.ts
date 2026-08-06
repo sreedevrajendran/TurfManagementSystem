@@ -107,17 +107,21 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const bookingDate = new Date(date);
-    const serverNow = new Date();
-    
-    const bookingMidnight = new Date(bookingDate);
-    bookingMidnight.setHours(0, 0, 0, 0);
-    
-    const serverMidnight = new Date(serverNow);
-    serverMidnight.setHours(0, 0, 0, 0);
+    // ── Timezone-aware validation in IST (Asia/Kolkata = UTC+5:30) ─────────
+    const nowUtc = new Date().getTime();
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const istNow = new Date(nowUtc + istOffset);
 
-    const isPastDate = bookingMidnight < serverMidnight;
-    const isPastHour = bookingMidnight.getTime() === serverMidnight.getTime() && Number(startTime) < serverNow.getHours();
+    const bookingDate = new Date(date);
+    const bookingDateUtc = bookingDate.getTime();
+    const istBooking = new Date(bookingDateUtc + istOffset);
+
+    const istBookingDateStr = `${istBooking.getUTCFullYear()}-${String(istBooking.getUTCMonth() + 1).padStart(2, '0')}-${String(istBooking.getUTCDate()).padStart(2, '0')}`;
+    const istNowDateStr = `${istNow.getUTCFullYear()}-${String(istNow.getUTCMonth() + 1).padStart(2, '0')}-${String(istNow.getUTCDate()).padStart(2, '0')}`;
+
+    const isPastDate = istBookingDateStr < istNowDateStr;
+    const isToday = istBookingDateStr === istNowDateStr;
+    const isPastHour = isToday && Number(startTime) < istNow.getUTCHours();
 
     if ((isPastDate || isPastHour) && !isAdmin) {
       return NextResponse.json(
@@ -150,6 +154,8 @@ export async function POST(req: NextRequest) {
         amount: Number(amount),
         sport,
         status: "DUE",
+        teamName: teamName.trim(),
+        phone: cleanPhone || null,
         teamId: team?.id ?? undefined,
         userId: dbUser.id,
       },
