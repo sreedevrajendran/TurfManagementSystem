@@ -696,7 +696,7 @@ export default function HomePage() {
             <ul className={styles.footerLinks}>
               <li><button onClick={() => openTermsModal()}>Terms of Booking</button></li>
               <li><button onClick={() => openPrivacyModal()}>Privacy Policy</button></li>
-              <li><a href="#faq">Rules &amp; Footwear Guide</a></li>
+              <li><a href="#faq">FAQ&apos;s</a></li>
             </ul>
           </div>
         </div>
