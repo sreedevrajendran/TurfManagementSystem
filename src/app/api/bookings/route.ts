@@ -173,6 +173,15 @@ export async function POST(req: NextRequest) {
       phone: cleanPhone || 'Not provided',
     }).catch(err => console.error("Email notification failed:", err));
 
+    // ── Automated WhatsApp Notification (CallMeBot) ─────────────────────────
+    if (process.env.CALLMEBOT_PHONE && process.env.CALLMEBOT_API_KEY) {
+      const waMessage = `*🚨 NEW TURF BOOKING 🚨*\n\n*Team:* ${teamName.trim()}\n*Sport:* ${sport === 'CRICKET' ? '🏏 Box Cricket' : '⚽ Football'}\n*Date:* ${new Date(date).toLocaleDateString('en-IN')}\n*Time:* ${startTime}:00 for ${durationHours} hour(s)\n*Amount:* ₹${amount} (Pay at venue)\n*Contact:* ${cleanPhone || 'N/A'}`;
+      const waUrl = `https://api.callmebot.com/whatsapp.php?phone=${process.env.CALLMEBOT_PHONE}&text=${encodeURIComponent(waMessage)}&apikey=${process.env.CALLMEBOT_API_KEY}`;
+      
+      // Fire-and-forget so it doesn't slow down the user's booking experience
+      fetch(waUrl).catch(err => console.error("WhatsApp notification failed:", err));
+    }
+
     return NextResponse.json({ success: true, booking });
   } catch (err: any) {
     console.error("Booking error:", err);
