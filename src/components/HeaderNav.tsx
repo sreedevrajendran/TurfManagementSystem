@@ -8,12 +8,14 @@ import {
   User, 
   LogOut, 
   Calendar, 
-  ChevronDown,
-  Terminal,
-  ShieldCheck,
-  Menu,
-  X,
-  Radio
+  ShieldCheck, 
+  Menu, 
+  X, 
+  Phone, 
+  MessageCircle,
+  Ticket,
+  Clock,
+  Sparkles
 } from 'lucide-react';
 import WelcomeModal from '@/components/WelcomeModal';
 
@@ -23,8 +25,7 @@ export default function HeaderNav() {
   const [visible, setVisible] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   // Smart Scroll: Hide on scroll down, show on scroll up, show at top, show at scroll end
@@ -34,12 +35,9 @@ export default function HeaderNav() {
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
 
-      setScrolled(currentScrollY > 20);
+      setScrolled(currentScrollY > 15);
 
-      // Condition 1: At the very top
       const isTop = currentScrollY < 25;
-      
-      // Condition 2: At or near the bottom/end of the page
       const isScrollEnd = windowHeight + currentScrollY >= documentHeight - 60;
 
       if (isTop || isScrollEnd) {
@@ -47,8 +45,7 @@ export default function HeaderNav() {
       } else if (currentScrollY > lastScrollY && currentScrollY > 70) {
         // Scrolling down -> hide navbar
         setVisible(false);
-        setUserDropdownOpen(false);
-        setMobileMenuOpen(false);
+        setMenuOpen(false);
       } else if (currentScrollY < lastScrollY) {
         // Scrolling up -> reveal navbar
         setVisible(true);
@@ -61,280 +58,242 @@ export default function HeaderNav() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
-  // Close menus on route navigation
+  // Close menu on route navigation
   useEffect(() => {
-    setUserDropdownOpen(false);
-    setMobileMenuOpen(false);
+    setMenuOpen(false);
   }, [pathname]);
 
-  // Hide on admin panel and dashboard for max operational workspace
-  if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard')) return null;
+  // Hide on admin panel to keep workspace focused
+  if (pathname.startsWith('/admin')) return null;
 
   const isAdmin = (session?.user as any)?.role === 'ADMIN';
 
   return (
     <>
-      {/* Outer Fixed Floating Island Shell */}
+      {/* iPhone Dynamic Island Style Top Header */}
       <header
-        className={`floating-navbar-shell ${visible ? 'is-visible' : 'is-hidden'} ${scrolled ? 'is-scrolled' : ''}`}
+        className={`iphone-header-shell ${visible ? 'is-visible' : 'is-hidden'} ${scrolled ? 'is-scrolled' : ''}`}
         aria-label="Main Navigation"
       >
-        <div className="pill-navbar">
-          {/* Brand & Developer Telemetry */}
+        <div className="iphone-island-pill">
+          {/* Brand & Live Activity Sensor Indicator */}
           <div className="brand-group">
-            <Link href="/" className="brand-link">
+            <Link href="/" className="brand-link" onClick={() => setMenuOpen(false)}>
               <span className="brand-title">
                 EAST WELFARE <span className="brand-accent">TURF</span>
               </span>
             </Link>
 
-            {/* Developer Telemetry Badge */}
-            <div className="telemetry-badge" title="Turf Live System Status">
-              <span className="telemetry-dot" />
-              <span className="telemetry-label">SYS_ACTIVE</span>
+            {/* iPhone Dynamic Island Sensor Dot */}
+            <div className="island-status-dot" title="Turf Operational &amp; Ready">
+              <span className="pulse-dot" />
             </div>
           </div>
 
-          {/* Desktop Navigation Links */}
+          {/* Desktop Navigation Links (No 01/ indexing) */}
           <nav className="desktop-nav-links">
             {pathname === '/' ? (
               <>
-                <a href="#slots-preview" className="nav-item">
-                  <span className="nav-index">01/</span>Slots
-                </a>
-                <a href="#specs" className="nav-item">
-                  <span className="nav-index">02/</span>Specs
-                </a>
-                <a href="#pricing" className="nav-item">
-                  <span className="nav-index">03/</span>Pricing
-                </a>
-                <a href="#faq" className="nav-item">
-                  <span className="nav-index">04/</span>Rules
-                </a>
+                <a href="#slots-preview" className="nav-item">Slots</a>
+                <a href="#specs" className="nav-item">Specs</a>
+                <a href="#pricing" className="nav-item">Pricing</a>
+                <a href="#faq" className="nav-item">Rules</a>
               </>
             ) : (
               <>
-                <Link href="/" className="nav-item">
-                  <span className="nav-index">01/</span>Home
+                <Link href="/" className={`nav-item ${pathname === '/' ? 'active' : ''}`}>
+                  Home
                 </Link>
-                <Link href="/book" className="nav-item active">
-                  <span className="nav-index">02/</span>Book Pitch
+                <Link href="/book" className={`nav-item ${pathname === '/book' ? 'active' : ''}`}>
+                  Book Pitch
                 </Link>
                 {session && (
-                  <Link href="/dashboard" className="nav-item">
-                    <span className="nav-index">03/</span>Passes
+                  <Link href="/dashboard" className={`nav-item ${pathname === '/dashboard' ? 'active' : ''}`}>
+                    Bookings
                   </Link>
                 )}
               </>
             )}
           </nav>
 
-          {/* Right Action Cluster */}
+          {/* Right Action Cluster: Book Slot CTA + 3-line Nav Menu */}
           <div className="action-cluster">
-            {/* CTA Button: Book Slot */}
             {pathname !== '/book' && (
-              <Link href="/book" className="cta-book-btn">
-                <Calendar size={15} />
+              <Link href="/book" className="desktop-book-btn">
+                <Calendar size={14} />
                 <span>Book Slot</span>
               </Link>
             )}
 
-            {/* User Session Profile / Sign In */}
-            {session ? (
-              <div className="profile-container">
-                <button
-                  type="button"
-                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="profile-pill-btn"
-                  aria-label="User menu"
-                  aria-expanded={userDropdownOpen}
-                >
-                  <div className="avatar-frame">
-                    {session.user?.image ? (
-                      <img
-                        src={session.user.image}
-                        alt={session.user.name || 'Player'}
-                        className="avatar-img"
-                      />
-                    ) : (
-                      <div className="avatar-fallback">
-                        {session.user?.name ? session.user.name.charAt(0).toUpperCase() : <User size={14} />}
-                      </div>
-                    )}
-                    <span className="avatar-status-dot" />
-                  </div>
-
-                  <span className="user-short-name">
-                    {session.user?.name?.split(' ')[0] || 'Player'}
-                  </span>
-
-                  <ChevronDown
-                    size={14}
-                    className={`dropdown-chevron ${userDropdownOpen ? 'open' : ''}`}
-                  />
-                </button>
-
-                {/* Dropdown Menu */}
-                {userDropdownOpen && (
-                  <div className="user-menu-dropdown">
-                    <div className="menu-header">
-                      <div className="menu-user-name">{session.user?.name || 'Verified Player'}</div>
-                      <div className="menu-user-email">{session.user?.email}</div>
-                    </div>
-
-                    <div className="menu-items">
-                      <Link
-                        href="/dashboard"
-                        onClick={() => setUserDropdownOpen(false)}
-                        className="menu-link primary"
-                      >
-                        <User size={15} />
-                        <span>My Bookings &amp; Passes</span>
-                      </Link>
-
-                      <Link
-                        href="/book"
-                        onClick={() => setUserDropdownOpen(false)}
-                        className="menu-link"
-                      >
-                        <Calendar size={15} />
-                        <span>Book Another Slot</span>
-                      </Link>
-
-                      {isAdmin && (
-                        <Link
-                          href="/admin"
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="menu-link admin"
-                        >
-                          <ShieldCheck size={15} />
-                          <span>Admin Console</span>
-                        </Link>
-                      )}
-
-                      <div className="menu-separator" />
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setUserDropdownOpen(false);
-                          signOut({ callbackUrl: '/' });
-                        }}
-                        className="menu-link logout"
-                      >
-                        <LogOut size={15} />
-                        <span>Sign Out</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setShowWelcomeModal(true)}
-                className="signin-pill-btn"
-              >
-                <span>Sign In</span>
-              </button>
-            )}
-
-            {/* Mobile Sheet Toggle */}
+            {/* 3-Line Nav Menu Trigger (Houses profile on web, full menu & contact support on mobile/web) */}
             <button
               type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="mobile-menu-trigger"
-              aria-label="Toggle navigation menu"
+              onClick={() => setMenuOpen(!menuOpen)}
+              className={`menu-trigger-btn ${menuOpen ? 'active' : ''}`}
+              aria-label="Toggle navigation and profile menu"
+              aria-expanded={menuOpen}
             >
-              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+              {menuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Slide-down Sheet */}
-        {mobileMenuOpen && (
-          <div className="mobile-sheet">
-            {session ? (
-              <div className="mobile-user-card">
-                <div className="mobile-user-info">
-                  <div className="mobile-user-name">{session.user?.name || 'Player'}</div>
-                  <div className="mobile-user-email">{session.user?.email}</div>
-                </div>
-                <Link
-                  href="/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="mobile-passes-btn"
-                >
-                  My Passes →
-                </Link>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setShowWelcomeModal(true);
-                }}
-                className="mobile-signin-btn"
-              >
-                Sign In with Google
-              </button>
-            )}
+        {/* 3-Line Navigation Drawer / Popover (Contains Profile + Navigation + Contact Support) */}
+        {menuOpen && (
+          <div className="iphone-menu-drawer">
+            {/* 1. Profile Section inside 3-line Nav */}
+            <div className="drawer-profile-section">
+              {session ? (
+                <div className="profile-card">
+                  <div className="profile-header">
+                    <div className="profile-avatar-wrap">
+                      {session.user?.image ? (
+                        <img
+                          src={session.user.image}
+                          alt={session.user.name || 'User'}
+                          className="profile-avatar-img"
+                        />
+                      ) : (
+                        <div className="profile-avatar-fallback">
+                          {session.user?.name ? session.user.name.charAt(0).toUpperCase() : <User size={16} />}
+                        </div>
+                      )}
+                      <span className="profile-online-badge" />
+                    </div>
+                    <div className="profile-text-meta">
+                      <div className="profile-display-name">{session.user?.name || 'Verified Player'}</div>
+                      <div className="profile-display-email">{session.user?.email}</div>
+                    </div>
+                  </div>
 
-            <div className="mobile-nav-group">
-              {pathname === '/' ? (
-                <>
-                  <a href="#slots-preview" onClick={() => setMobileMenuOpen(false)} className="mobile-item">
-                    Live Slots Available
-                  </a>
-                  <a href="#specs" onClick={() => setMobileMenuOpen(false)} className="mobile-item">
-                    Pitch Specs &amp; Lighting
-                  </a>
-                  <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="mobile-item">
-                    Pricing &amp; Offers
-                  </a>
-                  <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="mobile-item">
-                    Rules &amp; Guidelines
-                  </a>
-                </>
-              ) : (
-                <>
-                  <Link href="/" onClick={() => setMobileMenuOpen(false)} className="mobile-item">
-                    Home
-                  </Link>
-                  <Link href="/book" onClick={() => setMobileMenuOpen(false)} className="mobile-item">
-                    Book Pitch
-                  </Link>
-                  {session && (
-                    <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="mobile-item">
-                      My Dashboard
+                  <div className="profile-quick-actions">
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setMenuOpen(false)}
+                      className="profile-action-link primary"
+                    >
+                      <Ticket size={15} />
+                      <span>My Bookings &amp; Passes</span>
                     </Link>
-                  )}
-                </>
+
+                    <Link
+                      href="/book"
+                      onClick={() => setMenuOpen(false)}
+                      className="profile-action-link"
+                    >
+                      <Calendar size={15} />
+                      <span>Book Pitch Slot</span>
+                    </Link>
+
+                    {isAdmin && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setMenuOpen(false)}
+                        className="profile-action-link admin"
+                      >
+                        <ShieldCheck size={15} />
+                        <span>Admin Console</span>
+                      </Link>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        signOut({ callbackUrl: '/' });
+                      }}
+                      className="profile-logout-btn"
+                    >
+                      <LogOut size={14} />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="guest-card">
+                  <div className="guest-info">
+                    <div className="guest-title">Player Account</div>
+                    <div className="guest-subtitle">Sign in to track your upcoming &amp; past bookings</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setShowWelcomeModal(true);
+                    }}
+                    className="guest-signin-btn"
+                  >
+                    <User size={15} />
+                    <span>Sign In with Google</span>
+                  </button>
+                </div>
               )}
             </div>
 
-            <div className="mobile-footer-actions">
-              <Link
-                href="/book"
-                onClick={() => setMobileMenuOpen(false)}
-                className="mobile-book-cta"
-              >
-                Instant Slot Booking
-              </Link>
-              {session && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    signOut({ callbackUrl: '/' });
-                  }}
-                  className="mobile-logout-btn"
-                >
-                  <LogOut size={15} />
-                  <span>Sign Out</span>
-                </button>
-              )}
+            <div className="drawer-divider" />
+
+            {/* 2. Navigation Links */}
+            <div className="drawer-nav-section">
+              <span className="drawer-section-label">Navigation</span>
+              <div className="drawer-nav-links">
+                <Link href="/" onClick={() => setMenuOpen(false)} className="drawer-nav-item">
+                  Home
+                </Link>
+                <Link href="/book" onClick={() => setMenuOpen(false)} className="drawer-nav-item highlight">
+                  <Sparkles size={14} />
+                  <span>Book Pitch</span>
+                </Link>
+                {session && (
+                  <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="drawer-nav-item">
+                    <span>Matches &amp; Passes</span>
+                  </Link>
+                )}
+                <a href="/#slots-preview" onClick={() => setMenuOpen(false)} className="drawer-nav-item">
+                  Live Available Slots
+                </a>
+                <a href="/#specs" onClick={() => setMenuOpen(false)} className="drawer-nav-item">
+                  Turf Pitch Specifications
+                </a>
+                <a href="/#pricing" onClick={() => setMenuOpen(false)} className="drawer-nav-item">
+                  Pricing &amp; Discounts
+                </a>
+                <a href="/#faq" onClick={() => setMenuOpen(false)} className="drawer-nav-item">
+                  Rules &amp; Cancellation Policy
+                </a>
+              </div>
+            </div>
+
+            <div className="drawer-divider" />
+
+            {/* 3. Appropriately Placed Contact & Support Module */}
+            <div className="drawer-support-section">
+              <span className="drawer-section-label">Turf Desk &amp; Support</span>
+              <div className="support-card">
+                <div className="support-hours">
+                  <Clock size={13} color="#00E676" />
+                  <span>Open 6:00 AM – 12:00 AM Daily</span>
+                </div>
+
+                <div className="support-buttons-grid">
+                  <a
+                    href="https://wa.me/917994786085?text=Hi,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20turf%20slot%20at%20East%20Welfare%20Turf."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="support-btn whatsapp"
+                  >
+                    <MessageCircle size={15} />
+                    <span>WhatsApp</span>
+                  </a>
+
+                  <a
+                    href="tel:+917994786085"
+                    className="support-btn phone"
+                  >
+                    <Phone size={15} />
+                    <span>Call Desk</span>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -347,10 +306,10 @@ export default function HeaderNav() {
       />
 
       <style jsx>{`
-        /* Floating Navbar Shell */
-        .floating-navbar-shell {
+        /* iPhone Top Header Shell */
+        .iphone-header-shell {
           position: fixed;
-          top: 14px;
+          top: 12px;
           left: 0;
           right: 0;
           z-index: 1000;
@@ -362,52 +321,52 @@ export default function HeaderNav() {
           transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
         }
 
-        .floating-navbar-shell.is-visible {
+        .iphone-header-shell.is-visible {
           transform: translateY(0);
           opacity: 1;
         }
 
-        .floating-navbar-shell.is-hidden {
-          transform: translateY(-130%);
+        .iphone-header-shell.is-hidden {
+          transform: translateY(-135%);
           opacity: 0;
         }
 
-        /* Pill Container (Software Engineered Cut & Chamfer) */
-        .pill-navbar {
+        /* Dynamic Island Pill Capsule */
+        .iphone-island-pill {
           pointer-events: auto;
           width: 100%;
-          max-width: 1060px;
-          height: 54px;
+          max-width: 980px;
+          height: 50px;
           border-radius: 9999px;
           padding: 0 8px 0 18px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background: rgba(9, 11, 16, 0.78);
-          backdrop-filter: blur(20px) saturate(180%);
-          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          background: rgba(14, 17, 24, 0.76);
+          backdrop-filter: blur(28px) saturate(210%);
+          -webkit-backdrop-filter: blur(28px) saturate(210%);
           border: 1px solid rgba(255, 255, 255, 0.12);
           box-shadow: 
-            0 16px 36px -10px rgba(0, 0, 0, 0.8),
-            0 0 0 1px rgba(0, 230, 118, 0.08),
-            inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
-          transition: border-color 0.25s ease, background 0.25s ease;
+            0 16px 36px -8px rgba(0, 0, 0, 0.75),
+            inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+            inset 0 -1px 0 0 rgba(0, 0, 0, 0.4);
+          transition: all 0.25s ease;
         }
 
-        .floating-navbar-shell.is-scrolled .pill-navbar {
-          background: rgba(8, 10, 15, 0.88);
+        .iphone-header-shell.is-scrolled .iphone-island-pill {
+          background: rgba(10, 12, 18, 0.88);
           border-color: rgba(255, 255, 255, 0.16);
           box-shadow: 
-            0 20px 42px -10px rgba(0, 0, 0, 0.88),
+            0 20px 42px -10px rgba(0, 0, 0, 0.85),
             0 0 20px rgba(0, 230, 118, 0.12),
-            inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+            inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
         }
 
         /* Brand & Telemetry */
         .brand-group {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
         }
 
         .brand-link {
@@ -417,10 +376,10 @@ export default function HeaderNav() {
         }
 
         .brand-title {
-          font-family: var(--font-display, sans-serif);
-          font-size: 0.96rem;
+          font-family: var(--font-sans);
+          font-size: 0.92rem;
           font-weight: 800;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.02em;
           color: #FFFFFF;
           text-transform: uppercase;
         }
@@ -429,73 +388,51 @@ export default function HeaderNav() {
           color: var(--primary-accent, #00E676);
         }
 
-        .telemetry-badge {
+        .island-status-dot {
           display: flex;
           align-items: center;
-          gap: 6px;
-          padding: 3px 8px;
-          border-radius: 9999px;
-          background: rgba(0, 230, 118, 0.08);
-          border: 1px solid rgba(0, 230, 118, 0.2);
+          justify-content: center;
+          width: 14px;
+          height: 14px;
         }
 
-        .telemetry-dot {
-          width: 6px;
-          height: 6px;
+        .pulse-dot {
+          width: 7px;
+          height: 7px;
           border-radius: 50%;
           background: #00E676;
-          box-shadow: 0 0 8px #00E676;
-          animation: pulseDot 2s infinite ease-in-out;
+          box-shadow: 0 0 10px #00E676;
+          animation: pulseIsland 2s infinite ease-in-out;
         }
 
-        @keyframes pulseDot {
+        @keyframes pulseIsland {
           0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.4; transform: scale(0.85); }
+          50% { opacity: 0.35; transform: scale(0.8); }
         }
 
-        .telemetry-label {
-          font-family: var(--font-mono, monospace);
-          font-size: 0.65rem;
-          font-weight: 700;
-          color: #A7F3D0;
-          letter-spacing: 0.06em;
-        }
-
-        /* Desktop Nav Items */
+        /* Desktop Nav Items (No 01/ indexing) */
         .desktop-nav-links {
           display: flex;
           align-items: center;
-          gap: 22px;
+          gap: 24px;
         }
 
         .nav-item {
           color: #94A3B8;
-          font-size: 0.84rem;
+          font-size: 0.85rem;
           font-weight: 600;
           text-decoration: none;
-          transition: color 0.2s ease;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        }
-
-        .nav-index {
-          font-family: var(--font-mono, monospace);
-          font-size: 0.7rem;
-          color: #475569;
-          font-weight: 500;
+          transition: color 0.18s ease;
+          letter-spacing: -0.01em;
         }
 
         .nav-item:hover {
           color: #FFFFFF;
         }
 
-        .nav-item:hover .nav-index {
-          color: var(--primary-accent, #00E676);
-        }
-
         .nav-item.active {
           color: var(--primary-accent, #00E676);
+          font-weight: 700;
         }
 
         /* Action Cluster */
@@ -505,209 +442,31 @@ export default function HeaderNav() {
           gap: 8px;
         }
 
-        .cta-book-btn {
+        .desktop-book-btn {
           display: flex;
           align-items: center;
           gap: 6px;
           background: var(--primary-accent, #00E676);
           color: #000000;
           font-weight: 800;
-          font-size: 0.82rem;
-          letter-spacing: 0.02em;
-          padding: 8px 16px;
+          font-size: 0.8rem;
+          letter-spacing: 0.01em;
+          padding: 7px 15px;
           border-radius: 9999px;
           text-decoration: none;
           box-shadow: 0 4px 14px rgba(0, 230, 118, 0.35);
           transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .cta-book-btn:hover {
+        .desktop-book-btn:hover {
           background: var(--primary-accent-hover, #00FF85);
           transform: translateY(-1px);
           box-shadow: 0 6px 20px rgba(0, 230, 118, 0.5);
         }
 
-        /* Profile Button */
-        .profile-container {
-          position: relative;
-        }
-
-        .profile-pill-btn {
+        /* 3-Line Nav Menu Trigger */
+        .menu-trigger-btn {
           display: flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.14);
-          padding: 4px 12px 4px 5px;
-          border-radius: 9999px;
-          color: #FFFFFF;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .profile-pill-btn:hover {
-          background: rgba(255, 255, 255, 0.12);
-          border-color: rgba(255, 255, 255, 0.25);
-        }
-
-        .avatar-frame {
-          position: relative;
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-        }
-
-        .avatar-img {
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          object-fit: cover;
-          border: 1.5px solid var(--primary-accent, #00E676);
-        }
-
-        .avatar-fallback {
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #00E676 0%, #00B0FF 100%);
-          color: #000000;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.75rem;
-          font-weight: 800;
-        }
-
-        .avatar-status-dot {
-          position: absolute;
-          bottom: -1px;
-          right: -1px;
-          width: 7px;
-          height: 7px;
-          border-radius: 50%;
-          background: #00E676;
-          border: 1.5px solid #090B10;
-        }
-
-        .user-short-name {
-          font-size: 0.8rem;
-          font-weight: 700;
-          color: #F1F5F9;
-        }
-
-        .dropdown-chevron {
-          color: #94A3B8;
-          transition: transform 0.2s ease;
-        }
-
-        .dropdown-chevron.open {
-          transform: rotate(180deg);
-        }
-
-        /* Sign In Pill */
-        .signin-pill-btn {
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.16);
-          color: #FFFFFF;
-          font-size: 0.82rem;
-          font-weight: 700;
-          padding: 7px 16px;
-          border-radius: 9999px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .signin-pill-btn:hover {
-          background: rgba(255, 255, 255, 0.15);
-          border-color: rgba(0, 230, 118, 0.4);
-        }
-
-        /* User Dropdown */
-        .user-menu-dropdown {
-          position: absolute;
-          top: calc(100% + 8px);
-          right: 0;
-          width: 230px;
-          background: #0F121B;
-          border: 1px solid rgba(255, 255, 255, 0.14);
-          border-radius: 16px;
-          padding: 8px;
-          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.8);
-          backdrop-filter: blur(20px);
-          z-index: 1050;
-        }
-
-        .menu-header {
-          padding: 8px 10px 10px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .menu-user-name {
-          font-size: 0.86rem;
-          font-weight: 800;
-          color: #FFFFFF;
-        }
-
-        .menu-user-email {
-          font-size: 0.72rem;
-          color: #94A3B8;
-          font-family: var(--font-mono, monospace);
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          margin-top: 2px;
-        }
-
-        .menu-items {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          margin-top: 6px;
-        }
-
-        .menu-link {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 10px;
-          border-radius: 8px;
-          color: #E2E8F0;
-          font-size: 0.82rem;
-          font-weight: 600;
-          text-decoration: none;
-          background: none;
-          border: none;
-          cursor: pointer;
-          width: 100%;
-          text-align: left;
-          transition: background 0.15s ease;
-        }
-
-        .menu-link:hover {
-          background: rgba(255, 255, 255, 0.08);
-        }
-
-        .menu-link.primary {
-          color: #00E676;
-        }
-
-        .menu-link.admin {
-          color: #00E5FF;
-        }
-
-        .menu-link.logout {
-          color: #FF6B6B;
-        }
-
-        .menu-separator {
-          height: 1px;
-          background: rgba(255, 255, 255, 0.08);
-          margin: 4px 0;
-        }
-
-        /* Mobile Menu Trigger Button */
-        .mobile-menu-trigger {
-          display: none;
           align-items: center;
           justify-content: center;
           width: 36px;
@@ -717,139 +476,348 @@ export default function HeaderNav() {
           border: 1px solid rgba(255, 255, 255, 0.15);
           color: #FFFFFF;
           cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Mobile Sheet */
-        .mobile-sheet {
+        .menu-trigger-btn:hover {
+          background: rgba(255, 255, 255, 0.15);
+          border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .menu-trigger-btn.active {
+          background: var(--primary-accent, #00E676);
+          color: #000000;
+          border-color: var(--primary-accent, #00E676);
+        }
+
+        /* iPhone Menu Drawer (Unified Web & Mobile) */
+        .iphone-menu-drawer {
           pointer-events: auto;
           width: 100%;
-          max-width: 500px;
-          background: rgba(12, 14, 20, 0.95);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 20px;
-          margin-top: 8px;
+          max-width: 420px;
+          background: rgba(14, 17, 24, 0.94);
+          backdrop-filter: blur(32px) saturate(220%);
+          -webkit-backdrop-filter: blur(32px) saturate(220%);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          border-radius: 24px;
+          margin-top: 10px;
           padding: 16px;
-          backdrop-filter: blur(24px);
           display: flex;
           flex-direction: column;
-          gap: 14px;
-          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85);
+          gap: 12px;
+          box-shadow: 
+            0 24px 60px rgba(0, 0, 0, 0.85),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+          animation: slideDownFade 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .mobile-user-card {
+        @keyframes slideDownFade {
+          from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Profile Inside 3-line Nav */
+        .drawer-profile-section {
+          width: 100%;
+        }
+
+        .profile-card {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 16px;
+          padding: 12px;
+        }
+
+        .profile-header {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          padding: 10px 12px;
-          border-radius: 12px;
-          background: rgba(0, 230, 118, 0.08);
-          border: 1px solid rgba(0, 230, 118, 0.2);
+          gap: 12px;
         }
 
-        .mobile-user-name {
-          font-size: 0.88rem;
+        .profile-avatar-wrap {
+          position: relative;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+
+        .profile-avatar-img {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 1.5px solid var(--primary-accent, #00E676);
+        }
+
+        .profile-avatar-fallback {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #00E676 0%, #00B0FF 100%);
+          color: #000000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 800;
+          font-size: 0.95rem;
+        }
+
+        .profile-online-badge {
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          width: 9px;
+          height: 9px;
+          border-radius: 50%;
+          background: #00E676;
+          border: 1.5px solid #0E1118;
+        }
+
+        .profile-text-meta {
+          min-width: 0;
+          flex: 1;
+        }
+
+        .profile-display-name {
+          font-size: 0.9rem;
           font-weight: 800;
           color: #FFFFFF;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
-        .mobile-user-email {
-          font-size: 0.72rem;
+        .profile-display-email {
+          font-size: 0.74rem;
           color: #94A3B8;
-          font-family: var(--font-mono, monospace);
+          font-family: var(--font-mono);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
-        .mobile-passes-btn {
-          font-size: 0.78rem;
-          font-weight: 700;
-          color: #00E676;
-          text-decoration: none;
-        }
-
-        .mobile-signin-btn {
-          width: 100%;
-          padding: 10px;
-          border-radius: 12px;
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.16);
-          color: #FFFFFF;
-          font-weight: 700;
-          font-size: 0.85rem;
-          cursor: pointer;
-        }
-
-        .mobile-nav-group {
+        .profile-quick-actions {
           display: flex;
           flex-direction: column;
           gap: 4px;
+          margin-top: 4px;
         }
 
-        .mobile-item {
-          padding: 8px 12px;
+        .profile-action-link {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 10px;
           border-radius: 8px;
           color: #E2E8F0;
-          font-size: 0.88rem;
+          font-size: 0.82rem;
           font-weight: 600;
           text-decoration: none;
           transition: background 0.15s ease;
         }
 
-        .mobile-item:hover {
-          background: rgba(255, 255, 255, 0.06);
+        .profile-action-link:hover {
+          background: rgba(255, 255, 255, 0.08);
+        }
+
+        .profile-action-link.primary {
           color: #00E676;
         }
 
-        .mobile-footer-actions {
+        .profile-action-link.admin {
+          color: #00E5FF;
+        }
+
+        .profile-logout-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 10px;
+          border-radius: 8px;
+          color: #FF6B6B;
+          font-size: 0.82rem;
+          font-weight: 600;
+          background: none;
+          border: none;
+          cursor: pointer;
+          width: 100%;
+          text-align: left;
+          transition: background 0.15s ease;
+        }
+
+        .profile-logout-btn:hover {
+          background: rgba(255, 107, 107, 0.1);
+        }
+
+        /* Guest Card */
+        .guest-card {
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 16px;
+          padding: 14px;
           display: flex;
           flex-direction: column;
-          gap: 8px;
-          border-top: 1px solid rgba(255, 255, 255, 0.08);
-          padding-top: 12px;
+          gap: 10px;
         }
 
-        .mobile-book-cta {
-          width: 100%;
-          text-align: center;
-          padding: 10px;
-          border-radius: 12px;
-          background: var(--primary-accent, #00E676);
-          color: #000000;
+        .guest-title {
+          font-size: 0.88rem;
           font-weight: 800;
-          font-size: 0.86rem;
-          text-decoration: none;
+          color: #FFFFFF;
         }
 
-        .mobile-logout-btn {
+        .guest-subtitle {
+          font-size: 0.76rem;
+          color: #94A3B8;
+        }
+
+        .guest-signin-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 10px;
+          border-radius: 10px;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          color: #FFFFFF;
+          font-weight: 700;
+          font-size: 0.84rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .guest-signin-btn:hover {
+          background: rgba(255, 255, 255, 0.18);
+          border-color: rgba(0, 230, 118, 0.5);
+        }
+
+        .drawer-divider {
+          height: 1px;
+          background: rgba(255, 255, 255, 0.08);
+        }
+
+        .drawer-section-label {
+          font-size: 0.68rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          color: #64748B;
+          margin-bottom: 6px;
+          display: block;
+        }
+
+        /* Navigation Links in Drawer */
+        .drawer-nav-section {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .drawer-nav-links {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .drawer-nav-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 7px 10px;
+          border-radius: 8px;
+          color: #CBD5E1;
+          font-size: 0.84rem;
+          font-weight: 600;
+          text-decoration: none;
+          transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .drawer-nav-item:hover {
+          background: rgba(255, 255, 255, 0.06);
+          color: #FFFFFF;
+        }
+
+        .drawer-nav-item.highlight {
+          color: var(--primary-accent, #00E676);
+        }
+
+        /* Appropriately Placed Support Module */
+        .drawer-support-section {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .support-card {
+          background: rgba(0, 230, 118, 0.04);
+          border: 1px solid rgba(0, 230, 118, 0.15);
+          border-radius: 14px;
+          padding: 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .support-hours {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.74rem;
+          color: #94A3B8;
+        }
+
+        .support-buttons-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+        }
+
+        .support-btn {
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 6px;
-          width: 100%;
-          padding: 9px;
-          border-radius: 10px;
-          background: rgba(255, 107, 107, 0.1);
-          border: 1px solid rgba(255, 107, 107, 0.25);
-          color: #FF6B6B;
-          font-size: 0.82rem;
+          padding: 8px;
+          border-radius: 8px;
+          font-size: 0.8rem;
           font-weight: 700;
-          cursor: pointer;
+          text-decoration: none;
+          transition: all 0.2s ease;
         }
 
-        /* Breakpoints */
+        .support-btn.whatsapp {
+          background: rgba(37, 211, 102, 0.14);
+          border: 1px solid rgba(37, 211, 102, 0.35);
+          color: #25D366;
+        }
+
+        .support-btn.whatsapp:hover {
+          background: rgba(37, 211, 102, 0.25);
+        }
+
+        .support-btn.phone {
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          color: #FFFFFF;
+        }
+
+        .support-btn.phone:hover {
+          background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Responsive Breakpoints */
         @media (max-width: 820px) {
           .desktop-nav-links {
             display: none !important;
           }
-          .mobile-menu-trigger {
-            display: flex !important;
+          .desktop-book-btn {
+            display: none !important;
           }
-          .user-short-name {
-            display: none;
-          }
-          .telemetry-badge {
-            display: none;
-          }
-          .pill-navbar {
-            height: 48px;
+          .iphone-island-pill {
+            height: 46px;
             padding: 0 6px 0 14px;
           }
         }

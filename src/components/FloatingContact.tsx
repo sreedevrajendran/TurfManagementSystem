@@ -93,18 +93,23 @@ export default function FloatingContact() {
 
         @media (max-width: 768px) {
           .floating-contact-container {
-            bottom: calc(72px + env(safe-area-inset-bottom, 0px));
-            right: 14px;
+            bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+            right: 16px;
+            gap: 8px;
           }
           .whatsapp-label {
             display: none;
           }
           .whatsapp-btn {
-            padding: 10px;
+            padding: 9px;
             border-radius: 50%;
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             justify-content: center;
+          }
+          .phone-btn {
+            width: 36px;
+            height: 36px;
           }
         }
       `}</style>

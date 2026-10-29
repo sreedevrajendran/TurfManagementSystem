@@ -3,14 +3,27 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { Home, Calendar, Ticket, User, Shield } from 'lucide-react';
+import { useSession, signOut } from 'next-auth/react';
+import { 
+  Home, 
+  CalendarPlus, 
+  Ticket, 
+  User, 
+  ShieldCheck, 
+  LogOut, 
+  Phone, 
+  MessageCircle, 
+  Clock, 
+  X,
+  Sparkles 
+} from 'lucide-react';
 import WelcomeModal from '@/components/WelcomeModal';
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showProfileSheet, setShowProfileSheet] = useState(false);
 
   // Do not render inside admin dashboard to prevent UI collisions
   if (pathname.startsWith('/admin')) return null;
@@ -28,211 +41,556 @@ export default function MobileBottomNav() {
     }
   };
 
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!session) {
+      setShowWelcome(true);
+    } else {
+      setShowProfileSheet(!showProfileSheet);
+    }
+  };
+
   return (
     <>
+      {/* iOS Liquid Glass Floating Bottom Dock (Logos Only, No Text) */}
       <nav
-        className="mobile-bottom-nav"
-        aria-label="Mobile Bottom Dock"
+        className="ios-liquid-dock"
+        aria-label="Mobile Navigation Dock"
       >
-        <div className="mobile-dock-inner">
-          {/* 1. Home */}
+        <div className="dock-liquid-glass">
+          {/* 1. Home Logo */}
           <Link
             href="/"
-            className={`dock-item ${isHome ? 'active' : ''}`}
+            className={`dock-bubble ${isHome ? 'active' : ''}`}
+            aria-label="Home"
+            title="Home"
           >
-            <div className="icon-wrapper">
-              <Home size={20} strokeWidth={isHome ? 2.5 : 2} />
-              {isHome && <span className="active-glow-dot" />}
-            </div>
-            <span className="dock-label">Home</span>
+            <Home size={22} strokeWidth={isHome ? 2.5 : 2} />
           </Link>
 
-          {/* 2. Book Slot (Hero Action) */}
+          {/* 2. Book a Slot Logo */}
           <Link
             href="/book"
-            className={`dock-item book-action ${isBook ? 'active' : ''}`}
+            className={`dock-bubble ${isBook ? 'active' : ''}`}
+            aria-label="Book a Slot"
+            title="Book a Slot"
           >
-            <div className="book-icon-badge">
-              <Calendar size={19} strokeWidth={2.4} />
-            </div>
-            <span className="dock-label">Book</span>
+            <CalendarPlus size={22} strokeWidth={isBook ? 2.5 : 2} />
           </Link>
 
-          {/* 3. My Bookings / Passes */}
+          {/* 3. Bookings Logo (Upcoming & Past Matches) */}
           <Link
             href="/dashboard"
             onClick={handleBookingsClick}
-            className={`dock-item ${isDashboard ? 'active' : ''}`}
+            className={`dock-bubble ${isDashboard && !showProfileSheet ? 'active' : ''}`}
+            aria-label="My Bookings & Matches"
+            title="My Bookings & Matches"
           >
-            <div className="icon-wrapper">
-              <Ticket size={20} strokeWidth={isDashboard ? 2.5 : 2} />
-              {isDashboard && <span className="active-glow-dot" />}
-            </div>
-            <span className="dock-label">My Passes</span>
+            <Ticket size={22} strokeWidth={isDashboard ? 2.5 : 2} />
           </Link>
 
-          {/* 4. Profile / Admin */}
-          {isAdmin ? (
-            <Link
-              href="/admin"
-              className="dock-item"
-            >
-              <div className="icon-wrapper">
-                <Shield size={20} color="#00E5FF" strokeWidth={2.2} />
-              </div>
-              <span className="dock-label" style={{ color: '#00E5FF' }}>Admin</span>
-            </Link>
-          ) : session ? (
-            <Link
-              href="/dashboard"
-              className={`dock-item ${isDashboard ? 'active' : ''}`}
-            >
-              <div className="icon-wrapper">
+          {/* 4. Profile Logo */}
+          <button
+            type="button"
+            onClick={handleProfileClick}
+            className={`dock-bubble ${showProfileSheet ? 'active' : ''}`}
+            aria-label="Player Profile"
+            title="Player Profile"
+          >
+            {session?.user?.image ? (
+              <img
+                src={session.user.image}
+                alt={session.user.name || 'User'}
+                className="dock-avatar-img"
+              />
+            ) : (
+              <User size={22} strokeWidth={showProfileSheet ? 2.5 : 2} />
+            )}
+          </button>
+        </div>
+      </nav>
+
+      {/* iOS Liquid Glass Profile Drawer Sheet */}
+      {showProfileSheet && session && (
+        <div 
+          className="ios-sheet-backdrop"
+          onClick={() => setShowProfileSheet(false)}
+        >
+          <div 
+            className="ios-profile-sheet"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Sheet Handle */}
+            <div className="sheet-pill-handle" />
+
+            {/* Profile Header */}
+            <div className="sheet-profile-header">
+              <div className="sheet-avatar-wrap">
                 {session.user?.image ? (
                   <img
                     src={session.user.image}
                     alt={session.user.name || 'User'}
-                    className="dock-avatar"
+                    className="sheet-avatar"
                   />
                 ) : (
-                  <User size={20} strokeWidth={2} />
+                  <div className="sheet-avatar-fallback">
+                    {session.user?.name ? session.user.name.charAt(0).toUpperCase() : <User size={20} />}
+                  </div>
                 )}
+                <span className="sheet-online-dot" />
               </div>
-              <span className="dock-label">Profile</span>
-            </Link>
-          ) : (
+
+              <div className="sheet-profile-info">
+                <div className="sheet-user-name">{session.user?.name || 'Verified Player'}</div>
+                <div className="sheet-user-email">{session.user?.email}</div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowProfileSheet(false)}
+                className="sheet-close-btn"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Quick Actions List */}
+            <div className="sheet-actions-list">
+              <Link
+                href="/dashboard"
+                onClick={() => setShowProfileSheet(false)}
+                className="sheet-action-item highlight"
+              >
+                <Ticket size={18} />
+                <div className="action-item-text">
+                  <span className="item-title">My Bookings &amp; Passes</span>
+                  <span className="item-sub">View upcoming and past matches</span>
+                </div>
+              </Link>
+
+              <Link
+                href="/book"
+                onClick={() => setShowProfileSheet(false)}
+                className="sheet-action-item"
+              >
+                <Sparkles size={18} color="#00E676" />
+                <div className="action-item-text">
+                  <span className="item-title">Book a Pitch Slot</span>
+                  <span className="item-sub">Reserve Box Cricket or Football turf</span>
+                </div>
+              </Link>
+
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  onClick={() => setShowProfileSheet(false)}
+                  className="sheet-action-item admin"
+                >
+                  <ShieldCheck size={18} color="#00E5FF" />
+                  <div className="action-item-text">
+                    <span className="item-title" style={{ color: '#00E5FF' }}>Admin Management</span>
+                    <span className="item-sub">Turf slots, pricing &amp; analytics</span>
+                  </div>
+                </Link>
+              )}
+            </div>
+
+            {/* Dedicated Support Card */}
+            <div className="sheet-support-card">
+              <div className="support-card-header">
+                <span className="support-title">Turf Desk &amp; Inquiries</span>
+                <div className="support-badge">
+                  <Clock size={12} />
+                  <span>6 AM – 12 AM</span>
+                </div>
+              </div>
+
+              <div className="support-actions-grid">
+                <a
+                  href="https://wa.me/917994786085?text=Hi,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20turf%20slot%20at%20East%20Welfare%20Turf."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="sheet-support-btn whatsapp"
+                >
+                  <MessageCircle size={16} />
+                  <span>WhatsApp</span>
+                </a>
+
+                <a
+                  href="tel:+917994786085"
+                  className="sheet-support-btn phone"
+                >
+                  <Phone size={16} />
+                  <span>Direct Call</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Logout Action */}
             <button
               type="button"
-              onClick={() => setShowWelcome(true)}
-              className="dock-item"
+              onClick={() => {
+                setShowProfileSheet(false);
+                signOut({ callbackUrl: '/' });
+              }}
+              className="sheet-logout-btn"
             >
-              <div className="icon-wrapper">
-                <User size={20} strokeWidth={2} />
-              </div>
-              <span className="dock-label">Sign In</span>
+              <LogOut size={16} />
+              <span>Sign Out</span>
             </button>
-          )}
+          </div>
         </div>
+      )}
 
-        <WelcomeModal
-          isOpen={showWelcome}
-          onClose={() => setShowWelcome(false)}
-        />
+      {/* Sign-in Modal */}
+      <WelcomeModal
+        isOpen={showWelcome}
+        onClose={() => setShowWelcome(false)}
+      />
 
-        <style jsx>{`
-          .mobile-bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 998;
-            padding: 8px 12px max(12px, env(safe-area-inset-bottom));
-            background: rgba(9, 11, 16, 0.88);
-            backdrop-filter: blur(24px) saturate(190%);
-            -webkit-backdrop-filter: blur(24px) saturate(190%);
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
+      <style jsx>{`
+        /* iOS Liquid Glass Floating Bottom Dock */
+        .ios-liquid-dock {
+          position: fixed;
+          bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 998;
+          pointer-events: none;
+          display: flex;
+          justify-content: center;
+          width: 100%;
+          padding: 0 16px;
+        }
+
+        .dock-liquid-glass {
+          pointer-events: auto;
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+          width: 100%;
+          max-width: 330px;
+          height: 60px;
+          border-radius: 9999px;
+          padding: 6px 10px;
+          background: rgba(14, 18, 26, 0.68);
+          backdrop-filter: blur(32px) saturate(220%);
+          -webkit-backdrop-filter: blur(32px) saturate(220%);
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          box-shadow: 
+            0 20px 48px -8px rgba(0, 0, 0, 0.75),
+            0 0 0 1px rgba(255, 255, 255, 0.04),
+            inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.35),
+            inset 0 -1px 1px 0 rgba(0, 0, 0, 0.5);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Icon-Only Bubble Touch Target */
+        .dock-bubble {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 48px;
+          height: 48px;
+          border-radius: 9999px;
+          color: rgba(255, 255, 255, 0.52);
+          text-decoration: none;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          -webkit-tap-highlight-color: transparent;
+          position: relative;
+        }
+
+        .dock-bubble:active {
+          transform: scale(0.88);
+        }
+
+        .dock-bubble.active {
+          color: #00E676;
+          background: rgba(0, 230, 118, 0.16);
+          border: 1px solid rgba(0, 230, 118, 0.35);
+          box-shadow: 
+            0 0 20px rgba(0, 230, 118, 0.25),
+            inset 0 1px 1px rgba(255, 255, 255, 0.25);
+        }
+
+        .dock-avatar-img {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 1.5px solid rgba(255, 255, 255, 0.3);
+          transition: border-color 0.2s ease;
+        }
+
+        .dock-bubble.active .dock-avatar-img {
+          border-color: #00E676;
+        }
+
+        /* iOS Profile Sheet */
+        .ios-sheet-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.6);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          z-index: 1001;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+          padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+          animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .ios-profile-sheet {
+          background: rgba(14, 18, 26, 0.96);
+          backdrop-filter: blur(36px) saturate(220%);
+          -webkit-backdrop-filter: blur(36px) saturate(220%);
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          border-radius: 28px;
+          margin: 0 16px;
+          padding: 16px 20px 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9);
+          animation: sheetSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes sheetSlideUp {
+          from { transform: translateY(100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+
+        .sheet-pill-handle {
+          width: 36px;
+          height: 4px;
+          background: rgba(255, 255, 255, 0.25);
+          border-radius: 9999px;
+          align-self: center;
+          margin-bottom: -4px;
+        }
+
+        .sheet-profile-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sheet-avatar-wrap {
+          position: relative;
+          width: 44px;
+          height: 44px;
+          flex-shrink: 0;
+        }
+
+        .sheet-avatar {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 1.5px solid #00E676;
+        }
+
+        .sheet-avatar-fallback {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #00E676 0%, #00B0FF 100%);
+          color: #000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 800;
+          font-size: 1.1rem;
+        }
+
+        .sheet-online-dot {
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: #00E676;
+          border: 2px solid #0E121A;
+        }
+
+        .sheet-profile-info {
+          min-width: 0;
+          flex: 1;
+        }
+
+        .sheet-user-name {
+          font-size: 0.98rem;
+          font-weight: 800;
+          color: #FFFFFF;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .sheet-user-email {
+          font-size: 0.76rem;
+          color: #94A3B8;
+          font-family: var(--font-mono);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .sheet-close-btn {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: #94A3B8;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+
+        .sheet-actions-list {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .sheet-action-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 10px 12px;
+          border-radius: 12px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          color: #E2E8F0;
+          text-decoration: none;
+          transition: all 0.15s ease;
+        }
+
+        .sheet-action-item.highlight {
+          border-color: rgba(0, 230, 118, 0.25);
+          background: rgba(0, 230, 118, 0.06);
+          color: #00E676;
+        }
+
+        .action-item-text {
+          display: flex;
+          flex-direction: column;
+          gap: 1px;
+        }
+
+        .item-title {
+          font-size: 0.86rem;
+          font-weight: 700;
+          color: #FFFFFF;
+        }
+
+        .item-sub {
+          font-size: 0.72rem;
+          color: #94A3B8;
+        }
+
+        /* Support Card Inside Profile Sheet */
+        .sheet-support-card {
+          background: rgba(0, 230, 118, 0.04);
+          border: 1px solid rgba(0, 230, 118, 0.16);
+          border-radius: 14px;
+          padding: 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .support-card-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .support-title {
+          font-size: 0.82rem;
+          font-weight: 800;
+          color: #FFFFFF;
+        }
+
+        .support-badge {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 0.72rem;
+          color: #00E676;
+          font-weight: 600;
+        }
+
+        .support-actions-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+        }
+
+        .sheet-support-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          padding: 8px;
+          border-radius: 8px;
+          font-size: 0.8rem;
+          font-weight: 700;
+          text-decoration: none;
+          transition: all 0.2s ease;
+        }
+
+        .sheet-support-btn.whatsapp {
+          background: rgba(37, 211, 102, 0.15);
+          border: 1px solid rgba(37, 211, 102, 0.35);
+          color: #25D366;
+        }
+
+        .sheet-support-btn.phone {
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          color: #FFFFFF;
+        }
+
+        .sheet-logout-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 10px;
+          border-radius: 12px;
+          background: rgba(255, 107, 107, 0.1);
+          border: 1px solid rgba(255, 107, 107, 0.25);
+          color: #FF6B6B;
+          font-size: 0.84rem;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        @media (min-width: 769px) {
+          .ios-liquid-dock {
+            display: none !important;
           }
-
-          .mobile-dock-inner {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            width: 100%;
-            max-width: 480px;
-            align-items: center;
-            gap: 4px;
+          .ios-sheet-backdrop {
+            display: none !important;
           }
-
-          .dock-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            padding: 6px 4px;
-            border-radius: 12px;
-            color: #8E98A8;
-            text-decoration: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            -webkit-tap-highlight-color: transparent;
-          }
-
-          .dock-item:active {
-            transform: scale(0.92);
-          }
-
-          .dock-item.active {
-            color: #00E676;
-          }
-
-          .icon-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-          }
-
-          .active-glow-dot {
-            position: absolute;
-            bottom: -3px;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: #00E676;
-            box-shadow: 0 0 8px #00E676;
-          }
-
-          .dock-avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 1.5px solid #00E676;
-            object-fit: cover;
-          }
-
-          .dock-label {
-            font-size: 0.68rem;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            line-height: 1;
-            font-family: var(--font-sans);
-          }
-
-          /* Special Accent for the central Book action */
-          .dock-item.book-action .book-icon-badge {
-            background: rgba(0, 230, 118, 0.12);
-            border: 1px solid rgba(0, 230, 118, 0.35);
-            color: #00E676;
-            width: 38px;
-            height: 30px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-          }
-
-          .dock-item.book-action.active .book-icon-badge {
-            background: #00E676;
-            color: #000000;
-            border-color: #00E676;
-            box-shadow: 0 0 16px rgba(0, 230, 118, 0.4);
-          }
-
-          @media (min-width: 769px) {
-            .mobile-bottom-nav {
-              display: none !important;
-            }
-          }
-        `}</style>
-      </nav>
+        }
+      `}</style>
     </>
   );
 }
