@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { LogIn, ShieldCheck, Calendar, Sun, Moon, Sparkles, CheckCircle2, ChevronRight, Lock, AlertTriangle } from 'lucide-react';
+import { LogIn, ShieldCheck, Calendar, Sun, Moon, Sparkles, CheckCircle2, ChevronRight, Lock, AlertTriangle, Download, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import CustomModal from '@/components/CustomModal';
@@ -39,6 +39,133 @@ const formatTime = (hour: number) => {
   return `${displayHour}:00 ${ampm}`;
 };
 
+function ReceiptActionButtons({
+  receiptData,
+  totalFinal,
+}: {
+  receiptData: any;
+  totalFinal: number;
+}) {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+  const [cachedUrl, setCachedUrl] = useState<string | null>(null);
+  const [cachedFile, setCachedFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    try {
+      const url = generateReceiptImage(receiptData);
+      setCachedUrl(url);
+
+      const arr = url.split(',');
+      const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      const blob = new Blob([u8arr], { type: mime });
+      const safeName = (receiptData.teamName || 'match').replace(/\s+/g, '_');
+      const file = new File([blob], `EastWelfareTurf_Receipt_${safeName}_${Date.now()}.png`, { type: 'image/png' });
+      setCachedFile(file);
+    } catch (e) {
+      console.error('Error pre-generating receipt:', e);
+    }
+  }, [receiptData]);
+
+  const handleDownload = () => {
+    setIsDownloading(true);
+    try {
+      const url = cachedUrl || generateReceiptImage(receiptData);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `EastWelfareTurf_Receipt_${(receiptData.teamName || 'match').replace(/\s+/g, '_')}_${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (e) {
+      console.error('Download error:', e);
+    } finally {
+      setTimeout(() => setIsDownloading(false), 800);
+    }
+  };
+
+  const handleShare = async () => {
+    setIsSharing(true);
+    const summaryText = `*East Welfare Turf Booking*\nTeam: ${receiptData.teamName}\nDate: ${receiptData.date}\nTime: ${receiptData.time}\nTotal: ₹${totalFinal}`;
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(summaryText)}`;
+
+    try {
+      if (cachedFile && navigator.canShare && navigator.canShare({ files: [cachedFile] })) {
+        await navigator.share({
+          files: [cachedFile],
+          title: 'Booking Receipt - East Welfare Turf',
+          text: summaryText,
+        });
+      } else {
+        window.open(waUrl, '_blank');
+      }
+    } catch (err: any) {
+      if (err?.name !== 'AbortError') {
+        window.open(waUrl, '_blank');
+      }
+    } finally {
+      setTimeout(() => setIsSharing(false), 800);
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 14, flexWrap: 'wrap' }}>
+      <button
+        type="button"
+        onClick={handleDownload}
+        disabled={isDownloading}
+        style={{
+          padding: '10px 18px',
+          background: isDownloading ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)',
+          color: '#fff',
+          border: '1px solid rgba(255,255,255,0.2)',
+          borderRadius: 10,
+          cursor: isDownloading ? 'wait' : 'pointer',
+          fontWeight: 700,
+          fontSize: '0.88rem',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          transition: 'all 0.15s ease',
+        }}
+      >
+        <Download size={15} />
+        {isDownloading ? 'Downloading...' : 'Download Receipt'}
+      </button>
+
+      <button
+        type="button"
+        onClick={handleShare}
+        disabled={isSharing}
+        style={{
+          padding: '10px 18px',
+          background: isSharing ? '#1eb956' : '#25D366',
+          color: '#fff',
+          border: 'none',
+          borderRadius: 10,
+          cursor: isSharing ? 'wait' : 'pointer',
+          fontWeight: 700,
+          fontSize: '0.88rem',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          boxShadow: '0 4px 14px rgba(37, 211, 102, 0.35)',
+          transition: 'all 0.15s ease',
+        }}
+      >
+        <Share2 size={15} />
+        {isSharing ? 'Opening...' : 'Share on WhatsApp'}
+      </button>
+    </div>
+  );
+}
+
 export default function BookPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -52,6 +179,7 @@ export default function BookPage() {
   const [teamName, setTeamName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const isSubmittingRef = useRef(false);
   const [offers, setOffers] = useState<SpecialOffer[]>([]);
   const [bookedSlots, setBookedSlots] = useState<number[]>([]);
   const [blocks, setBlocks] = useState<any[]>([]);
@@ -240,7 +368,8 @@ export default function BookPage() {
   };
 
   const executeBooking = async () => {
-    if (selectedSlot === null) return;
+    if (selectedSlot === null || isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setIsLoading(true);
 
     try {
@@ -270,27 +399,6 @@ export default function BookPage() {
           amount: totalFinal,
         };
 
-        const handleDownloadReceipt = () => {
-          const dataUrl = generateReceiptImage(receiptData);
-          const a = document.createElement('a');
-          a.href = dataUrl;
-          a.download = `EastWelfareTurf_Receipt_${teamName.replace(/\s+/g, '_')}_${Date.now()}.png`;
-          a.click();
-        };
-
-        const handleShareReceipt = async () => {
-          const dataUrl = generateReceiptImage(receiptData);
-          const res = await fetch(dataUrl);
-          const blob = await res.blob();
-          const file = new File([blob], `Receipt_${teamName}_${Date.now()}.png`, { type: 'image/png' });
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            navigator.share({ files: [file], title: 'Booking Receipt' }).catch(() => {});
-          } else {
-            const text = `*East Welfare Turf Booking*\nTeam: ${teamName}\nDate: ${receiptData.date}\nTime: ${receiptData.time}\nTotal: ₹${totalFinal}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
-          }
-        };
-
         showAlert(
           'Match Slot Confirmed! 🏆',
           `Team: ${teamName}\nSport: ${sport === 'CRICKET' ? 'Cricket' : 'Football'}\nTime: ${formatTime(selectedSlot)} for ${duration} hour(s)\nTotal: ₹${totalFinal}\n\nPayment to be settled at the venue before kickoff.`,
@@ -308,12 +416,7 @@ export default function BookPage() {
 
             router.refresh();
           },
-          (
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 14 }}>
-              <button onClick={handleDownloadReceipt} style={{ padding: '10px 18px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem' }}>Download Receipt</button>
-              <button onClick={handleShareReceipt} style={{ padding: '10px 18px', background: '#25D366', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem' }}>Share on WhatsApp</button>
-            </div>
-          )
+          <ReceiptActionButtons receiptData={receiptData} totalFinal={totalFinal} />
         );
       } else {
         const err = await res.json().catch(() => ({}));
@@ -363,10 +466,12 @@ export default function BookPage() {
       showAlert('Error', 'Unable to complete reservation right now. Please try again.');
     } finally {
       setIsLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 
   const handleConfirm = () => {
+    if (isSubmittingRef.current || isLoading) return;
     if (!teamName.trim()) {
       showAlert('Missing Info', 'Please enter your Team Name.');
       return;

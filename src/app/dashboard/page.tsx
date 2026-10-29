@@ -120,13 +120,19 @@ export default function DashboardPage() {
 
   const now = new Date();
 
-  // Active & Upcoming matches (match has not concluded yet)
+  // Active & Upcoming matches (match has not concluded yet, deduplicated by slot)
+  const seenUpcomingKeys = new Set<string>();
   const upcomingMatches = bookings
     .filter((b) => {
       if (b.status === 'CANCELLED') return false;
       const start = parseBookingDateTime(b.date, b.startTime);
       const end = new Date(start.getTime() + (b.durationHours || 1) * 3600 * 1000);
-      return end > now;
+      if (end <= now) return false;
+
+      const key = `${b.date ? new Date(b.date).toDateString() : ''}_${b.startTime}_${b.sport}`;
+      if (seenUpcomingKeys.has(key)) return false;
+      seenUpcomingKeys.add(key);
+      return true;
     })
     .sort((a, b) => {
       const startA = parseBookingDateTime(a.date, a.startTime).getTime();
@@ -134,13 +140,19 @@ export default function DashboardPage() {
       return startA - startB;
     });
 
-  // Concluded / Past matches (match end time has passed)
+  // Concluded / Past matches (match end time has passed, deduplicated by slot)
+  const seenPastKeys = new Set<string>();
   const pastMatches = bookings
     .filter((b) => {
       if (b.status === 'CANCELLED') return false;
       const start = parseBookingDateTime(b.date, b.startTime);
       const end = new Date(start.getTime() + (b.durationHours || 1) * 3600 * 1000);
-      return end <= now;
+      if (end > now) return false;
+
+      const key = `${b.date ? new Date(b.date).toDateString() : ''}_${b.startTime}_${b.sport}`;
+      if (seenPastKeys.has(key)) return false;
+      seenPastKeys.add(key);
+      return true;
     })
     .sort((a, b) => {
       const startA = parseBookingDateTime(a.date, a.startTime).getTime();
@@ -148,8 +160,14 @@ export default function DashboardPage() {
       return startB - startA;
     });
 
+  const seenCancelledIds = new Set<string>();
   const cancelledBookings = bookings
-    .filter((b) => b.status === 'CANCELLED')
+    .filter((b) => {
+      if (b.status !== 'CANCELLED') return false;
+      if (seenCancelledIds.has(b.id)) return false;
+      seenCancelledIds.add(b.id);
+      return true;
+    })
     .sort((a, b) => {
       const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
       const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;

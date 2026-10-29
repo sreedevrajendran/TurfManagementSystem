@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Info, CheckCircle, X } from 'lucide-react';
@@ -27,6 +28,18 @@ export default function CustomModal({
   cancelText = 'Cancel',
   children,
 }: CustomModalProps) {
+  const [isActionLocked, setIsActionLocked] = useState(false);
+
+  useEffect(() => {
+    setIsActionLocked(false);
+  }, [isOpen]);
+
+  const handleConfirmClick = () => {
+    if (isActionLocked) return;
+    setIsActionLocked(true);
+    onConfirm();
+  };
+
   if (typeof document === 'undefined') return null;
 
   const accentColor = type === 'alert' ? '#FF4D4D' : type === 'warning' ? '#FFB800' : type === 'success' ? '#00E676' : '#00B0FF';
@@ -138,7 +151,8 @@ export default function CustomModal({
               )}
               
               <button
-                onClick={onConfirm}
+                onClick={handleConfirmClick}
+                disabled={isActionLocked}
                 style={{
                   padding: '12px 24px',
                   borderRadius: '12px',
@@ -147,13 +161,14 @@ export default function CustomModal({
                   border: 'none',
                   fontWeight: 800,
                   fontSize: '0.95rem',
-                  cursor: 'pointer',
+                  cursor: isActionLocked ? 'not-allowed' : 'pointer',
+                  opacity: isActionLocked ? 0.6 : 1,
                   flex: 1,
                   boxShadow: `0 4px 20px ${glowColor}`,
                   transition: 'all 0.2s',
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'none'}
+                onMouseEnter={(e) => { if (!isActionLocked) e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; }}
               >
                 {confirmText}
               </button>

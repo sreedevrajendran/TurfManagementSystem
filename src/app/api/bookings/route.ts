@@ -154,7 +154,39 @@ export async function POST(req: NextRequest) {
 
     // ── Atomic Conflict Check & Booking Creation in Transaction ────────────
     const bookingResult = await prisma.$transaction(async (tx) => {
-      // Find all active bookings on that date
+      // 1. Acquire transaction advisory lock on date to strictly serialize concurrent requests on the same day
+      const lockKey = `booking_lock_${bookingDate.toISOString().slice(0, 10)}`;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`;
+
+      // 2. Ensure user exists in DB
+      const dbUser = await tx.user.upsert({
+        where: { email: userEmail },
+        update: {
+          name: userName ? sanitizeText(userName, 50) : undefined,
+          image: userImage ?? undefined,
+        },
+        create: {
+          email: userEmail,
+          name: userName ? sanitizeText(userName, 50) : null,
+          image: userImage ?? null,
+          role: isAdmin ? "ADMIN" : "CUSTOMER",
+        },
+      });
+
+      // 3. Idempotency check: If the same user already reserved this exact slot, return it without duplicating
+      const existingUserBooking = await tx.booking.findFirst({
+        where: {
+          userId: dbUser.id,
+          date: bookingDate,
+          startTime: startHour,
+          status: { not: 'CANCELLED' },
+        },
+      });
+      if (existingUserBooking) {
+        return existingUserBooking;
+      }
+
+      // 4. Find all active bookings on that date
       const activeBookings = await tx.booking.findMany({
         where: {
           date: bookingDate,
@@ -179,21 +211,6 @@ export async function POST(req: NextRequest) {
       if (hasConflict) {
         throw new Error("CONFLICT_SLOT_BOOKED");
       }
-
-      // Ensure user exists in DB
-      const dbUser = await tx.user.upsert({
-        where: { email: userEmail },
-        update: {
-          name: userName ? sanitizeText(userName, 50) : undefined,
-          image: userImage ?? undefined,
-        },
-        create: {
-          email: userEmail,
-          name: userName ? sanitizeText(userName, 50) : null,
-          image: userImage ?? null,
-          role: isAdmin ? "ADMIN" : "CUSTOMER",
-        },
-      });
 
       // Create isolated Team record
       const uniqueTeamPhone = `${cleanPhone || 'NO_PHONE'}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
