@@ -201,8 +201,8 @@ export default function DashboardPage() {
                 const end = new Date(start.getTime() + (due.durationHours || 1) * 3600 * 1000);
                 const isLive = now >= start && now < end;
                 const diffMs = start.getTime() - now.getTime();
-                const canCancel = diffMs >= 30 * 60 * 1000;
-                const isStartingSoon = diffMs > 0 && diffMs < 30 * 60 * 1000;
+                const canCancel = diffMs >= 2 * 60 * 60 * 1000;
+                const isStartingSoon = diffMs > 0 && diffMs < 2 * 60 * 60 * 1000;
                 const sportEmoji = due.sport === 'CRICKET' ? '🏏' : '⚽';
 
                 return (
@@ -226,7 +226,7 @@ export default function DashboardPage() {
                           </span>
                         ) : isStartingSoon ? (
                           <span style={{ fontSize: '0.8rem', color: '#FFB800', fontWeight: 600 }}>
-                            ⏳ Match starting soon
+                            ⏳ Match starting soon (Non-cancellable)
                           </span>
                         ) : canCancel ? (
                           <CancelBookingButton

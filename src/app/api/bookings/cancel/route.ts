@@ -43,15 +43,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden: You cannot cancel another user's booking" }, { status: 403 });
     }
 
-    // Only allow customer cancellation if the slot is more than 30 minutes away
+    // Only allow customer cancellation if the slot is at least 2 hours away
     const now = new Date();
     const bookingDate = new Date(booking.date);
     bookingDate.setHours(booking.startTime, 0, 0, 0);
 
     const timeDiffMs = bookingDate.getTime() - now.getTime();
 
-    if (timeDiffMs < 30 * 60 * 1000 && !isAdmin) {
-      return NextResponse.json({ error: "Cannot cancel a slot within 30 minutes of its start time or after it has started." }, { status: 400 });
+    if (timeDiffMs < 2 * 60 * 60 * 1000 && !isAdmin) {
+      return NextResponse.json({ error: "Cannot cancel a slot within 2 hours of its start time or after it has started." }, { status: 400 });
     }
 
     const updatedBooking = await prisma.booking.update({

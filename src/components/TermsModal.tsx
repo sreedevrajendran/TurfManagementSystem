@@ -112,8 +112,8 @@ export default function TermsModal() {
 
           <h3 style={{ color: '#fff', fontSize: '1.05rem', marginTop: 24, marginBottom: 8 }}>3. Cancellations & No-Shows</h3>
           <ul style={{ paddingLeft: 20, marginBottom: 16 }}>
-            <li>You may cancel a booking directly from your dashboard up to <strong>30 minutes before</strong> the slot starts.</li>
-            <li>Cancellations within 30 minutes of the start time are strictly prohibited.</li>
+            <li>You may cancel a booking directly from your dashboard up to <strong>2 hours before</strong> the slot starts.</li>
+            <li>Cancellations within 2 hours of the start time are strictly prohibited.</li>
             <li>Failing to show up for a booked slot (No-Show) may incur a <strong>50% penalty fee</strong> at the discretion of the turf admin. This will remain on your account as a pending due.</li>
           </ul>
 

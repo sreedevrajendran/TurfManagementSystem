@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { LogIn, ShieldCheck, Calendar, Sun, Moon, Sparkles, CheckCircle2, ChevronRight, Lock } from 'lucide-react';
+import { LogIn, ShieldCheck, Calendar, Sun, Moon, Sparkles, CheckCircle2, ChevronRight, Lock, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import CustomModal from '@/components/CustomModal';
@@ -60,10 +60,13 @@ export default function BookPage() {
 
   const [customModal, setCustomModal] = useState<{
     isOpen: boolean;
-    type: 'alert' | 'confirm' | 'success';
+    type: 'alert' | 'confirm' | 'success' | 'warning';
     title: string;
     message: string;
+    confirmText?: string;
+    cancelText?: string;
     onConfirm: () => void;
+    onCancel?: () => void;
     children?: React.ReactNode;
   }>({ isOpen: false, type: 'alert', title: '', message: '', onConfirm: () => {} });
 
@@ -140,18 +143,40 @@ export default function BookPage() {
     fetch('/api/blocks').then(r => r.json()).then(setBlocks).catch(() => {});
   }, [selectedDate]);
 
-  const showAlert = (title: string, message: string, type: 'alert' | 'success' = 'alert', callback?: () => void, children?: React.ReactNode) => {
+  const showAlert = (
+    title: string,
+    message: string,
+    type: 'alert' | 'success' | 'confirm' | 'warning' = 'alert',
+    callback?: () => void,
+    children?: React.ReactNode,
+    options?: {
+      confirmText?: string;
+      cancelText?: string;
+      onCancel?: () => void;
+    }
+  ) => {
     setCustomModal({
       isOpen: true,
       type,
       title,
       message,
+      confirmText: options?.confirmText,
+      cancelText: options?.cancelText,
       onConfirm: () => {
         setCustomModal(prev => ({ ...prev, isOpen: false }));
         if (callback) callback();
       },
+      onCancel: options?.onCancel ? options.onCancel : () => setCustomModal(prev => ({ ...prev, isOpen: false })),
       children
     });
+  };
+
+  const isSlotWithinTwoHours = () => {
+    if (selectedSlot === null) return false;
+    const slotStart = new Date(selectedDate);
+    slotStart.setHours(selectedSlot, 0, 0, 0);
+    const diffMs = slotStart.getTime() - Date.now();
+    return diffMs < 2 * 60 * 60 * 1000;
   };
 
   const isAdmin = (session?.user as any)?.role === 'ADMIN';
@@ -214,23 +239,7 @@ export default function BookPage() {
     setIsModalOpen(true);
   };
 
-  const handleConfirm = async () => {
-    if (!teamName.trim()) {
-      showAlert('Missing Info', 'Please enter your Team Name.');
-      return;
-    }
-    if (!phoneNumber.trim()) {
-      showAlert('Missing Info', 'Please enter your WhatsApp contact number.');
-      return;
-    }
-
-    const digitsOnly = phoneNumber.replace(/\D/g, '');
-    const isValidPhone = digitsOnly.length === 10 || (digitsOnly.length === 12 && digitsOnly.startsWith('91'));
-    if (!isValidPhone) {
-      showAlert('Invalid Phone', 'Please enter a valid 10-digit WhatsApp number.');
-      return;
-    }
-
+  const executeBooking = async () => {
     if (selectedSlot === null) return;
     setIsLoading(true);
 
@@ -277,7 +286,7 @@ export default function BookPage() {
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             navigator.share({ files: [file], title: 'Booking Receipt' }).catch(() => {});
           } else {
-            const text = `*East Welfare Turf Booking*\nTeam: ${teamName}\nDate: ${receiptData.date}\nTime: ${receiptData.time}\nTotal: \u20b9${totalFinal}`;
+            const text = `*East Welfare Turf Booking*\nTeam: ${teamName}\nDate: ${receiptData.date}\nTime: ${receiptData.time}\nTotal: ₹${totalFinal}`;
             window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
           }
         };
@@ -355,6 +364,48 @@ export default function BookPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleConfirm = () => {
+    if (!teamName.trim()) {
+      showAlert('Missing Info', 'Please enter your Team Name.');
+      return;
+    }
+    if (!phoneNumber.trim()) {
+      showAlert('Missing Info', 'Please enter your WhatsApp contact number.');
+      return;
+    }
+
+    const digitsOnly = phoneNumber.replace(/\D/g, '');
+    const isValidPhone = digitsOnly.length === 10 || (digitsOnly.length === 12 && digitsOnly.startsWith('91'));
+    if (!isValidPhone) {
+      showAlert('Invalid Phone', 'Please enter a valid 10-digit WhatsApp number.');
+      return;
+    }
+
+    if (selectedSlot === null) return;
+
+    if (isSlotWithinTwoHours()) {
+      showAlert(
+        'Cancellation Not Available',
+        `You have selected the ${formatTime(selectedSlot)} slot, which starts in less than 2 hours.\n\nAs per our turf policy, cancellations are only permitted up to 2 hours before the scheduled match time. Therefore, cancellation will NOT be available for this slot once reserved.\n\nDo you want to proceed with this booking?`,
+        'warning',
+        () => {
+          executeBooking();
+        },
+        undefined,
+        {
+          confirmText: 'Proceed & Book',
+          cancelText: 'Go Back',
+          onCancel: () => {
+            setCustomModal(prev => ({ ...prev, isOpen: false }));
+          }
+        }
+      );
+      return;
+    }
+
+    executeBooking();
   };
 
   if (status === 'unauthenticated') {
@@ -650,6 +701,28 @@ export default function BookPage() {
                 })()}
               </div>
             </div>
+
+            {isSlotWithinTwoHours() && (
+              <div style={{
+                background: 'rgba(255, 184, 0, 0.08)',
+                border: '1px solid rgba(255, 184, 0, 0.25)',
+                borderRadius: '12px',
+                padding: '12px 14px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '10px',
+                marginTop: '16px',
+                fontSize: '0.82rem',
+                color: '#FFB800',
+                lineHeight: 1.45,
+              }}>
+                <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: 1, color: '#FFB800' }} />
+                <div>
+                  <strong style={{ display: 'block', marginBottom: 2 }}>Cancellation Not Available</strong>
+                  <span>This slot starts within 2 hours. According to our policy, this booking cannot be cancelled once confirmed.</span>
+                </div>
+              </div>
+            )}
 
             <div className={styles.modalActions}>
               <button className={styles.cancelBtn} onClick={() => setIsModalOpen(false)}>Cancel</button>

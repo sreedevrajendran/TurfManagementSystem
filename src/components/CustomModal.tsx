@@ -6,7 +6,7 @@ import { AlertTriangle, Info, CheckCircle, X } from 'lucide-react';
 
 type CustomModalProps = {
   isOpen: boolean;
-  type: 'alert' | 'confirm' | 'success';
+  type: 'alert' | 'confirm' | 'success' | 'warning';
   title: string;
   message: string;
   onConfirm: () => void;
@@ -29,8 +29,8 @@ export default function CustomModal({
 }: CustomModalProps) {
   if (typeof document === 'undefined') return null;
 
-  const accentColor = type === 'alert' ? '#FF4D4D' : type === 'success' ? '#00E676' : '#00B0FF';
-  const glowColor = type === 'alert' ? 'rgba(255, 77, 77, 0.25)' : type === 'success' ? 'rgba(0, 230, 118, 0.25)' : 'rgba(0, 176, 255, 0.25)';
+  const accentColor = type === 'alert' ? '#FF4D4D' : type === 'warning' ? '#FFB800' : type === 'success' ? '#00E676' : '#00B0FF';
+  const glowColor = type === 'alert' ? 'rgba(255, 77, 77, 0.25)' : type === 'warning' ? 'rgba(255, 184, 0, 0.25)' : type === 'success' ? 'rgba(0, 230, 118, 0.25)' : 'rgba(0, 176, 255, 0.25)';
 
   return createPortal(
     <AnimatePresence>
@@ -87,6 +87,7 @@ export default function CustomModal({
               boxShadow: `0 0 20px ${glowColor}`,
             }}>
               {type === 'alert' && <AlertTriangle size={34} color="#FF4D4D" />}
+              {type === 'warning' && <AlertTriangle size={34} color="#FFB800" />}
               {type === 'success' && <CheckCircle size={34} color="#00E676" />}
               {type === 'confirm' && <Info size={34} color="#00B0FF" />}
             </div>
@@ -114,7 +115,7 @@ export default function CustomModal({
             {children && <div style={{ marginBottom: '24px' }}>{children}</div>}
 
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-              {type === 'confirm' && (
+              {(type === 'confirm' || type === 'warning' || !!onCancel) && (
                 <button
                   onClick={onCancel}
                   style={{
@@ -141,7 +142,7 @@ export default function CustomModal({
                 style={{
                   padding: '12px 24px',
                   borderRadius: '12px',
-                  background: type === 'alert' ? '#FF4D4D' : type === 'success' ? '#00E676' : '#00B0FF',
+                  background: type === 'alert' ? '#FF4D4D' : type === 'warning' ? '#FFB800' : type === 'success' ? '#00E676' : '#00B0FF',
                   color: '#000000',
                   border: 'none',
                   fontWeight: 800,
