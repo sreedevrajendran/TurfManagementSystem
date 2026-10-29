@@ -2,621 +2,337 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useSession, signOut, signIn } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import { 
   User, 
   LogOut, 
-  Menu, 
-  X, 
-  ShieldCheck, 
   Calendar, 
   ChevronDown,
-  Phone,
-  Flame
+  Terminal,
+  ShieldCheck,
+  Menu,
+  X,
+  Radio
 } from 'lucide-react';
 import WelcomeModal from '@/components/WelcomeModal';
 
 export default function HeaderNav() {
   const { data: session } = useSession();
   const pathname = usePathname();
+  const [visible, setVisible] = useState(true);
   const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
-  const [showNav, setShowNav] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
+  // Smart Scroll: Hide on scroll down, show on scroll up, show at top, show at scroll end
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+
       setScrolled(currentScrollY > 20);
+
+      // Condition 1: At the very top
+      const isTop = currentScrollY < 25;
       
-      if (currentScrollY > lastScrollY && currentScrollY > 80) {
-        setShowNav(false);
-      } else {
-        setShowNav(true);
+      // Condition 2: At or near the bottom/end of the page
+      const isScrollEnd = windowHeight + currentScrollY >= documentHeight - 60;
+
+      if (isTop || isScrollEnd) {
+        setVisible(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 70) {
+        // Scrolling down -> hide navbar
+        setVisible(false);
+        setUserDropdownOpen(false);
+        setMobileMenuOpen(false);
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling up -> reveal navbar
+        setVisible(true);
       }
+
       setLastScrollY(currentScrollY);
     };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
-  // Close mobile menu on route change
+  // Close menus on route navigation
   useEffect(() => {
-    setMobileMenuOpen(false);
     setUserDropdownOpen(false);
+    setMobileMenuOpen(false);
   }, [pathname]);
 
-  // Don't render on admin dashboard or user dashboard to keep them clean
+  // Hide on admin panel and dashboard for max operational workspace
   if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard')) return null;
 
   const isAdmin = (session?.user as any)?.role === 'ADMIN';
 
   return (
     <>
+      {/* Outer Fixed Floating Island Shell */}
       <header
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 100,
-          boxSizing: 'border-box',
-          width: '100%',
-          transform: showNav ? 'translateY(0)' : 'translateY(-100%)',
-          transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s, backdrop-filter 0.3s, padding 0.3s',
-          padding: scrolled ? '10px 20px' : '18px 24px',
-          background: scrolled 
-            ? 'rgba(7, 7, 9, 0.85)' 
-            : 'linear-gradient(180deg, rgba(7, 7, 9, 0.8) 0%, transparent 100%)',
-          backdropFilter: scrolled ? 'blur(16px)' : 'blur(4px)',
-          WebkitBackdropFilter: scrolled ? 'blur(16px)' : 'blur(4px)',
-          borderBottom: scrolled ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid transparent',
-        }}
+        className={`floating-navbar-shell ${visible ? 'is-visible' : 'is-hidden'} ${scrolled ? 'is-scrolled' : ''}`}
+        aria-label="Main Navigation"
       >
-        <div
-          style={{
-            maxWidth: '1280px',
-            margin: '0 auto',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '20px',
-            width: '100%',
-            boxSizing: 'border-box',
-          }}
-        >
-          {/* Brand Wordmark - Clean Athletic Typography */}
-          <Link
-            href="/"
-            style={{
-              textDecoration: 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-            }}
-          >
-            <div
-              style={{
-                fontSize: '1.25rem',
-                fontWeight: 900,
-                color: '#FFFFFF',
-                letterSpacing: '0.04em',
-                lineHeight: 1.1,
-                textTransform: 'uppercase',
-              }}
-            >
-              EAST WELFARE <span style={{ color: '#00E676' }}>TURF</span>
-            </div>
-            <div
-              style={{
-                fontSize: '0.68rem',
-                color: '#94A3B8',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                fontWeight: 600,
-                marginTop: '3px',
-              }}
-            >
-              Mannar • Kerala
-            </div>
-          </Link>
+        <div className="pill-navbar">
+          {/* Brand & Developer Telemetry */}
+          <div className="brand-group">
+            <Link href="/" className="brand-link">
+              <span className="brand-title">
+                EAST WELFARE <span className="brand-accent">TURF</span>
+              </span>
+            </Link>
 
-          {/* Desktop Nav Links (Homepage anchors) */}
-          <nav
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '28px',
-            }}
-            className="desktop-nav"
-          >
+            {/* Developer Telemetry Badge */}
+            <div className="telemetry-badge" title="Turf Live System Status">
+              <span className="telemetry-dot" />
+              <span className="telemetry-label">SYS_ACTIVE</span>
+            </div>
+          </div>
+
+          {/* Desktop Navigation Links */}
+          <nav className="desktop-nav-links">
             {pathname === '/' ? (
               <>
-                <a href="#slots-preview" className="nav-link">Live Slots</a>
-                <a href="#specs" className="nav-link">Specs &amp; Lights</a>
-                <a href="#pricing" className="nav-link">Pricing</a>
-                <a href="#reviews" className="nav-link">Reviews</a>
-                <a href="#faq" className="nav-link">FAQ</a>
+                <a href="#slots-preview" className="nav-item">
+                  <span className="nav-index">01/</span>Slots
+                </a>
+                <a href="#specs" className="nav-item">
+                  <span className="nav-index">02/</span>Specs
+                </a>
+                <a href="#pricing" className="nav-item">
+                  <span className="nav-index">03/</span>Pricing
+                </a>
+                <a href="#faq" className="nav-item">
+                  <span className="nav-index">04/</span>Rules
+                </a>
               </>
             ) : (
               <>
-                <Link href="/" className="nav-link">Home</Link>
-                <Link href="/book" className="nav-link">Book Pitch</Link>
-                {session && <Link href="/dashboard" className="nav-link">My Dashboard</Link>}
+                <Link href="/" className="nav-item">
+                  <span className="nav-index">01/</span>Home
+                </Link>
+                <Link href="/book" className="nav-item active">
+                  <span className="nav-index">02/</span>Book Pitch
+                </Link>
+                {session && (
+                  <Link href="/dashboard" className="nav-item">
+                    <span className="nav-index">03/</span>Passes
+                  </Link>
+                )}
               </>
             )}
           </nav>
 
           {/* Right Action Cluster */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-            }}
-          >
-            {/* Book Now Button */}
+          <div className="action-cluster">
+            {/* CTA Button: Book Slot */}
             {pathname !== '/book' && (
-              <Link
-                href="/book"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  background: '#00E676',
-                  color: '#000000',
-                  fontWeight: 800,
-                  fontSize: '0.92rem',
-                  padding: '9px 20px',
-                  borderRadius: '99px',
-                  textDecoration: 'none',
-                  border: '1px solid transparent',
-                  transition: 'all 0.2s',
-                  letterSpacing: '0.2px',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.background = '#00FF85';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.background = '#00E676';
-                }}
-              >
-                <Calendar size={16} />
+              <Link href="/book" className="cta-book-btn">
+                <Calendar size={15} />
                 <span>Book Slot</span>
               </Link>
             )}
 
-            {/* Auth Button or User Profile Icon */}
+            {/* User Session Profile / Sign In */}
             {session ? (
-              <div style={{ position: 'relative' }}>
+              <div className="profile-container">
                 <button
+                  type="button"
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  aria-label="User profile and booking status"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '9px',
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    padding: '6px 14px 6px 8px',
-                    borderRadius: '99px',
-                    color: '#FFFFFF',
-                    fontWeight: 700,
-                    fontSize: '0.88rem',
-                    cursor: 'pointer',
-                    backdropFilter: 'blur(12px)',
-                    transition: 'all 0.2s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-                  }}
+                  className="profile-pill-btn"
+                  aria-label="User menu"
+                  aria-expanded={userDropdownOpen}
                 >
-                  {/* Profile Avatar / Photo */}
-                  <div style={{ position: 'relative' }}>
+                  <div className="avatar-frame">
                     {session.user?.image ? (
                       <img
                         src={session.user.image}
                         alt={session.user.name || 'Player'}
-                        style={{
-                          width: '28px',
-                          height: '28px',
-                          borderRadius: '50%',
-                          objectFit: 'cover',
-                          border: '1.5px solid #00E676',
-                        }}
+                        className="avatar-img"
                       />
                     ) : (
-                      <div
-                        style={{
-                          width: '28px',
-                          height: '28px',
-                          borderRadius: '50%',
-                          background: 'linear-gradient(135deg, #00E676 0%, #00B0FF 100%)',
-                          color: '#000000',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '0.82rem',
-                          fontWeight: 900,
-                        }}
-                      >
-                        {session.user?.name ? session.user.name.charAt(0).toUpperCase() : <User size={15} />}
+                      <div className="avatar-fallback">
+                        {session.user?.name ? session.user.name.charAt(0).toUpperCase() : <User size={14} />}
                       </div>
                     )}
-                    {/* Active online green dot */}
-                    <span
-                      style={{
-                        position: 'absolute',
-                        bottom: '-1px',
-                        right: '-1px',
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        background: '#00E676',
-                        border: '1.5px solid #070709',
-                      }}
-                    />
+                    <span className="avatar-status-dot" />
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'left' }} className="hide-mobile">
-                    <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#FFFFFF', maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.1 }}>
-                      {session.user?.name?.split(' ')[0] || 'Player'}
-                    </span>
-                    <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#00E676', letterSpacing: '0.3px', lineHeight: 1 }}>
-                      Bookings &amp; Pass
-                    </span>
-                  </div>
+                  <span className="user-short-name">
+                    {session.user?.name?.split(' ')[0] || 'Player'}
+                  </span>
 
-                  <ChevronDown size={14} color="#94A3B8" style={{ transform: userDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+                  <ChevronDown
+                    size={14}
+                    className={`dropdown-chevron ${userDropdownOpen ? 'open' : ''}`}
+                  />
                 </button>
 
-                {/* Profile & Booking Status Dropdown */}
+                {/* Dropdown Menu */}
                 {userDropdownOpen && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 'calc(100% + 10px)',
-                      right: 0,
-                      width: '250px',
-                      background: '#11131A',
-                      border: '1px solid rgba(255, 255, 255, 0.14)',
-                      borderRadius: '18px',
-                      padding: '10px',
-                      boxShadow: '0 20px 48px rgba(0, 0, 0, 0.8)',
-                      backdropFilter: 'blur(20px)',
-                      zIndex: 110,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '6px',
-                      animation: 'fadeInMenu 0.15s ease-out',
-                    }}
-                  >
-                    {/* User Header Summary */}
-                    <div style={{ padding: '8px 10px 12px 10px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#FFFFFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {session.user?.name || 'Player'}
-                      </div>
-                      <div style={{ fontSize: '0.74rem', color: '#94A3B8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '2px' }}>
-                        {session.user?.email}
-                      </div>
+                  <div className="user-menu-dropdown">
+                    <div className="menu-header">
+                      <div className="menu-user-name">{session.user?.name || 'Verified Player'}</div>
+                      <div className="menu-user-email">{session.user?.email}</div>
                     </div>
 
-                    {/* View Booking Status / Pass */}
-                    <Link
-                      href="/dashboard"
-                      onClick={() => setUserDropdownOpen(false)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '10px 12px',
-                        borderRadius: '12px',
-                        background: 'rgba(0, 230, 118, 0.1)',
-                        border: '1px solid rgba(0, 230, 118, 0.25)',
-                        color: '#FFFFFF',
-                        fontSize: '0.88rem',
-                        fontWeight: 700,
-                        textDecoration: 'none',
-                        transition: 'all 0.2s',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(0, 230, 118, 0.18)';
-                        e.currentTarget.style.borderColor = '#00E676';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(0, 230, 118, 0.1)';
-                        e.currentTarget.style.borderColor = 'rgba(0, 230, 118, 0.25)';
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <User size={17} color="#00E676" />
-                        <span>My Bookings</span>
-                      </div>
-                    </Link>
-
-                    {/* Quick Book Slot */}
-                    <Link
-                      href="/book"
-                      onClick={() => setUserDropdownOpen(false)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        padding: '10px 12px',
-                        borderRadius: '10px',
-                        color: '#E2E8F0',
-                        fontSize: '0.86rem',
-                        fontWeight: 600,
-                        textDecoration: 'none',
-                        transition: 'background 0.2s',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                    >
-                      <Calendar size={16} color="#38BDF8" />
-                      <span>Book Another Slot</span>
-                    </Link>
-
-                    {isAdmin && (
+                    <div className="menu-items">
                       <Link
-                        href="/admin"
+                        href="/dashboard"
                         onClick={() => setUserDropdownOpen(false)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          padding: '10px 12px',
-                          borderRadius: '10px',
-                          color: '#00E5FF',
-                          fontSize: '0.86rem',
-                          fontWeight: 700,
-                          textDecoration: 'none',
-                          transition: 'background 0.2s',
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0, 229, 255, 0.1)'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        className="menu-link primary"
                       >
-                        <ShieldCheck size={16} />
-                        <span>Admin Console</span>
+                        <User size={15} />
+                        <span>My Bookings &amp; Passes</span>
                       </Link>
-                    )}
 
-                    <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', margin: '4px 0' }} />
+                      <Link
+                        href="/book"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="menu-link"
+                      >
+                        <Calendar size={15} />
+                        <span>Book Another Slot</span>
+                      </Link>
 
-                    <button
-                      onClick={() => {
-                        setUserDropdownOpen(false);
-                        signOut({ callbackUrl: '/' });
-                      }}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        padding: '9px 12px',
-                        borderRadius: '10px',
-                        color: '#FF6B6B',
-                        fontSize: '0.86rem',
-                        fontWeight: 600,
-                        border: 'none',
-                        background: 'transparent',
-                        cursor: 'pointer',
-                        width: '100%',
-                        textAlign: 'left',
-                        transition: 'background 0.2s',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 107, 107, 0.12)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                    >
-                      <LogOut size={16} />
-                      <span>Sign Out</span>
-                    </button>
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="menu-link admin"
+                        >
+                          <ShieldCheck size={15} />
+                          <span>Admin Console</span>
+                        </Link>
+                      )}
+
+                      <div className="menu-separator" />
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserDropdownOpen(false);
+                          signOut({ callbackUrl: '/' });
+                        }}
+                        className="menu-link logout"
+                      >
+                        <LogOut size={15} />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
             ) : (
               <button
+                type="button"
                 onClick={() => setShowWelcomeModal(true)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.18)',
-                  color: '#FFFFFF',
-                  padding: '10px 18px',
-                  borderRadius: '99px',
-                  fontWeight: 700,
-                  fontSize: '0.88rem',
-                  cursor: 'pointer',
-                  backdropFilter: 'blur(10px)',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.16)';
-                  e.currentTarget.style.borderColor = 'rgba(0, 230, 118, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.18)';
-                }}
+                className="signin-pill-btn"
               >
                 <span>Sign In</span>
               </button>
             )}
 
-            {/* Mobile Menu Toggle Button */}
+            {/* Mobile Sheet Toggle */}
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="mobile-toggle-btn"
+              className="mobile-menu-trigger"
               aria-label="Toggle navigation menu"
-              style={{
-                display: 'none',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '40px',
-                height: '40px',
-                borderRadius: '12px',
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                color: '#FFFFFF',
-                cursor: 'pointer',
-              }}
             >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </div>
 
         {/* Mobile Slide-down Sheet */}
         {mobileMenuOpen && (
-          <div
-            style={{
-              padding: '24px 16px',
-              background: '#0D0E14',
-              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-              marginTop: '12px',
-              borderRadius: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '16px',
-            }}
-          >
-            {/* Profile banner on mobile when signed in */}
-            {session && (
-              <Link
-                href="/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '12px 14px',
-                  borderRadius: '14px',
-                  background: 'rgba(0, 230, 118, 0.1)',
-                  border: '1px solid rgba(0, 230, 118, 0.25)',
-                  textDecoration: 'none',
-                }}
-              >
-                {session.user?.image ? (
-                  <img
-                    src={session.user.image}
-                    alt={session.user.name || 'Player'}
-                    style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1.5px solid #00E676' }}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #00E676 0%, #00B0FF 100%)',
-                      color: '#000',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '0.9rem',
-                      fontWeight: 900,
-                    }}
-                  >
-                    {session.user?.name ? session.user.name.charAt(0).toUpperCase() : <User size={18} />}
-                  </div>
-                )}
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#FFFFFF' }}>
-                    {session.user?.name || 'Player'}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#00E676', fontWeight: 700 }}>
-                    My Bookings →
-                  </div>
+          <div className="mobile-sheet">
+            {session ? (
+              <div className="mobile-user-card">
+                <div className="mobile-user-info">
+                  <div className="mobile-user-name">{session.user?.name || 'Player'}</div>
+                  <div className="mobile-user-email">{session.user?.email}</div>
                 </div>
-              </Link>
-            )}
-
-            {pathname === '/' ? (
-              <>
-                <a href="#slots-preview" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Live Slot Availability</a>
-                <a href="#specs" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Stadium Lights &amp; Specs</a>
-                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Pricing &amp; Offers</a>
-                <a href="#reviews" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Player Reviews</a>
-                <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">FAQ &amp; Rules</a>
-              </>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="mobile-passes-btn"
+                >
+                  My Passes →
+                </Link>
+              </div>
             ) : (
-              <>
-                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Home</Link>
-                <Link href="/book" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">Book Pitch</Link>
-                {session && <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-link">My Dashboard</Link>}
-              </>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setShowWelcomeModal(true);
+                }}
+                className="mobile-signin-btn"
+              >
+                Sign In with Google
+              </button>
             )}
 
-            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div className="mobile-nav-group">
+              {pathname === '/' ? (
+                <>
+                  <a href="#slots-preview" onClick={() => setMobileMenuOpen(false)} className="mobile-item">
+                    Live Slots Available
+                  </a>
+                  <a href="#specs" onClick={() => setMobileMenuOpen(false)} className="mobile-item">
+                    Pitch Specs &amp; Lighting
+                  </a>
+                  <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="mobile-item">
+                    Pricing &amp; Offers
+                  </a>
+                  <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="mobile-item">
+                    Rules &amp; Guidelines
+                  </a>
+                </>
+              ) : (
+                <>
+                  <Link href="/" onClick={() => setMobileMenuOpen(false)} className="mobile-item">
+                    Home
+                  </Link>
+                  <Link href="/book" onClick={() => setMobileMenuOpen(false)} className="mobile-item">
+                    Book Pitch
+                  </Link>
+                  {session && (
+                    <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="mobile-item">
+                      My Dashboard
+                    </Link>
+                  )}
+                </>
+              )}
+            </div>
+
+            <div className="mobile-footer-actions">
               <Link
                 href="/book"
                 onClick={() => setMobileMenuOpen(false)}
-                style={{
-                  width: '100%',
-                  textAlign: 'center',
-                  background: '#00E676',
-                  color: '#000000',
-                  padding: '10px 16px',
-                  borderRadius: '12px',
-                  fontWeight: 800,
-                  fontSize: '0.9rem',
-                  textDecoration: 'none'
-                }}
+                className="mobile-book-cta"
               >
-                Book Your Slot Now
+                Instant Slot Booking
               </Link>
-              {session ? (
+              {session && (
                 <button
+                  type="button"
                   onClick={() => {
                     setMobileMenuOpen(false);
                     signOut({ callbackUrl: '/' });
                   }}
-                  style={{
-                    width: '100%',
-                    color: '#FF6B6B',
-                    background: 'rgba(255, 255, 255, 0.06)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    padding: '10px 16px',
-                    borderRadius: '12px',
-                    fontWeight: 700,
-                    fontSize: '0.9rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
+                  className="mobile-logout-btn"
                 >
-                  <LogOut size={16} /> Sign Out
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setShowWelcomeModal(true);
-                  }}
-                  style={{
-                    width: '100%',
-                    color: '#FFFFFF',
-                    background: 'rgba(255, 255, 255, 0.06)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    padding: '10px 16px',
-                    borderRadius: '12px',
-                    fontWeight: 700,
-                    fontSize: '0.9rem'
-                  }}
-                >
-                  Sign In with Google
+                  <LogOut size={15} />
+                  <span>Sign Out</span>
                 </button>
               )}
             </div>
@@ -630,38 +346,511 @@ export default function HeaderNav() {
         onClose={() => setShowWelcomeModal(false)}
       />
 
-      <style jsx global>{`
-        .nav-link {
-          color: #94A3B8;
-          font-size: 0.92rem;
-          font-weight: 600;
-          transition: color 0.2s ease;
-          text-decoration: none;
+      <style jsx>{`
+        /* Floating Navbar Shell */
+        .floating-navbar-shell {
+          position: fixed;
+          top: 14px;
+          left: 0;
+          right: 0;
+          z-index: 1000;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 0 16px;
+          pointer-events: none;
+          transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
         }
-        .nav-link:hover {
+
+        .floating-navbar-shell.is-visible {
+          transform: translateY(0);
+          opacity: 1;
+        }
+
+        .floating-navbar-shell.is-hidden {
+          transform: translateY(-130%);
+          opacity: 0;
+        }
+
+        /* Pill Container (Software Engineered Cut & Chamfer) */
+        .pill-navbar {
+          pointer-events: auto;
+          width: 100%;
+          max-width: 1060px;
+          height: 54px;
+          border-radius: 9999px;
+          padding: 0 8px 0 18px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background: rgba(9, 11, 16, 0.78);
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          box-shadow: 
+            0 16px 36px -10px rgba(0, 0, 0, 0.8),
+            0 0 0 1px rgba(0, 230, 118, 0.08),
+            inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
+          transition: border-color 0.25s ease, background 0.25s ease;
+        }
+
+        .floating-navbar-shell.is-scrolled .pill-navbar {
+          background: rgba(8, 10, 15, 0.88);
+          border-color: rgba(255, 255, 255, 0.16);
+          box-shadow: 
+            0 20px 42px -10px rgba(0, 0, 0, 0.88),
+            0 0 20px rgba(0, 230, 118, 0.12),
+            inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+        }
+
+        /* Brand & Telemetry */
+        .brand-group {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .brand-link {
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+        }
+
+        .brand-title {
+          font-family: var(--font-display, sans-serif);
+          font-size: 0.96rem;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+          color: #FFFFFF;
+          text-transform: uppercase;
+        }
+
+        .brand-accent {
+          color: var(--primary-accent, #00E676);
+        }
+
+        .telemetry-badge {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 3px 8px;
+          border-radius: 9999px;
+          background: rgba(0, 230, 118, 0.08);
+          border: 1px solid rgba(0, 230, 118, 0.2);
+        }
+
+        .telemetry-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #00E676;
+          box-shadow: 0 0 8px #00E676;
+          animation: pulseDot 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseDot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .telemetry-label {
+          font-family: var(--font-mono, monospace);
+          font-size: 0.65rem;
+          font-weight: 700;
+          color: #A7F3D0;
+          letter-spacing: 0.06em;
+        }
+
+        /* Desktop Nav Items */
+        .desktop-nav-links {
+          display: flex;
+          align-items: center;
+          gap: 22px;
+        }
+
+        .nav-item {
+          color: #94A3B8;
+          font-size: 0.84rem;
+          font-weight: 600;
+          text-decoration: none;
+          transition: color 0.2s ease;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .nav-index {
+          font-family: var(--font-mono, monospace);
+          font-size: 0.7rem;
+          color: #475569;
+          font-weight: 500;
+        }
+
+        .nav-item:hover {
+          color: #FFFFFF;
+        }
+
+        .nav-item:hover .nav-index {
+          color: var(--primary-accent, #00E676);
+        }
+
+        .nav-item.active {
+          color: var(--primary-accent, #00E676);
+        }
+
+        /* Action Cluster */
+        .action-cluster {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .cta-book-btn {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: var(--primary-accent, #00E676);
+          color: #000000;
+          font-weight: 800;
+          font-size: 0.82rem;
+          letter-spacing: 0.02em;
+          padding: 8px 16px;
+          border-radius: 9999px;
+          text-decoration: none;
+          box-shadow: 0 4px 14px rgba(0, 230, 118, 0.35);
+          transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .cta-book-btn:hover {
+          background: var(--primary-accent-hover, #00FF85);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(0, 230, 118, 0.5);
+        }
+
+        /* Profile Button */
+        .profile-container {
+          position: relative;
+        }
+
+        .profile-pill-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          padding: 4px 12px 4px 5px;
+          border-radius: 9999px;
+          color: #FFFFFF;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .profile-pill-btn:hover {
+          background: rgba(255, 255, 255, 0.12);
+          border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .avatar-frame {
+          position: relative;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+        }
+
+        .avatar-img {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 1.5px solid var(--primary-accent, #00E676);
+        }
+
+        .avatar-fallback {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #00E676 0%, #00B0FF 100%);
+          color: #000000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.75rem;
+          font-weight: 800;
+        }
+
+        .avatar-status-dot {
+          position: absolute;
+          bottom: -1px;
+          right: -1px;
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #00E676;
+          border: 1.5px solid #090B10;
+        }
+
+        .user-short-name {
+          font-size: 0.8rem;
+          font-weight: 700;
+          color: #F1F5F9;
+        }
+
+        .dropdown-chevron {
+          color: #94A3B8;
+          transition: transform 0.2s ease;
+        }
+
+        .dropdown-chevron.open {
+          transform: rotate(180deg);
+        }
+
+        /* Sign In Pill */
+        .signin-pill-btn {
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          color: #FFFFFF;
+          font-size: 0.82rem;
+          font-weight: 700;
+          padding: 7px 16px;
+          border-radius: 9999px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .signin-pill-btn:hover {
+          background: rgba(255, 255, 255, 0.15);
+          border-color: rgba(0, 230, 118, 0.4);
+        }
+
+        /* User Dropdown */
+        .user-menu-dropdown {
+          position: absolute;
+          top: calc(100% + 8px);
+          right: 0;
+          width: 230px;
+          background: #0F121B;
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          border-radius: 16px;
+          padding: 8px;
+          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.8);
+          backdrop-filter: blur(20px);
+          z-index: 1050;
+        }
+
+        .menu-header {
+          padding: 8px 10px 10px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .menu-user-name {
+          font-size: 0.86rem;
+          font-weight: 800;
+          color: #FFFFFF;
+        }
+
+        .menu-user-email {
+          font-size: 0.72rem;
+          color: #94A3B8;
+          font-family: var(--font-mono, monospace);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          margin-top: 2px;
+        }
+
+        .menu-items {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          margin-top: 6px;
+        }
+
+        .menu-link {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 10px;
+          border-radius: 8px;
+          color: #E2E8F0;
+          font-size: 0.82rem;
+          font-weight: 600;
+          text-decoration: none;
+          background: none;
+          border: none;
+          cursor: pointer;
+          width: 100%;
+          text-align: left;
+          transition: background 0.15s ease;
+        }
+
+        .menu-link:hover {
+          background: rgba(255, 255, 255, 0.08);
+        }
+
+        .menu-link.primary {
           color: #00E676;
         }
-        .mobile-nav-link {
-          color: #E2E8F0;
-          font-size: 0.95rem;
+
+        .menu-link.admin {
+          color: #00E5FF;
+        }
+
+        .menu-link.logout {
+          color: #FF6B6B;
+        }
+
+        .menu-separator {
+          height: 1px;
+          background: rgba(255, 255, 255, 0.08);
+          margin: 4px 0;
+        }
+
+        /* Mobile Menu Trigger Button */
+        .mobile-menu-trigger {
+          display: none;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          color: #FFFFFF;
+          cursor: pointer;
+        }
+
+        /* Mobile Sheet */
+        .mobile-sheet {
+          pointer-events: auto;
+          width: 100%;
+          max-width: 500px;
+          background: rgba(12, 14, 20, 0.95);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 20px;
+          margin-top: 8px;
+          padding: 16px;
+          backdrop-filter: blur(24px);
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85);
+        }
+
+        .mobile-user-card {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px 12px;
+          border-radius: 12px;
+          background: rgba(0, 230, 118, 0.08);
+          border: 1px solid rgba(0, 230, 118, 0.2);
+        }
+
+        .mobile-user-name {
+          font-size: 0.88rem;
+          font-weight: 800;
+          color: #FFFFFF;
+        }
+
+        .mobile-user-email {
+          font-size: 0.72rem;
+          color: #94A3B8;
+          font-family: var(--font-mono, monospace);
+        }
+
+        .mobile-passes-btn {
+          font-size: 0.78rem;
           font-weight: 700;
+          color: #00E676;
+          text-decoration: none;
+        }
+
+        .mobile-signin-btn {
+          width: 100%;
+          padding: 10px;
+          border-radius: 12px;
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          color: #FFFFFF;
+          font-weight: 700;
+          font-size: 0.85rem;
+          cursor: pointer;
+        }
+
+        .mobile-nav-group {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .mobile-item {
           padding: 8px 12px;
           border-radius: 8px;
-          transition: background 0.2s;
+          color: #E2E8F0;
+          font-size: 0.88rem;
+          font-weight: 600;
+          text-decoration: none;
+          transition: background 0.15s ease;
         }
-        .mobile-nav-link:hover {
+
+        .mobile-item:hover {
           background: rgba(255, 255, 255, 0.06);
           color: #00E676;
         }
-        @media (max-width: 900px) {
-          .desktop-nav {
+
+        .mobile-footer-actions {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
+          padding-top: 12px;
+        }
+
+        .mobile-book-cta {
+          width: 100%;
+          text-align: center;
+          padding: 10px;
+          border-radius: 12px;
+          background: var(--primary-accent, #00E676);
+          color: #000000;
+          font-weight: 800;
+          font-size: 0.86rem;
+          text-decoration: none;
+        }
+
+        .mobile-logout-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          width: 100%;
+          padding: 9px;
+          border-radius: 10px;
+          background: rgba(255, 107, 107, 0.1);
+          border: 1px solid rgba(255, 107, 107, 0.25);
+          color: #FF6B6B;
+          font-size: 0.82rem;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        /* Breakpoints */
+        @media (max-width: 820px) {
+          .desktop-nav-links {
             display: none !important;
           }
-          .mobile-toggle-btn {
+          .mobile-menu-trigger {
             display: flex !important;
           }
-          .hide-mobile {
-            display: none !important;
+          .user-short-name {
+            display: none;
+          }
+          .telemetry-badge {
+            display: none;
+          }
+          .pill-navbar {
+            height: 48px;
+            padding: 0 6px 0 14px;
           }
         }
       `}</style>

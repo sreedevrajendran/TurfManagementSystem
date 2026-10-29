@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { sendAdminCancelBookingNotification } from "@/lib/email";
+import { sanitizeText } from "@/lib/sanitize";
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
@@ -15,10 +16,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { bookingId } = await req.json();
+    const body = await req.json();
+    const { bookingId } = body;
 
-    if (!bookingId) {
-      return NextResponse.json({ error: "Missing bookingId" }, { status: 400 });
+    if (!bookingId || typeof bookingId !== 'string' || bookingId.length > 50) {
+      return NextResponse.json({ error: "Invalid booking ID" }, { status: 400 });
     }
 
     const booking = await prisma.booking.findUnique({
@@ -30,14 +32,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
+    if (booking.status === "CANCELLED") {
+      return NextResponse.json({ error: "Booking has already been cancelled." }, { status: 400 });
+    }
+
     const isAdmin = (session.user as any).role === "ADMIN";
     
     // Check if the user owns the booking or is an admin
     if (booking.user?.email !== session.user.email && !isAdmin) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "Forbidden: You cannot cancel another user's booking" }, { status: 403 });
     }
 
-    // Only allow user cancellation if the slot is more than 30 minutes away
+    // Only allow customer cancellation if the slot is more than 30 minutes away
     const now = new Date();
     const bookingDate = new Date(booking.date);
     bookingDate.setHours(booking.startTime, 0, 0, 0);
@@ -57,14 +63,17 @@ export async function POST(req: NextRequest) {
     const start12Hour = booking.startTime % 12 || 12;
     const ampm = booking.startTime >= 12 ? 'PM' : 'AM';
 
+    const rawPhone = booking.phone || booking.team?.phone || '';
+    const cleanPhone = rawPhone.includes('_') ? rawPhone.split('_')[0] : rawPhone;
+
     // Notify admin
     sendAdminCancelBookingNotification({
       date: new Date(booking.date).toLocaleDateString('en-IN'),
       startTime: `${booking.startTime}:00 (${start12Hour}:00 ${ampm})`,
       court: booking.sport,
-      userName: session.user.name,
+      userName: sanitizeText(session.user.name || booking.teamName || 'User'),
       userEmail: session.user.email,
-      phone: booking.team?.phone,
+      phone: cleanPhone !== 'NO_PHONE' ? cleanPhone : 'Not provided',
     }).catch(err => console.error("Cancel email notification failed:", err));
 
     return NextResponse.json({ success: true, booking: updatedBooking });

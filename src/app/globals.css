@@ -1,14 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800;900&display=swap');
 
 :root {
-  --bg-color: #070709;
-  --bg-surface: #0E0F14;
-  --bg-surface-elevated: #15161E;
-  --bg-surface-hover: #1C1E28;
-  --bg-glass: rgba(14, 15, 20, 0.75);
-  --bg-glass-card: rgba(21, 22, 30, 0.65);
+  --bg-color: #06080D;
+  --bg-surface: #0C0F17;
+  --bg-surface-elevated: #121622;
+  --bg-surface-hover: #181E2E;
+  --bg-glass: rgba(12, 15, 23, 0.78);
+  --bg-glass-card: rgba(18, 22, 34, 0.65);
   
-  --text-primary: #FFFFFF;
+  --text-primary: #F8FAFC;
   --text-secondary: #94A3B8;
   --text-muted: #64748B;
   
@@ -34,11 +34,16 @@
   --slot-booked-border: rgba(255, 255, 255, 0.06);
   --slot-booked-text: #475569;
   
-  --border-color: rgba(255, 255, 255, 0.08);
+  --border-color: rgba(255, 255, 255, 0.09);
   --border-color-glow: rgba(0, 230, 118, 0.2);
   
-  --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-body: 'Plus Jakarta Sans', sans-serif;
+  /* Modern High-End Developer Typography */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-display: 'Space Grotesk', var(--font-sans);
+  
+  --font-family: var(--font-sans);
+  --font-body: var(--font-sans);
   
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -55,9 +60,10 @@ html {
   overflow-x: hidden;
   overflow-y: auto;
   scroll-behavior: smooth;
-  scroll-padding-top: 90px;
+  scroll-padding-top: 100px;
   color-scheme: dark;
   background-color: var(--bg-color);
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -74,16 +80,31 @@ body {
   position: relative;
 }
 
-/* Ambient stadium background mesh */
+/* Developer Sub-pixel Grid & Ambient stadium background mesh */
 body::before {
   content: '';
   position: fixed;
-  top: -20%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 64px 64px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: -10%;
   left: 50%;
   transform: translateX(-50%);
-  width: 1200px;
-  height: 600px;
-  background: radial-gradient(circle at 50% 30%, rgba(0, 230, 118, 0.06) 0%, rgba(0, 229, 255, 0.03) 40%, transparent 70%);
+  width: 1000px;
+  height: 500px;
+  background: radial-gradient(circle at 50% 30%, rgba(0, 230, 118, 0.07) 0%, rgba(0, 229, 255, 0.03) 40%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -101,6 +122,7 @@ button {
 }
 
 h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: -0.025em;
 }
@@ -108,16 +130,16 @@ h1, h2, h3, h4, h5, h6 {
 /* Glassmorphism utilities */
 .glass-panel {
   background: var(--bg-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-color);
   border-radius: 20px;
 }
 
 .glass-card {
   background: var(--bg-glass-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   transition: all var(--transition-smooth);
@@ -126,7 +148,7 @@ h1, h2, h3, h4, h5, h6 {
 .glass-card:hover {
   border-color: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
 }
 
 /* Typography styles */
@@ -142,26 +164,30 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-text-fill-color: transparent;
 }
 
+/* Buttons */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: #00E676;
+  background: var(--primary-accent);
   color: #000000;
+  font-family: var(--font-sans);
   font-weight: 800;
   font-size: 0.95rem;
   padding: 13px 26px;
-  border-radius: 99px;
+  border-radius: 9999px;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   letter-spacing: 0.02em;
+  box-shadow: 0 4px 18px rgba(0, 230, 118, 0.35);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  background: #00FF85;
+  background: var(--primary-accent-hover);
+  box-shadow: 0 6px 24px rgba(0, 230, 118, 0.5);
 }
 
 .btn-secondary {
@@ -171,10 +197,11 @@ h1, h2, h3, h4, h5, h6 {
   gap: 10px;
   background: rgba(255, 255, 255, 0.06);
   color: #FFFFFF;
+  font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 1rem;
-  padding: 14px 28px;
-  border-radius: 99px;
+  font-size: 0.95rem;
+  padding: 13px 26px;
+  border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   cursor: pointer;
@@ -187,39 +214,42 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-2px);
 }
 
-/* Modern animations */
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 15px rgba(0, 230, 118, 0.3); }
-  50% { box-shadow: 0 0 30px rgba(0, 230, 118, 0.6); }
-}
-
-@keyframes floatAnim {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-.animate-float {
-  animation: floatAnim 4s ease-in-out infinite;
+/* Code & Telemetry helpers */
+.code-pill {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #A7F3D0;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-color);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1E222D;
-  border-radius: 4px;
+  background: #1B2130;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary-accent);
 }
 
-/* Responsive safety */
+/* Responsive safety & Mobile Aspect */
 img, video, iframe {
   max-width: 100%;
   height: auto;
+}
+
+/* On mobile devices, reserve bottom padding so content never collides with native bottom navigation */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px));
+  }
 }

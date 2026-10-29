@@ -18,8 +18,8 @@ export async function POST(req: NextRequest) {
   try {
     const { bookingId } = await req.json();
 
-    if (!bookingId) {
-      return NextResponse.json({ error: "Missing bookingId" }, { status: 400 });
+    if (!bookingId || typeof bookingId !== 'string' || bookingId.length > 50) {
+      return NextResponse.json({ error: "Invalid booking ID" }, { status: 400 });
     }
 
     const booking = await prisma.booking.findUnique({
@@ -31,8 +31,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
+    if (booking.status === "CANCELLED") {
+      return NextResponse.json({ error: "Cannot mark a cancelled booking as no-show." }, { status: 400 });
+    }
+
     // Apply a 50% penalty
-    const penaltyAmount = booking.amount * 0.5;
+    const penaltyAmount = Math.round(booking.amount * 0.5);
 
     const updatedBooking = await prisma.booking.update({
       where: { id: bookingId },
@@ -41,8 +45,6 @@ export async function POST(req: NextRequest) {
         amount: penaltyAmount,
       },
     });
-
-
 
     return NextResponse.json({ success: true, booking: updatedBooking });
   } catch (err: any) {

@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "./prisma";
 
-const ADMIN_EMAIL = "eastwelfareturf@gmail.com";
+export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "eastwelfareturf@gmail.com";
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma) as any,

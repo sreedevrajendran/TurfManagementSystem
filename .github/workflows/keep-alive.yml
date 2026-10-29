@@ -12,9 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Keep-Alive Endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           echo "Sending keep-alive ping to East Welfare Turf database..."
-          HTTP_RESPONSE=$(curl -s -o response.json -w "%{http_code}" https://eastwelfareturf.vercel.app/api/cron/keep-alive)
+          AUTH_HEADER=""
+          if [ -n "$CRON_SECRET" ]; then
+            AUTH_HEADER="Authorization: Bearer $CRON_SECRET"
+          fi
+          HTTP_RESPONSE=$(curl -s -o response.json -w "%{http_code}" -H "$AUTH_HEADER" https://eastwelfareturf.vercel.app/api/cron/keep-alive)
           echo "HTTP Status: $HTTP_RESPONSE"
           cat response.json || true
           if [ "$HTTP_RESPONSE" -eq 200 ]; then

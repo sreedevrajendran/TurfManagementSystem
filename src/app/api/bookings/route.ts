@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { sendAdminNewBookingNotification } from "@/lib/email";
+import { sanitizeText, sanitizePhone } from "@/lib/sanitize";
+import { calculateServerPrice } from "@/lib/pricing";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -16,8 +18,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing date parameter" }, { status: 400 });
   }
 
-  // Set the start and end of the requested day in local time
   const startOfDay = new Date(dateStr);
+  if (isNaN(startOfDay.getTime())) {
+    return NextResponse.json({ error: "Invalid date format" }, { status: 400 });
+  }
+
+  // Set the start and end of the requested day in local time
   startOfDay.setHours(0, 0, 0, 0);
   const endOfDay = new Date(startOfDay);
   endOfDay.setHours(23, 59, 59, 999);
@@ -62,66 +68,63 @@ export async function POST(req: NextRequest) {
   }
 
   const isAdmin = (session.user as any).role === "ADMIN";
+  const userEmail = session.user.email;
+  const userName = session.user.name;
+  const userImage = (session.user as any)?.image;
 
   try {
-    const { date, startTime, durationHours, teamName, phone, amount, sport = 'FOOTBALL' } = await req.json();
+    const body = await req.json();
+    const { date, startTime, durationHours = 1, teamName, phone, amount, sport = 'FOOTBALL' } = body;
 
-    if (!date || startTime === undefined || !teamName || !amount) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    // ── Input Validation & Sanitization ─────────────────────────────────────
+    if (!date || startTime === undefined || !teamName) {
+      return NextResponse.json({ error: "Missing required fields: date, startTime, teamName" }, { status: 400 });
     }
-    
-    if (phone) {
-      const digitsOnly = phone.replace(/\D/g, '');
-      const isValidPhone = digitsOnly.length === 10 || (digitsOnly.length === 12 && digitsOnly.startsWith('91'));
-      if (!isValidPhone) {
-        return NextResponse.json({ error: "Invalid phone number. Must be exactly 10 digits." }, { status: 400 });
+
+    const cleanTeamName = sanitizeText(teamName, 50);
+    if (cleanTeamName.length < 2) {
+      return NextResponse.json({ error: "Team name must be at least 2 characters long." }, { status: 400 });
+    }
+
+    const startHour = Number(startTime);
+    if (!Number.isInteger(startHour) || startHour < 0 || startHour > 23) {
+      return NextResponse.json({ error: "Invalid start time. Must be an hour between 0 and 23." }, { status: 400 });
+    }
+
+    const durHours = Number(durationHours);
+    if (!Number.isInteger(durHours) || durHours < 1 || durHours > 4) {
+      return NextResponse.json({ error: "Invalid duration. Bookings can be between 1 and 4 hours." }, { status: 400 });
+    }
+
+    const validSports = ['FOOTBALL', 'CRICKET'];
+    const selectedSport = validSports.includes(sport) ? sport : 'FOOTBALL';
+
+    let cleanPhone: string | null = null;
+    if (phone && String(phone).trim() !== '') {
+      cleanPhone = sanitizePhone(String(phone));
+      if (!cleanPhone) {
+        return NextResponse.json({ error: "Invalid phone number. Must be a valid 10-digit number." }, { status: 400 });
       }
     }
 
-    // ── Ensure User exists in DB (upsert by email) ──────────────────────────
-    // This handles the case where NextAuth JWT + PrismaAdapter hasn't saved
-    // the user to the DB yet (foreign key fix).
-    const dbUser = await prisma.user.upsert({
-      where: { email: session.user.email },
-      update: {
-        name: session.user.name ?? undefined,
-        image: (session.user as any).image ?? undefined,
-      },
-      create: {
-        email: session.user.email,
-        name: session.user.name ?? null,
-        image: (session.user as any).image ?? null,
-        role: isAdmin ? "ADMIN" : "CUSTOMER",
-      },
-    });
-
-    // ── Create isolated Team record for this booking ────────────────────────
-    // Using a unique key prevents overwriting team names across past bookings
-    const cleanPhone = phone && phone.trim() !== '' ? phone.trim() : '';
-    const uniqueTeamPhone = `${cleanPhone || 'NO_PHONE'}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-    
-    const team = await prisma.team.create({
-      data: {
-        name: teamName.trim(),
-        phone: uniqueTeamPhone,
-      },
-    });
+    const bookingDate = new Date(date);
+    if (isNaN(bookingDate.getTime())) {
+      return NextResponse.json({ error: "Invalid booking date." }, { status: 400 });
+    }
+    bookingDate.setHours(0, 0, 0, 0);
 
     // ── Timezone-aware validation in IST (Asia/Kolkata = UTC+5:30) ─────────
-    const nowUtc = new Date().getTime();
+    const nowUtc = Date.now();
     const istOffset = 5.5 * 60 * 60 * 1000;
     const istNow = new Date(nowUtc + istOffset);
 
-    const bookingDate = new Date(date);
-    const bookingDateUtc = bookingDate.getTime();
-    const istBooking = new Date(bookingDateUtc + istOffset);
-
+    const istBooking = new Date(bookingDate.getTime() + istOffset);
     const istBookingDateStr = `${istBooking.getUTCFullYear()}-${String(istBooking.getUTCMonth() + 1).padStart(2, '0')}-${String(istBooking.getUTCDate()).padStart(2, '0')}`;
     const istNowDateStr = `${istNow.getUTCFullYear()}-${String(istNow.getUTCMonth() + 1).padStart(2, '0')}-${String(istNow.getUTCDate()).padStart(2, '0')}`;
 
     const isPastDate = istBookingDateStr < istNowDateStr;
     const isToday = istBookingDateStr === istNowDateStr;
-    const isPastHour = isToday && Number(startTime) < istNow.getUTCHours();
+    const isPastHour = isToday && startHour < istNow.getUTCHours();
 
     if ((isPastDate || isPastHour) && !isAdmin) {
       return NextResponse.json(
@@ -130,60 +133,116 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ── Conflict check — prevent double-booking same slot ────────────────────
-    const existingBooking = await prisma.booking.findFirst({
-      where: {
-        date: bookingDate,
-        startTime: Number(startTime),
-        status: { not: 'CANCELLED' },
-      },
+    // Limit forward booking window (e.g. max 60 days ahead)
+    const maxFutureMs = 60 * 24 * 60 * 60 * 1000;
+    if (bookingDate.getTime() - Date.now() > maxFutureMs && !isAdmin) {
+      return NextResponse.json(
+        { error: 'Bookings can only be made up to 60 days in advance.' },
+        { status: 400 }
+      );
+    }
+
+    // ── Server-Side Authoritative Pricing ──────────────────────────────────
+    // Prevent client-side price tampering by recalculating against active DB rates
+    const serverPricing = await calculateServerPrice(bookingDate, startHour, durHours);
+    let finalAmount = serverPricing.totalAmount;
+
+    // Admin can specify a custom price, but for regular customers, enforce server price
+    if (isAdmin && amount !== undefined && !isNaN(Number(amount)) && Number(amount) >= 0) {
+      finalAmount = Number(amount);
+    }
+
+    // ── Atomic Conflict Check & Booking Creation in Transaction ────────────
+    const bookingResult = await prisma.$transaction(async (tx) => {
+      // Find all active bookings on that date
+      const activeBookings = await tx.booking.findMany({
+        where: {
+          date: bookingDate,
+          status: { not: 'CANCELLED' },
+        },
+        select: {
+          id: true,
+          startTime: true,
+          durationHours: true,
+        },
+      });
+
+      // Check for interval overlap: [startHour, startHour + durHours) vs [b.startTime, b.startTime + b.durationHours)
+      const hasConflict = activeBookings.some((b) => {
+        const bStart = b.startTime;
+        const bEnd = b.startTime + b.durationHours;
+        const reqStart = startHour;
+        const reqEnd = startHour + durHours;
+        return reqStart < bEnd && bStart < reqEnd;
+      });
+
+      if (hasConflict) {
+        throw new Error("CONFLICT_SLOT_BOOKED");
+      }
+
+      // Ensure user exists in DB
+      const dbUser = await tx.user.upsert({
+        where: { email: userEmail },
+        update: {
+          name: userName ? sanitizeText(userName, 50) : undefined,
+          image: userImage ?? undefined,
+        },
+        create: {
+          email: userEmail,
+          name: userName ? sanitizeText(userName, 50) : null,
+          image: userImage ?? null,
+          role: isAdmin ? "ADMIN" : "CUSTOMER",
+        },
+      });
+
+      // Create isolated Team record
+      const uniqueTeamPhone = `${cleanPhone || 'NO_PHONE'}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+      const team = await tx.team.create({
+        data: {
+          name: cleanTeamName,
+          phone: uniqueTeamPhone,
+        },
+      });
+
+      // Create Booking record
+      const newBooking = await tx.booking.create({
+        data: {
+          date: bookingDate,
+          startTime: startHour,
+          durationHours: durHours,
+          amount: finalAmount,
+          sport: selectedSport as any,
+          status: "DUE",
+          teamName: cleanTeamName,
+          phone: cleanPhone,
+          teamId: team.id,
+          userId: dbUser.id,
+        },
+      });
+
+      return newBooking;
     });
-    if (existingBooking) {
+
+    // Notify admin safely via email (sanitized inputs)
+    sendAdminNewBookingNotification({
+      date: bookingDate.toLocaleDateString('en-IN'),
+      startTime: `${startHour}:00`,
+      durationHours: durHours,
+      totalPrice: finalAmount,
+      court: selectedSport,
+      userName: cleanTeamName,
+      userEmail: session.user.email,
+      phone: cleanPhone || 'Not provided',
+    }).catch(err => console.error("Email notification failed:", err));
+
+    return NextResponse.json({ success: true, booking: bookingResult });
+  } catch (err: any) {
+    if (err?.message === "CONFLICT_SLOT_BOOKED") {
       return NextResponse.json(
         { error: 'This slot has already been booked. Please choose another time.' },
         { status: 409 }
       );
     }
-
-    // ── Create Booking ───────────────────────────────────────────────────────
-    const booking = await prisma.booking.create({
-      data: {
-        date: bookingDate,
-        startTime: Number(startTime),
-        durationHours: Number(durationHours),
-        amount: Number(amount),
-        sport,
-        status: "DUE",
-        teamName: teamName.trim(),
-        phone: cleanPhone || null,
-        teamId: team?.id ?? undefined,
-        userId: dbUser.id,
-      },
-    });
-
-    // Notify admin safely (send user-provided booking name, NOT the Gmail name)
-    sendAdminNewBookingNotification({
-      date: new Date(date).toLocaleDateString('en-IN'),
-      startTime: `${startTime}:00`,
-      durationHours: Number(durationHours),
-      totalPrice: Number(amount),
-      court: sport,
-      userName: teamName.trim(),
-      userEmail: session.user.email,
-      phone: cleanPhone || 'Not provided',
-    }).catch(err => console.error("Email notification failed:", err));
-
-    // ── Automated WhatsApp Notification (CallMeBot) ─────────────────────────
-    if (process.env.CALLMEBOT_PHONE && process.env.CALLMEBOT_API_KEY) {
-      const waMessage = `*🚨 NEW TURF BOOKING 🚨*\n\n*Team:* ${teamName.trim()}\n*Sport:* ${sport === 'CRICKET' ? '🏏 Box Cricket' : '⚽ Football'}\n*Date:* ${new Date(date).toLocaleDateString('en-IN')}\n*Time:* ${startTime}:00 for ${durationHours} hour(s)\n*Amount:* ₹${amount} (Pay at venue)\n*Contact:* ${cleanPhone || 'N/A'}`;
-      const waUrl = `https://api.callmebot.com/whatsapp.php?phone=${process.env.CALLMEBOT_PHONE}&text=${encodeURIComponent(waMessage)}&apikey=${process.env.CALLMEBOT_API_KEY}`;
-      
-      // Fire-and-forget so it doesn't slow down the user's booking experience
-      fetch(waUrl).catch(err => console.error("WhatsApp notification failed:", err));
-    }
-
-    return NextResponse.json({ success: true, booking });
-  } catch (err: any) {
     console.error("Booking error:", err);
     return NextResponse.json(
       { error: "Something went wrong while processing your booking. Please try again in a moment." },
