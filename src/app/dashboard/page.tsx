@@ -105,14 +105,47 @@ export default function DashboardPage() {
     );
   }
 
-  const pendingDues = bookings.filter((b) => b.status === 'DUE');
-  
-  const clearedBookings = bookings
-    .filter((b) => b.status === 'PAID')
+  const parseBookingDateTime = (dateStr: string, hour: number = 0): Date => {
+    if (dateStr.includes('/')) {
+      const parts = dateStr.split('/');
+      if (parts.length === 3) {
+        const [d, m, y] = parts.map(Number);
+        return new Date(y, m - 1, d, hour, 0, 0, 0);
+      }
+    }
+    const d = new Date(dateStr);
+    d.setHours(hour, 0, 0, 0);
+    return d;
+  };
+
+  const now = new Date();
+
+  // Active & Upcoming matches (match has not concluded yet)
+  const upcomingMatches = bookings
+    .filter((b) => {
+      if (b.status === 'CANCELLED') return false;
+      const start = parseBookingDateTime(b.date, b.startTime);
+      const end = new Date(start.getTime() + (b.durationHours || 1) * 3600 * 1000);
+      return end > now;
+    })
     .sort((a, b) => {
-      const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : new Date(a.date).getTime();
-      const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : new Date(b.date).getTime();
-      return timeB - timeA;
+      const startA = parseBookingDateTime(a.date, a.startTime).getTime();
+      const startB = parseBookingDateTime(b.date, b.startTime).getTime();
+      return startA - startB;
+    });
+
+  // Concluded / Past matches (match end time has passed)
+  const pastMatches = bookings
+    .filter((b) => {
+      if (b.status === 'CANCELLED') return false;
+      const start = parseBookingDateTime(b.date, b.startTime);
+      const end = new Date(start.getTime() + (b.durationHours || 1) * 3600 * 1000);
+      return end <= now;
+    })
+    .sort((a, b) => {
+      const startA = parseBookingDateTime(a.date, a.startTime).getTime();
+      const startB = parseBookingDateTime(b.date, b.startTime).getTime();
+      return startB - startA;
     });
 
   const cancelledBookings = bookings
@@ -145,35 +178,38 @@ export default function DashboardPage() {
       </div>
 
       <div className={styles.grid}>
-        {/* Active Fixtures / Pending Dues */}
+        {/* Active & Upcoming Matches */}
         <section className={styles.card}>
           <h2 className={styles.cardTitle}>
             <Clock color="#00E676" size={24} />
-            <span>Active &amp; Upcoming Matches ({pendingDues.length})</span>
+            <span>Active &amp; Upcoming Matches ({upcomingMatches.length})</span>
           </h2>
 
-          {pendingDues.length === 0 ? (
+          {upcomingMatches.length === 0 ? (
             <div className={styles.emptyState}>
               <CheckCircle color="#00E676" size={48} />
-              <p style={{ fontSize: '1.1rem', color: '#FFFFFF', fontWeight: 700 }}>No pending dues or upcoming matches.</p>
+              <p style={{ fontSize: '1.1rem', color: '#FFFFFF', fontWeight: 700 }}>No upcoming matches right now.</p>
               <p style={{ color: '#94A3B8', fontSize: '0.9rem' }}>Ready for your next game under the stadium floodlights?</p>
               <Link href="/book" className="btn-primary" style={{ marginTop: '12px' }}>
-                <Calendar size={18} /> Reserve a Court
+                <Calendar size={18} /> Book a Slot
               </Link>
             </div>
           ) : (
             <ul className={styles.list}>
-              {pendingDues.map((due) => {
-                const bd = new Date(due.date);
-                bd.setHours(due.startTime, 0, 0, 0);
-                const canCancel = bd.getTime() - Date.now() >= 30 * 60 * 1000;
+              {upcomingMatches.map((due) => {
+                const start = parseBookingDateTime(due.date, due.startTime);
+                const end = new Date(start.getTime() + (due.durationHours || 1) * 3600 * 1000);
+                const isLive = now >= start && now < end;
+                const diffMs = start.getTime() - now.getTime();
+                const canCancel = diffMs >= 30 * 60 * 1000;
+                const isStartingSoon = diffMs > 0 && diffMs < 30 * 60 * 1000;
                 const sportEmoji = due.sport === 'CRICKET' ? '🏏' : '⚽';
 
                 return (
                   <li key={due.id} className={styles.dueItem}>
                     <div>
                       <strong>
-                        {sportEmoji} {due.teamName || 'Your Match'} • {new Date(due.date).toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}
+                        {sportEmoji} {due.teamName || 'Your Match'} • {start.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}
                       </strong>
                       <p>
                         Time: {formatTime(due.startTime)} – {formatTime((due.startTime + due.durationHours) % 24)} ({due.durationHours} hr)
@@ -183,32 +219,37 @@ export default function DashboardPage() {
                       </p>
 
                       <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-                        {canCancel ? (
+                        {isLive ? (
+                          <span style={{ fontSize: '0.8rem', color: '#00E676', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#00E676', display: 'inline-block' }} />
+                            Match in Progress
+                          </span>
+                        ) : isStartingSoon ? (
+                          <span style={{ fontSize: '0.8rem', color: '#FFB800', fontWeight: 600 }}>
+                            ⏳ Match starting soon
+                          </span>
+                        ) : canCancel ? (
                           <CancelBookingButton
                             bookingId={due.id}
                             onSuccess={() => setBookings((prev) => prev.map((b) => (b.id === due.id ? { ...b, status: 'CANCELLED' } : b)))}
                           />
-                        ) : (
-                          <span style={{ fontSize: '0.8rem', color: '#FF6B6B' }}>
-                            Match starting soon
-                          </span>
-                        )}
+                        ) : null}
 
                         <button
                           onClick={() => {
                             const img = generateReceiptImage({
                               teamName: due.teamName || session?.user?.name || 'Team',
                               sport: due.sport === 'CRICKET' ? 'Cricket' : 'Football',
-                              date: new Date(due.date).toLocaleDateString('en-IN'),
+                              date: start.toLocaleDateString('en-IN'),
                               time: `${formatTime(due.startTime)} – ${formatTime((due.startTime + due.durationHours) % 24)}`,
                               duration: due.durationHours,
                               phone: due.phone || '',
                               amount: due.amount,
-                              paymentStatus: 'DUE',
+                              paymentStatus: due.status === 'PAID' ? 'CONFIRMED' : 'DUE',
                             });
                             const a = document.createElement('a');
                             a.href = img;
-                            a.download = `EastWelfareTurf_Pass_${due.teamName || 'match'}.png`;
+                            a.download = `EastWelfareTurf_Receipt_${due.teamName || 'match'}.png`;
                             a.click();
                           }}
                           style={{
@@ -232,7 +273,9 @@ export default function DashboardPage() {
 
                     <div style={{ textAlign: 'right' }}>
                       <span className={styles.dueAmount}>₹{due.amount}</span>
-                      <div style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: 4 }}>Pay at venue</div>
+                      <div style={{ fontSize: '0.75rem', color: due.status === 'PAID' ? '#00E676' : '#94A3B8', marginTop: 4 }}>
+                        {due.status === 'PAID' ? 'Paid Online' : 'Pay at venue'}
+                      </div>
                     </div>
                   </li>
                 );
@@ -241,13 +284,13 @@ export default function DashboardPage() {
           )}
         </section>
 
-        {/* Cleared / Completed Matches */}
+        {/* Concluded / Match History */}
         <section className={styles.card}>
           <h2 className={styles.cardTitle}>
             <Trophy color="#00E5FF" size={24} />
-            <span>Match History ({clearedBookings.length})</span>
+            <span>Match History ({pastMatches.length})</span>
           </h2>
-          <PastBookingsList bookings={clearedBookings} />
+          <PastBookingsList bookings={pastMatches} />
         </section>
 
         {/* Cancelled Bookings */}

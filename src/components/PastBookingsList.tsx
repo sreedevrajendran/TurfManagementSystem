@@ -24,6 +24,19 @@ type BookingRecord = {
   phone?: string | null;
 };
 
+const parseBookingDateTime = (dateStr: string, hour: number = 0): Date => {
+  if (dateStr.includes('/')) {
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      const [d, m, y] = parts.map(Number);
+      return new Date(y, m - 1, d, hour, 0, 0, 0);
+    }
+  }
+  const d = new Date(dateStr);
+  d.setHours(hour, 0, 0, 0);
+  return d;
+};
+
 export default function PastBookingsList({ bookings }: { bookings: BookingRecord[] }) {
   const [showAll, setShowAll] = useState(false);
   const visibleBookings = showAll ? bookings : bookings.slice(0, 3);
@@ -33,15 +46,16 @@ export default function PastBookingsList({ bookings }: { bookings: BookingRecord
   }
 
   const handleDownload = (booking: BookingRecord) => {
+    const bDate = parseBookingDateTime(booking.date);
     const img = generateReceiptImage({
       teamName: booking.teamName || 'Team',
       sport: booking.sport === 'CRICKET' ? 'Cricket' : 'Football',
-      date: new Date(booking.date).toLocaleDateString('en-IN'),
+      date: bDate.toLocaleDateString('en-IN'),
       time: `${formatTime(booking.startTime)} – ${formatTime((booking.startTime + booking.durationHours) % 24)}`,
       duration: booking.durationHours,
       phone: booking.phone || '',
       amount: booking.amount ?? 0,
-      paymentStatus: booking.status === 'PAID' ? 'CONFIRMED' : booking.status === 'CANCELLED' ? 'CANCELLED' : 'PENDING',
+      paymentStatus: booking.status === 'PAID' ? 'CONFIRMED' : booking.status === 'CANCELLED' ? 'CANCELLED' : 'DUE',
       cancelReason: booking.status === 'CANCELLED' ? booking.reason : undefined,
     });
     const a = document.createElement('a');
@@ -53,36 +67,44 @@ export default function PastBookingsList({ bookings }: { bookings: BookingRecord
   return (
     <>
       <ul className={styles.list}>
-        {visibleBookings.map(booking => (
-          <li key={booking.id} className={styles.historyItem}>
-            <div>
-              <strong>{new Date(booking.date).toDateString()}</strong>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                {formatTime(booking.startTime)} – {formatTime((booking.startTime + booking.durationHours) % 24)}
-              </p>
-              {booking.teamName && (
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '4px 0' }}>Team: {booking.teamName}</p>
-              )}
-              {booking.amount !== undefined && (
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>₹{booking.amount}</p>
-              )}
-              {booking.status === 'CANCELLED' && booking.reason && (
-                <p style={{ fontSize: '0.85rem', color: '#FF4444', marginTop: '4px', fontWeight: 600 }}>
-                  {booking.reason}
+        {visibleBookings.map(booking => {
+          const bDate = parseBookingDateTime(booking.date);
+          const sportEmoji = booking.sport === 'CRICKET' ? '🏏' : '⚽';
+
+          return (
+            <li key={booking.id} className={styles.historyItem}>
+              <div>
+                <strong>
+                  {sportEmoji} {booking.teamName || 'Match'} • {bDate.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                </strong>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                  {formatTime(booking.startTime)} – {formatTime((booking.startTime + booking.durationHours) % 24)}
                 </p>
-              )}
-              <button
-                onClick={() => handleDownload(booking)}
-                style={{ marginTop: 8, padding: '5px 12px', background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF', borderRadius: 8, cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, fontFamily: 'inherit' }}
-              >
-                🧾 Receipt
-              </button>
-            </div>
-            <span className={booking.status === "PAID" ? styles.paidStatus : styles.cancelledStatus}>
-              {booking.status}
-            </span>
-          </li>
-        ))}
+                {booking.amount !== undefined && (
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '2px' }}>₹{booking.amount}</p>
+                )}
+                {booking.status === 'CANCELLED' && booking.reason && (
+                  <p style={{ fontSize: '0.85rem', color: '#FF4444', marginTop: '4px', fontWeight: 600 }}>
+                    {booking.reason}
+                  </p>
+                )}
+                <button
+                  onClick={() => handleDownload(booking)}
+                  style={{ marginTop: 8, padding: '5px 12px', background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF', borderRadius: 8, cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, fontFamily: 'inherit' }}
+                >
+                  🧾 Receipt
+                </button>
+              </div>
+              <span className={
+                booking.status === "PAID" ? styles.paidStatus : 
+                booking.status === "DUE" ? styles.dueStatus : 
+                styles.cancelledStatus
+              }>
+                {booking.status === 'DUE' ? 'PAY AT VENUE' : booking.status}
+              </span>
+            </li>
+          );
+        })}
       </ul>
       {bookings.length > 3 && (
         <button 

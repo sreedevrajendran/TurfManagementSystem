@@ -697,7 +697,7 @@ export default function HomePage() {
               <li><a href="#slots-preview">Live Availability</a></li>
               <li><a href="#specs">Stadium Specs &amp; Lighting</a></li>
               <li><a href="#pricing">Rates &amp; Peak Hours</a></li>
-              <li><Link href="/book">Book Pitch Online</Link></li>
+              <li><Link href="/book">Book a Slot</Link></li>
               {session && <li><Link href="/dashboard">My Dashboard</Link></li>}
             </ul>
           </div>
@@ -715,9 +715,6 @@ export default function HomePage() {
         <div className={styles.footerBottom}>
           <div>
             © {new Date().getFullYear()} East Welfare Turf, Mannar. All rights reserved.
-          </div>
-          <div>
-            Engineered with High-Performance Sports Tech
           </div>
         </div>
       </footer>

@@ -788,8 +788,8 @@
     font-size: clamp(1.8rem, 6vw, 2.4rem);
   }
 
-  /* Make Timeline & Reviews horizontally scrollable to prevent long vertical stacking */
-  .slotsTimelineGrid, .reviewsGrid {
+  /* Make Timeline horizontally scrollable */
+  .slotsTimelineGrid {
     display: flex;
     overflow-x: auto;
     padding-bottom: 24px;
@@ -798,8 +798,7 @@
     -ms-overflow-style: none;  /* IE and Edge */
   }
   
-  .slotsTimelineGrid::-webkit-scrollbar,
-  .reviewsGrid::-webkit-scrollbar {
+  .slotsTimelineGrid::-webkit-scrollbar {
     display: none;
   }
 
@@ -809,10 +808,36 @@
     scroll-snap-align: start;
   }
 
+  /* Clean Native Stacked Testimonials on Mobile */
+  .reviewsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
   .reviewCard {
-    min-width: 280px;
-    flex: 0 0 auto;
-    scroll-snap-align: center;
+    width: 100%;
+    min-width: unset;
+    flex: 1 1 auto;
+    padding: 22px 18px;
+    border-radius: 16px;
+  }
+
+  .reviewStars {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+
+  .reviewQuote {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+
+  .reviewAuthor {
+    padding-top: 12px;
   }
 }
 

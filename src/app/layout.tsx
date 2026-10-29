@@ -18,8 +18,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "EAST WELFARE TURF | Premium 6-a-Side Football & Cricket Pitch",
-  description: "Book your FIFA-grade artificial grass turf for Football and Cricket at EAST WELFARE TURF. Fast real-time slot booking, dynamic pricing, and automated match passes.",
+  title: "EAST WELFARE TURF | Premium Football & Cricket Pitch",
+  description: "Book your FIFA-grade artificial grass turf for Football and Cricket at EAST WELFARE TURF. Fast real-time slot booking, dynamic pricing, and instant booking receipts.",
 };
 
 export default function RootLayout({

@@ -105,7 +105,7 @@ export default function HeaderNav() {
                   Home
                 </Link>
                 <Link href="/book" className={`nav-item ${pathname === '/book' ? 'active' : ''}`}>
-                  Book Pitch
+                  Book a Slot
                 </Link>
                 {session && (
                   <Link href="/dashboard" className={`nav-item ${pathname === '/dashboard' ? 'active' : ''}`}>
@@ -116,12 +116,12 @@ export default function HeaderNav() {
             )}
           </nav>
 
-          {/* Right Action Cluster: Book Slot CTA + 3-line Nav Menu */}
+          {/* Right Action Cluster: Book a Slot CTA + 3-line Nav Menu */}
           <div className="action-cluster">
             {pathname !== '/book' && (
               <Link href="/book" className="desktop-book-btn">
                 <Calendar size={14} />
-                <span>Book Slot</span>
+                <span>Book a Slot</span>
               </Link>
             )}
 
@@ -137,6 +137,15 @@ export default function HeaderNav() {
             </button>
           </div>
         </div>
+
+        {/* Backdrop for 3-Line Menu Drawer */}
+        {menuOpen && (
+          <div 
+            className="drawer-backdrop" 
+            onClick={() => setMenuOpen(false)} 
+            aria-hidden="true"
+          />
+        )}
 
         {/* 3-Line Navigation Drawer / Popover (Contains Profile + Navigation + Contact Support) */}
         {menuOpen && (
@@ -173,7 +182,7 @@ export default function HeaderNav() {
                       className="profile-action-link primary"
                     >
                       <Ticket size={15} />
-                      <span>My Bookings &amp; Passes</span>
+                      <span>My Bookings</span>
                     </Link>
 
                     <Link
@@ -182,7 +191,7 @@ export default function HeaderNav() {
                       className="profile-action-link"
                     >
                       <Calendar size={15} />
-                      <span>Book Pitch Slot</span>
+                      <span>Book a Slot</span>
                     </Link>
 
                     {isAdmin && (
@@ -241,18 +250,18 @@ export default function HeaderNav() {
                 </Link>
                 <Link href="/book" onClick={() => setMenuOpen(false)} className="drawer-nav-item highlight">
                   <Sparkles size={14} />
-                  <span>Book Pitch</span>
+                  <span>Book a Slot</span>
                 </Link>
                 {session && (
                   <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="drawer-nav-item">
-                    <span>Matches &amp; Passes</span>
+                    <span>My Bookings</span>
                   </Link>
                 )}
                 <a href="/#slots-preview" onClick={() => setMenuOpen(false)} className="drawer-nav-item">
                   Live Available Slots
                 </a>
                 <a href="/#specs" onClick={() => setMenuOpen(false)} className="drawer-nav-item">
-                  Turf Pitch Specifications
+                  Turf Specifications
                 </a>
                 <a href="/#pricing" onClick={() => setMenuOpen(false)} className="drawer-nav-item">
                   Pricing &amp; Discounts
@@ -401,13 +410,7 @@ export default function HeaderNav() {
           height: 7px;
           border-radius: 50%;
           background: #00E676;
-          box-shadow: 0 0 10px #00E676;
-          animation: pulseIsland 2s infinite ease-in-out;
-        }
-
-        @keyframes pulseIsland {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.35; transform: scale(0.8); }
+          box-shadow: 0 0 6px rgba(0, 230, 118, 0.6);
         }
 
         /* Desktop Nav Items (No 01/ indexing) */
@@ -442,26 +445,31 @@ export default function HeaderNav() {
           gap: 8px;
         }
 
+        /* Professional Apple / Linear style Book a Slot CTA */
         .desktop-book-btn {
           display: flex;
           align-items: center;
           gap: 6px;
-          background: var(--primary-accent, #00E676);
-          color: #000000;
-          font-weight: 800;
-          font-size: 0.8rem;
-          letter-spacing: 0.01em;
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          color: #FFFFFF;
+          font-weight: 600;
+          font-size: 0.81rem;
+          letter-spacing: -0.01em;
           padding: 7px 15px;
           border-radius: 9999px;
           text-decoration: none;
-          box-shadow: 0 4px 14px rgba(0, 230, 118, 0.35);
-          transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .desktop-book-btn:hover {
-          background: var(--primary-accent-hover, #00FF85);
+          background: #FFFFFF;
+          color: #000000;
+          border-color: #FFFFFF;
           transform: translateY(-1px);
-          box-shadow: 0 6px 20px rgba(0, 230, 118, 0.5);
+          box-shadow: 0 4px 18px rgba(255, 255, 255, 0.22);
         }
 
         /* 3-Line Nav Menu Trigger */
@@ -490,15 +498,32 @@ export default function HeaderNav() {
           border-color: var(--primary-accent, #00E676);
         }
 
-        /* iPhone Menu Drawer (Unified Web & Mobile) */
+        /* Fixed Drawer Backdrop to prevent click-through & bleed */
+        .drawer-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.72);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          z-index: 1005;
+          pointer-events: auto;
+          animation: backdropFade 0.2s ease;
+        }
+
+        @keyframes backdropFade {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        /* iPhone Menu Drawer (Solid Opaque High-End Glass) */
         .iphone-menu-drawer {
+          position: relative;
+          z-index: 1010;
           pointer-events: auto;
           width: 100%;
           max-width: 420px;
-          background: rgba(14, 17, 24, 0.94);
-          backdrop-filter: blur(32px) saturate(220%);
-          -webkit-backdrop-filter: blur(32px) saturate(220%);
-          border: 1px solid rgba(255, 255, 255, 0.14);
+          background: #0B0E15;
+          border: 1px solid rgba(255, 255, 255, 0.16);
           border-radius: 24px;
           margin-top: 10px;
           padding: 16px;
@@ -506,8 +531,8 @@ export default function HeaderNav() {
           flex-direction: column;
           gap: 12px;
           box-shadow: 
-            0 24px 60px rgba(0, 0, 0, 0.85),
-            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            0 28px 70px rgba(0, 0, 0, 0.95),
+            inset 0 1px 0 rgba(255, 255, 255, 0.18);
           animation: slideDownFade 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 

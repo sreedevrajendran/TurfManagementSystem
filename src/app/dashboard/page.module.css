@@ -153,6 +153,16 @@
   border-radius: 99px;
 }
 
+.dueStatus {
+  color: #FFB800;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background: rgba(255, 184, 0, 0.12);
+  border: 1px solid rgba(255, 184, 0, 0.3);
+  padding: 6px 14px;
+  border-radius: 99px;
+}
+
 @media (max-width: 600px) {
   .header {
     flex-direction: column;

@@ -58,14 +58,19 @@ export default function MobileBottomNav() {
         aria-label="Mobile Navigation Dock"
       >
         <div className="dock-liquid-glass">
-          {/* 1. Home Logo */}
+          {/* 1. Home Logo (Filled with white when active) */}
           <Link
             href="/"
             className={`dock-bubble ${isHome ? 'active' : ''}`}
             aria-label="Home"
             title="Home"
           >
-            <Home size={22} strokeWidth={isHome ? 2.5 : 2} />
+            <Home 
+              size={22} 
+              fill={isHome ? '#FFFFFF' : 'none'} 
+              color={isHome ? '#FFFFFF' : 'currentColor'} 
+              strokeWidth={isHome ? 2.2 : 2} 
+            />
           </Link>
 
           {/* 2. Book a Slot Logo */}
@@ -75,7 +80,12 @@ export default function MobileBottomNav() {
             aria-label="Book a Slot"
             title="Book a Slot"
           >
-            <CalendarPlus size={22} strokeWidth={isBook ? 2.5 : 2} />
+            <CalendarPlus 
+              size={22} 
+              fill={isBook ? '#FFFFFF' : 'none'} 
+              color={isBook ? '#FFFFFF' : 'currentColor'} 
+              strokeWidth={isBook ? 2.2 : 2} 
+            />
           </Link>
 
           {/* 3. Bookings Logo (Upcoming & Past Matches) */}
@@ -83,10 +93,15 @@ export default function MobileBottomNav() {
             href="/dashboard"
             onClick={handleBookingsClick}
             className={`dock-bubble ${isDashboard && !showProfileSheet ? 'active' : ''}`}
-            aria-label="My Bookings & Matches"
-            title="My Bookings & Matches"
+            aria-label="My Bookings"
+            title="My Bookings"
           >
-            <Ticket size={22} strokeWidth={isDashboard ? 2.5 : 2} />
+            <Ticket 
+              size={22} 
+              fill={isDashboard && !showProfileSheet ? '#FFFFFF' : 'none'} 
+              color={isDashboard && !showProfileSheet ? '#FFFFFF' : 'currentColor'} 
+              strokeWidth={isDashboard ? 2.2 : 2} 
+            />
           </Link>
 
           {/* 4. Profile Logo */}
@@ -104,7 +119,12 @@ export default function MobileBottomNav() {
                 className="dock-avatar-img"
               />
             ) : (
-              <User size={22} strokeWidth={showProfileSheet ? 2.5 : 2} />
+              <User 
+                size={22} 
+                fill={showProfileSheet ? '#FFFFFF' : 'none'} 
+                color={showProfileSheet ? '#FFFFFF' : 'currentColor'} 
+                strokeWidth={showProfileSheet ? 2.2 : 2} 
+              />
             )}
           </button>
         </div>
@@ -164,7 +184,7 @@ export default function MobileBottomNav() {
               >
                 <Ticket size={18} />
                 <div className="action-item-text">
-                  <span className="item-title">My Bookings &amp; Passes</span>
+                  <span className="item-title">My Bookings</span>
                   <span className="item-sub">View upcoming and past matches</span>
                 </div>
               </Link>
@@ -176,8 +196,8 @@ export default function MobileBottomNav() {
               >
                 <Sparkles size={18} color="#00E676" />
                 <div className="action-item-text">
-                  <span className="item-title">Book a Pitch Slot</span>
-                  <span className="item-sub">Reserve Box Cricket or Football turf</span>
+                  <span className="item-title">Book a Slot</span>
+                  <span className="item-sub">Reserve Football or Cricket turf</span>
                 </div>
               </Link>
 
@@ -309,12 +329,12 @@ export default function MobileBottomNav() {
         }
 
         .dock-bubble.active {
-          color: #00E676;
-          background: rgba(0, 230, 118, 0.16);
-          border: 1px solid rgba(0, 230, 118, 0.35);
+          color: #FFFFFF;
+          background: rgba(255, 255, 255, 0.14);
+          border: 1px solid rgba(255, 255, 255, 0.28);
           box-shadow: 
-            0 0 20px rgba(0, 230, 118, 0.25),
-            inset 0 1px 1px rgba(255, 255, 255, 0.25);
+            0 0 20px rgba(255, 255, 255, 0.2),
+            inset 0 1px 1px rgba(255, 255, 255, 0.35);
         }
 
         .dock-avatar-img {
@@ -327,7 +347,7 @@ export default function MobileBottomNav() {
         }
 
         .dock-bubble.active .dock-avatar-img {
-          border-color: #00E676;
+          border-color: #FFFFFF;
         }
 
         /* iOS Profile Sheet */

@@ -472,7 +472,7 @@ export default function BookPage() {
       <header className={styles.header}>
         <h1 className={styles.title}>SELECT MATCH SLOT</h1>
         <p className={styles.subtitle}>
-          {isAdmin ? '🛡️ Admin Match Booking Console' : `Welcome, ${session?.user?.name?.split(' ')[0]}! Pick your preferred sport, date, and pitch time.`}
+          {isAdmin ? '🛡️ Admin Match Booking Console' : `Welcome, ${session?.user?.name?.split(' ')[0]}! Pick your preferred sport, date, and slot time.`}
         </p>
         {isAdmin && (
           <div className={styles.adminBadge}>
@@ -487,13 +487,13 @@ export default function BookPage() {
           onClick={() => setSport('FOOTBALL')}
           className={`${styles.sportBtn} ${sport === 'FOOTBALL' ? styles.sportBtnActive : ''}`}
         >
-          ⚽ 6-a-Side Football
+          ⚽ Football
         </button>
         <button
           onClick={() => setSport('CRICKET')}
           className={`${styles.sportBtn} ${sport === 'CRICKET' ? styles.sportBtnActive : ''}`}
         >
-          🏏 Pro Box Cricket
+          🏏 Cricket
         </button>
       </div>
 
@@ -588,7 +588,7 @@ export default function BookPage() {
                     cursor: 'pointer',
                   }}
                 >
-                  🏏 Box Cricket
+                  🏏 Cricket
                 </button>
               </div>
             </div>

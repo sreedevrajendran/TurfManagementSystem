@@ -148,7 +148,7 @@ export default function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
               <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'rgba(0, 230, 118, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00E676', flexShrink: 0 }}>
                 <Trophy size={15} />
               </div>
-              <span style={{ fontSize: '0.88rem', color: '#E2E8F0' }}>Digital Player Match Pass and match history</span>
+              <span style={{ fontSize: '0.88rem', color: '#E2E8F0' }}>Digital booking receipt and match history</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
