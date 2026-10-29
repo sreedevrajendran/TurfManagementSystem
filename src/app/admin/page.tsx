@@ -393,6 +393,25 @@ export default function AdminDashboard() {
 
 
 
+  const handleDownloadReceipt = (booking: Booking) => {
+    const payStatus = booking.status === 'PAID' ? 'CONFIRMED' : booking.status === 'DUE' ? 'DUE' : booking.status === 'CANCELLED' ? 'CANCELLED' : 'PENDING';
+    const img = generateReceiptImage({
+      teamName: booking.teamName || 'Team',
+      sport: booking.sport === 'CRICKET' ? 'Cricket' : 'Football',
+      date: new Date(booking.date.split('/').reverse().join('-')).toLocaleDateString('en-IN'),
+      time: `${formatHour(booking.startTime)} – ${formatHour((booking.startTime + booking.durationHours) % 24)}`,
+      duration: booking.durationHours,
+      phone: booking.phone || '',
+      amount: booking.amount,
+      paymentStatus: payStatus,
+      cancelReason: booking.status === 'CANCELLED' ? booking.reason : undefined
+    });
+    const a = document.createElement('a');
+    a.href = img;
+    a.download = `Receipt_${booking.teamName}_${booking.status}_${Date.now()}.png`;
+    a.click();
+  };
+
   if (initialLoad) {
     return (
       <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-color)' }}>
@@ -419,49 +438,62 @@ export default function AdminDashboard() {
         className={styles.header}
       >
         <div>
-          <h1 className={styles.title}>Admin Dashboard</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <h1 className={styles.title}>Admin Console</h1>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '3px 9px',
+              borderRadius: '9999px',
+              background: 'rgba(0, 230, 118, 0.1)',
+              border: '1px solid rgba(0, 230, 118, 0.25)',
+              fontSize: '0.7rem',
+              fontWeight: 700,
+              fontFamily: 'var(--font-mono)',
+              color: '#00E676'
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00E676', boxShadow: '0 0 6px #00E676' }} />
+              OPERATIONAL
+            </div>
+          </div>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: 4 }}>
             East Welfare Turf · Mannar · +91 97785 18909
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <Link href="/" style={{ 
-            display: 'flex', alignItems: 'center', gap: '8px', 
-            background: 'rgba(255,255,255,0.1)', color: '#fff', 
-            padding: '8px 16px', borderRadius: '12px', textDecoration: 'none',
-            fontWeight: 600
+            display: 'flex', alignItems: 'center', gap: '6px', 
+            background: 'rgba(255,255,255,0.08)', color: '#fff', 
+            padding: '8px 14px', borderRadius: '10px', textDecoration: 'none',
+            fontSize: '0.85rem', fontWeight: 700
           }}>
-            <Home size={18} /> Home
+            <Home size={16} /> Home
           </Link>
           <LogoutButton />
         </div>
       </motion.header>
 
-      {/* ── TOP NAVIGATION ── */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 24, overflowX: 'auto', paddingBottom: 8, borderBottom: '1px solid var(--border-color)', marginTop: 16 }}>
-        {(['overview', 'operations', 'bookings', 'users'] as const).map(tab => (
+      {/* ── STICKY SEGMENTED CONTROL BAR ── */}
+      <nav className={styles.segmentedNav} aria-label="Admin Sections">
+        {[
+          { id: 'overview', label: 'Overview', icon: '📊' },
+          { id: 'operations', label: 'Operations & Rates', icon: '⚡' },
+          { id: 'bookings', label: 'Bookings', icon: '📋', count: bookings.length },
+          { id: 'users', label: 'Users', icon: '👥', count: users.length },
+        ].map(({ id, label, icon, count }) => (
           <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            style={{
-              padding: '10px 22px',
-              borderRadius: 99,
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              border: activeTab === tab ? '1px solid var(--primary-accent)' : '1px solid transparent',
-              background: activeTab === tab ? 'var(--primary-accent-muted)' : 'transparent',
-              color: activeTab === tab ? 'var(--primary-accent)' : 'var(--text-secondary)',
-              textTransform: 'capitalize',
-              whiteSpace: 'nowrap',
-              fontFamily: 'inherit',
-              transition: 'all 0.2s'
-            }}
+            key={id}
+            type="button"
+            onClick={() => setActiveTab(id as any)}
+            className={`${styles.segmentBtn} ${activeTab === id ? styles.active : ''}`}
           >
-            {tab}
+            <span>{icon}</span>
+            <span>{label}</span>
+            {count !== undefined && <span className={styles.segmentBadge}>{count}</span>}
           </button>
         ))}
-      </div>
+      </nav>
 
       {activeTab === 'overview' && (
         <>
@@ -818,7 +850,7 @@ export default function AdminDashboard() {
         transition={{ delay: 0.3 }}
         className={styles.section}
       >
-          /* ── USERS TABLE ── */
+          {/* ── USERS ── */}
           <div>
             <h2 className={styles.sectionTitle} style={{ marginBottom: 16 }}>
               Registered Users ({users.length})
@@ -829,61 +861,96 @@ export default function AdminDashboard() {
             {users.length === 0 ? (
               <p style={{ color: 'var(--text-secondary)' }}>No users registered yet.</p>
             ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
-                      <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600 }}>Name</th>
-                      <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600 }}>Email</th>
-                      <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600 }}>Role</th>
-                      <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600 }}>Bookings</th>
-                      <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600 }}>Total Spent</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((u, i) => {
+              <>
+                {/* Desktop View */}
+                <div className={`${styles.desktopViewOnly} ${styles.tableContainer}`}>
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Bookings</th>
+                        <th>Total Spent</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users.map((u, i) => {
+                        const allBookings = u.bookings ?? [];
+                        const paidBookings = allBookings.filter((b: any) => b.status === 'PAID');
+                        const dueBookings = allBookings.filter((b: any) => b.status === 'DUE' || b.status === 'PENDING');
+                        const totalSpent = paidBookings.reduce((s: number, b: any) => s + b.amount, 0);
+                        const totalDue = dueBookings.reduce((s: number, b: any) => s + b.amount, 0);
+                        return (
+                          <tr
+                            key={u.id}
+                            onClick={() => setSelectedUser(u)}
+                            style={{
+                              borderBottom: '1px solid var(--border-color)',
+                              background: i % 2 === 0 ? 'var(--bg-surface)' : 'transparent',
+                              cursor: 'pointer',
+                              transition: 'background 0.15s',
+                            }}
+                            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,230,118,0.06)')}
+                            onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 0 ? 'var(--bg-surface)' : 'transparent')}
+                          >
+                            <td style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              {u.image
+                                ? <img src={u.image} alt="" style={{ width: 32, height: 32, borderRadius: '50%' }} />
+                                : <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(0,230,118,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: 'var(--primary-accent)' }}>{u.name?.[0] ?? '?'}</div>
+                              }
+                              <span style={{ color: '#fff', fontWeight: 600 }}>{u.name ?? '—'}</span>
+                            </td>
+                            <td style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{u.email}</td>
+                            <td>
+                              <span className={`${styles.badge} ${u.role === 'ADMIN' ? styles.due : styles.paid}`}>
+                                {u.role}
+                              </span>
+                            </td>
+                            <td style={{ color: '#fff', fontWeight: 600 }}>{allBookings.filter((b: any) => b.status !== 'CANCELLED' && b.status !== 'BLOCKED').length}</td>
+                            <td>
+                              <div style={{ color: 'var(--primary-accent)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>₹{totalSpent.toLocaleString()}</div>
+                              {totalDue > 0 && <div style={{ color: '#FF4444', fontSize: '0.78rem', fontFamily: 'var(--font-mono)' }}>₹{totalDue.toLocaleString()} due</div>}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Native User Cards */}
+                <div className={styles.mobileViewOnly}>
+                  <div className={styles.mobileUsersList}>
+                    {users.map(u => {
                       const allBookings = u.bookings ?? [];
                       const paidBookings = allBookings.filter((b: any) => b.status === 'PAID');
                       const dueBookings = allBookings.filter((b: any) => b.status === 'DUE' || b.status === 'PENDING');
                       const totalSpent = paidBookings.reduce((s: number, b: any) => s + b.amount, 0);
                       const totalDue = dueBookings.reduce((s: number, b: any) => s + b.amount, 0);
                       return (
-                        <tr
-                          key={u.id}
-                          onClick={() => setSelectedUser(u)}
-                          style={{
-                            borderBottom: '1px solid var(--border-color)',
-                            background: i % 2 === 0 ? 'var(--bg-surface)' : 'transparent',
-                            cursor: 'pointer',
-                            transition: 'background 0.15s',
-                          }}
-                          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,230,118,0.06)')}
-                          onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 0 ? 'var(--bg-surface)' : 'transparent')}
-                        >
-                          <td style={{ padding: '12px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div key={u.id} className={styles.mobileUserCard} onClick={() => setSelectedUser(u)}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                             {u.image
-                              ? <img src={u.image} alt="" style={{ width: 32, height: 32, borderRadius: '50%' }} />
-                              : <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--primary-accent-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: 'var(--primary-accent)' }}>{u.name?.[0] ?? '?'}</div>
+                              ? <img src={u.image} alt="" style={{ width: 36, height: 36, borderRadius: '50%' }} />
+                              : <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(0,230,118,0.15)', color: '#00E676', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>{u.name?.[0] ?? '?'}</div>
                             }
-                            <span style={{ color: '#fff', fontWeight: 600 }}>{u.name ?? '—'}</span>
-                          </td>
-                          <td style={{ padding: '12px', color: 'var(--text-secondary)' }}>{u.email}</td>
-                          <td style={{ padding: '12px' }}>
-                            <span style={{ padding: '3px 10px', borderRadius: 99, fontSize: '0.75rem', fontWeight: 700, background: u.role === 'ADMIN' ? 'rgba(255,68,68,0.15)' : 'rgba(0,230,118,0.1)', color: u.role === 'ADMIN' ? '#FF4444' : 'var(--primary-accent)' }}>
-                              {u.role}
-                            </span>
-                          </td>
-                          <td style={{ padding: '12px', color: '#fff', fontWeight: 600 }}>{allBookings.filter((b: any) => b.status !== 'CANCELLED' && b.status !== 'BLOCKED').length}</td>
-                          <td style={{ padding: '12px' }}>
-                            <div style={{ color: 'var(--primary-accent)', fontWeight: 700 }}>₹{totalSpent.toLocaleString()}</div>
-                            {totalDue > 0 && <div style={{ color: '#FF4444', fontSize: '0.78rem' }}>₹{totalDue.toLocaleString()} due</div>}
-                          </td>
-                        </tr>
+                            <div>
+                              <div style={{ fontWeight: 700, color: '#fff', fontSize: '0.9rem' }}>{u.name ?? 'Player'}</div>
+                              <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{u.email}</div>
+                            </div>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ color: '#00E676', fontWeight: 700, fontFamily: 'var(--font-mono)', fontSize: '0.88rem' }}>₹{totalSpent.toLocaleString()}</div>
+                            <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{allBookings.length} matches</div>
+                            {totalDue > 0 && <div style={{ color: '#FF5252', fontSize: '0.72rem', fontWeight: 700 }}>₹{totalDue.toLocaleString()} due</div>}
+                          </div>
+                        </div>
                       );
                     })}
-                  </tbody>
-                </table>
-              </div>
+                  </div>
+                </div>
+              </>
             )}
           </div>
       </motion.section>
@@ -958,19 +1025,98 @@ export default function AdminDashboard() {
         ) : bookings.length === 0 ? (
           <p style={{ color: 'var(--text-secondary)' }}>No bookings yet. They'll appear here once users start booking.</p>
         ) : (
-          <div className={styles.tableContainer}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Team / User</th>
-                  <th>Contact</th>
-                  <th>Date & Slot</th>
-                  <th>Amount (₹)</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+          <>
+            {/* Desktop View: Full Table */}
+            <div className={styles.desktopViewOnly}>
+              <div className={styles.tableContainer}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Team / User</th>
+                      <th>Contact</th>
+                      <th>Date & Slot</th>
+                      <th>Amount (₹)</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bookings
+                      .filter(b => {
+                        const [day, month, year] = b.date.split('/');
+                        const bDate = new Date(`${year}-${month}-${day}`);
+                        const now = new Date();
+                        
+                        if (filterType === 'TODAY') return b.date === todayStr;
+                        if (filterType === 'WEEK') {
+                          const diffTime = Math.abs(now.getTime() - bDate.getTime());
+                          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                          return diffDays <= 7;
+                        }
+                        if (filterType === 'MONTH') {
+                          return bDate.getMonth() === now.getMonth() && bDate.getFullYear() === now.getFullYear();
+                        }
+                        if (filterType === 'DUE') return b.status === 'DUE';
+                        if (filterType === 'PAID') return b.status === 'PAID';
+                        if (filterType === 'CANCELLED') return b.status === 'CANCELLED';
+                        if (filterType === 'NO_SHOW') return b.status === 'PENDING' && bDate < new Date(now.setHours(0,0,0,0));
+                        return true; // ALL
+                      })
+                      .map((booking) => (
+                      <tr key={booking.id} style={{ opacity: booking.status === 'CANCELLED' || booking.status === 'BLOCKED' ? 0.5 : 1 }}>
+                        <td><strong>{booking.teamName}</strong></td>
+                        <td style={{ fontSize: '0.85rem' }}>{booking.phone}</td>
+                        <td>{booking.date} | {formatHour(booking.startTime)}–{formatHour((booking.startTime + booking.durationHours) % 24)}</td>
+                        <td>₹{booking.amount}</td>
+                        <td>
+                          <span className={`${styles.badge} ${
+                            booking.status === 'PAID' ? styles.paid :
+                            booking.status === 'DUE' ? styles.due :
+                            booking.status === 'CANCELLED' || booking.status === 'BLOCKED' ? styles.cancelled :
+                            styles.pending
+                          }`}>
+                            {booking.status}
+                          </span>
+                        </td>
+                        <td>
+                          {booking.status === 'BLOCKED' ? (
+                            <button
+                              onClick={() => handleUnblock(booking.id, booking.teamName.replace('[BLOCKED] ', ''))}
+                              style={{ background: 'rgba(0,230,118,0.1)', border: '1px solid rgba(0,230,118,0.3)', color: '#00E676', padding: '6px 14px', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', fontFamily: 'inherit' }}
+                            >
+                              ✅ Unblock
+                            </button>
+                          ) : (
+                            <div className={styles.actionBtnGroup}>
+                              {booking.status !== 'CANCELLED' && booking.status !== 'PAID' && (
+                                <button onClick={() => markPaid(booking.id)} className={`${styles.actionBtn} ${styles.markPaid}`}>✅ Paid</button>
+                              )}
+                              {booking.status !== 'CANCELLED' && booking.status === 'PENDING' && (
+                                <button onClick={() => markNoShow(booking.id)} className={`${styles.actionBtn} ${styles.markDue}`}>No-Show</button>
+                              )}
+                              {booking.status !== 'CANCELLED' && (
+                                <button onClick={() => cancelBooking(booking.id)} className={`${styles.actionBtn} ${styles.cancel}`}>Cancel</button>
+                              )}
+                              <button
+                                onClick={() => handleDownloadReceipt(booking)}
+                                className={styles.actionBtn}
+                                style={{ background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF' }}
+                              >
+                                🧾 Receipt
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Mobile View: Native Cards */}
+            <div className={styles.mobileViewOnly}>
+              <div className={styles.mobileBookingsList}>
                 {bookings
                   .filter(b => {
                     const [day, month, year] = b.date.split('/');
@@ -993,72 +1139,94 @@ export default function AdminDashboard() {
                     return true; // ALL
                   })
                   .map((booking) => (
-                  <tr key={booking.id} style={{ opacity: booking.status === 'CANCELLED' || booking.status === 'BLOCKED' ? 0.5 : 1 }}>
-                    <td><strong>{booking.teamName}</strong></td>
-                    <td style={{ fontSize: '0.85rem' }}>{booking.phone}</td>
-                    <td>{booking.date} | {formatHour(booking.startTime)}–{formatHour((booking.startTime + booking.durationHours) % 24)}</td>
-                    <td>₹{booking.amount}</td>
-                    <td>
-                      <span className={`${styles.badge} ${
-                        booking.status === 'PAID' ? styles.paid :
-                        booking.status === 'DUE' ? styles.due :
-                        booking.status === 'CANCELLED' || booking.status === 'BLOCKED' ? styles.cancelled :
-                        styles.pending
-                      }`}>
-                        {booking.status}
-                      </span>
-                    </td>
-                    <td>
-                      {booking.status === 'BLOCKED' ? (
-                        <button
-                          onClick={() => handleUnblock(booking.id, booking.teamName.replace('[BLOCKED] ', ''))}
-                          style={{ background: 'rgba(0,230,118,0.1)', border: '1px solid rgba(0,230,118,0.3)', color: '#00E676', padding: '6px 14px', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', fontFamily: 'inherit' }}
-                        >
-                          ✅ Unblock
-                        </button>
-                      ) : (
-                        <div className={styles.actionBtnGroup}>
-                          {booking.status !== 'CANCELLED' && booking.status !== 'PAID' && (
-                            <button onClick={() => markPaid(booking.id)} className={`${styles.actionBtn} ${styles.markPaid}`}>✅ Paid</button>
-                          )}
-                          {booking.status !== 'CANCELLED' && booking.status === 'PENDING' && (
-                            <button onClick={() => markNoShow(booking.id)} className={`${styles.actionBtn} ${styles.markDue}`}>No-Show</button>
-                          )}
-                          {booking.status !== 'CANCELLED' && (
-                            <button onClick={() => cancelBooking(booking.id)} className={`${styles.actionBtn} ${styles.cancel}`}>Cancel</button>
-                          )}
-                          <button
-                            onClick={() => {
-                              const payStatus = booking.status === 'PAID' ? 'CONFIRMED' : booking.status === 'DUE' ? 'DUE' : booking.status === 'CANCELLED' ? 'CANCELLED' : 'PENDING';
-                              const img = generateReceiptImage({
-                                teamName: booking.teamName || 'Team',
-                                sport: booking.sport === 'CRICKET' ? 'Cricket' : 'Football',
-                                date: new Date(booking.date.split('/').reverse().join('-')).toLocaleDateString('en-IN'),
-                                time: `${formatHour(booking.startTime)} – ${formatHour((booking.startTime + booking.durationHours) % 24)}`,
-                                duration: booking.durationHours,
-                                phone: booking.phone || '',
-                                amount: booking.amount,
-                                paymentStatus: payStatus,
-                                cancelReason: booking.status === 'CANCELLED' ? booking.reason : undefined
-                              });
-                              const a = document.createElement('a');
-                              a.href = img;
-                              a.download = `Receipt_${booking.teamName}_${booking.status}_${Date.now()}.png`;
-                              a.click();
-                            }}
-                            className={styles.actionBtn}
-                            style={{ background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF' }}
-                          >
-                            🧾 Receipt
-                          </button>
+                    <div 
+                      key={booking.id} 
+                      className={styles.mobileBookingCard}
+                      style={{ opacity: booking.status === 'CANCELLED' || booking.status === 'BLOCKED' ? 0.6 : 1 }}
+                    >
+                      <div className={styles.cardTopRow}>
+                        <div>
+                          <div className={styles.cardTeamName}>{booking.teamName}</div>
+                          <span className={styles.cardSportBadge}>
+                            {booking.sport === 'CRICKET' ? '🏏 Box Cricket' : '⚽ Football'}
+                          </span>
                         </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                        <span className={`${styles.badge} ${
+                          booking.status === 'PAID' ? styles.paid :
+                          booking.status === 'DUE' ? styles.due :
+                          booking.status === 'CANCELLED' || booking.status === 'BLOCKED' ? styles.cancelled :
+                          styles.pending
+                        }`}>
+                          {booking.status}
+                        </span>
+                      </div>
+
+                      <div className={styles.cardInfoGrid}>
+                        <div className={styles.cardInfoItem}>
+                          <span className={styles.cardInfoLabel}>Date & Slot</span>
+                          <span className={styles.cardInfoValue}>
+                            {booking.date} · {formatHour(booking.startTime)}–{formatHour((booking.startTime + booking.durationHours) % 24)}
+                          </span>
+                        </div>
+                        <div className={styles.cardInfoItem}>
+                          <span className={styles.cardInfoLabel}>Amount</span>
+                          <span className={styles.cardInfoValue} style={{ color: 'var(--primary-accent)', fontWeight: 800 }}>
+                            ₹{booking.amount}
+                          </span>
+                        </div>
+                        <div className={styles.cardInfoItem} style={{ gridColumn: 'span 2' }}>
+                          <span className={styles.cardInfoLabel}>Contact</span>
+                          <a 
+                            href={`tel:${booking.phone}`} 
+                            className={styles.cardInfoValue}
+                            style={{ color: '#00B0FF', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                          >
+                            📞 {booking.phone || 'No phone'}
+                          </a>
+                        </div>
+                      </div>
+
+                      <div className={styles.cardActionRow}>
+                        {booking.status === 'BLOCKED' ? (
+                          <button
+                            onClick={() => handleUnblock(booking.id, booking.teamName.replace('[BLOCKED] ', ''))}
+                            className={styles.cardActionBtn}
+                            style={{ background: 'rgba(0,230,118,0.1)', border: '1px solid rgba(0,230,118,0.3)', color: '#00E676', width: '100%' }}
+                          >
+                            ✅ Unblock Slot
+                          </button>
+                        ) : (
+                          <>
+                            {booking.status !== 'CANCELLED' && booking.status !== 'PAID' && (
+                              <button onClick={() => markPaid(booking.id)} className={`${styles.cardActionBtn} ${styles.markPaid}`}>
+                                ✅ Paid
+                              </button>
+                            )}
+                            {booking.status !== 'CANCELLED' && booking.status === 'PENDING' && (
+                              <button onClick={() => markNoShow(booking.id)} className={`${styles.cardActionBtn} ${styles.markDue}`}>
+                                No-Show
+                              </button>
+                            )}
+                            {booking.status !== 'CANCELLED' && (
+                              <button onClick={() => cancelBooking(booking.id)} className={`${styles.cardActionBtn} ${styles.cancel}`}>
+                                Cancel
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDownloadReceipt(booking)}
+                              className={styles.cardActionBtn}
+                              style={{ background: 'rgba(0,176,255,0.1)', border: '1px solid rgba(0,176,255,0.3)', color: '#00B0FF' }}
+                            >
+                              🧾 Receipt
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </>
         )}
       </motion.section>
       )}
