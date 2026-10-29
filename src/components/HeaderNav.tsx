@@ -147,7 +147,7 @@ export default function HeaderNav() {
           />
         )}
 
-        {/* 3-Line Navigation Drawer / Popover (Contains Profile + Navigation + Contact Support) */}
+        {/* 3-Line Navigation Drawer / Popover (Text only, unclustered navigation, Call action) */}
         {menuOpen && (
           <div className="iphone-menu-drawer">
             {/* 1. Profile Section inside 3-line Nav */}
@@ -155,20 +155,6 @@ export default function HeaderNav() {
               {session ? (
                 <div className="profile-card">
                   <div className="profile-header">
-                    <div className="profile-avatar-wrap">
-                      {session.user?.image ? (
-                        <img
-                          src={session.user.image}
-                          alt={session.user.name || 'User'}
-                          className="profile-avatar-img"
-                        />
-                      ) : (
-                        <div className="profile-avatar-fallback">
-                          {session.user?.name ? session.user.name.charAt(0).toUpperCase() : <User size={16} />}
-                        </div>
-                      )}
-                      <span className="profile-online-badge" />
-                    </div>
                     <div className="profile-text-meta">
                       <div className="profile-display-name">{session.user?.name || 'Verified Player'}</div>
                       <div className="profile-display-email">{session.user?.email}</div>
@@ -181,8 +167,15 @@ export default function HeaderNav() {
                       onClick={() => setMenuOpen(false)}
                       className="profile-action-link primary"
                     >
-                      <Ticket size={15} />
-                      <span>My Bookings</span>
+                      <span>Active Matches</span>
+                    </Link>
+
+                    <Link
+                      href="/dashboard?view=profile"
+                      onClick={() => setMenuOpen(false)}
+                      className="profile-action-link"
+                    >
+                      <span>Profile &amp; History</span>
                     </Link>
 
                     <Link
@@ -190,7 +183,6 @@ export default function HeaderNav() {
                       onClick={() => setMenuOpen(false)}
                       className="profile-action-link"
                     >
-                      <Calendar size={15} />
                       <span>Book a Slot</span>
                     </Link>
 
@@ -200,7 +192,6 @@ export default function HeaderNav() {
                         onClick={() => setMenuOpen(false)}
                         className="profile-action-link admin"
                       >
-                        <ShieldCheck size={15} />
                         <span>Admin Console</span>
                       </Link>
                     )}
@@ -213,7 +204,6 @@ export default function HeaderNav() {
                       }}
                       className="profile-logout-btn"
                     >
-                      <LogOut size={14} />
                       <span>Sign Out</span>
                     </button>
                   </div>
@@ -232,7 +222,6 @@ export default function HeaderNav() {
                     }}
                     className="guest-signin-btn"
                   >
-                    <User size={15} />
                     <span>Sign In with Google</span>
                   </button>
                 </div>
@@ -241,7 +230,7 @@ export default function HeaderNav() {
 
             <div className="drawer-divider" />
 
-            {/* 2. Navigation Links */}
+            {/* 2. Navigation Links (Clean, unclustered text-only items) */}
             <div className="drawer-nav-section">
               <span className="drawer-section-label">Navigation</span>
               <div className="drawer-nav-links">
@@ -249,13 +238,17 @@ export default function HeaderNav() {
                   Home
                 </Link>
                 <Link href="/book" onClick={() => setMenuOpen(false)} className="drawer-nav-item highlight">
-                  <Sparkles size={14} />
-                  <span>Book a Slot</span>
+                  Book a Slot
                 </Link>
                 {session && (
-                  <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="drawer-nav-item">
-                    <span>My Bookings</span>
-                  </Link>
+                  <>
+                    <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="drawer-nav-item">
+                      Upcoming &amp; Active Matches
+                    </Link>
+                    <Link href="/dashboard?view=profile" onClick={() => setMenuOpen(false)} className="drawer-nav-item">
+                      Match History &amp; Cancelled
+                    </Link>
+                  </>
                 )}
                 <a href="/#slots-preview" onClick={() => setMenuOpen(false)} className="drawer-nav-item">
                   Live Available Slots
@@ -274,12 +267,11 @@ export default function HeaderNav() {
 
             <div className="drawer-divider" />
 
-            {/* 3. Appropriately Placed Contact & Support Module */}
+            {/* 3. Contact & Support Module */}
             <div className="drawer-support-section">
               <span className="drawer-section-label">Turf Desk &amp; Support</span>
               <div className="support-card">
                 <div className="support-hours">
-                  <Clock size={13} color="#00E676" />
                   <span>Open 6:00 AM – 12:00 AM Daily</span>
                 </div>
 
@@ -290,7 +282,6 @@ export default function HeaderNav() {
                     rel="noopener noreferrer"
                     className="support-btn whatsapp"
                   >
-                    <MessageCircle size={15} />
                     <span>WhatsApp</span>
                   </a>
 
@@ -298,8 +289,7 @@ export default function HeaderNav() {
                     href="tel:+917994786085"
                     className="support-btn phone"
                   >
-                    <Phone size={15} />
-                    <span>Call Desk</span>
+                    <span>Call</span>
                   </a>
                 </div>
               </div>
@@ -530,6 +520,9 @@ export default function HeaderNav() {
           display: flex;
           flex-direction: column;
           gap: 12px;
+          max-height: calc(85vh - 20px);
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
           box-shadow: 
             0 28px 70px rgba(0, 0, 0, 0.95),
             inset 0 1px 0 rgba(255, 255, 255, 0.18);
@@ -635,18 +628,20 @@ export default function HeaderNav() {
         .profile-action-link {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 8px 10px;
-          border-radius: 8px;
+          padding: 10px 14px;
+          border-radius: 10px;
           color: #E2E8F0;
-          font-size: 0.82rem;
+          font-size: 0.88rem;
           font-weight: 600;
           text-decoration: none;
-          transition: background 0.15s ease;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          transition: all 0.15s ease;
         }
 
         .profile-action-link:hover {
           background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.12);
         }
 
         .profile-action-link.primary {
@@ -660,22 +655,21 @@ export default function HeaderNav() {
         .profile-logout-btn {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 8px 10px;
-          border-radius: 8px;
+          padding: 10px 14px;
+          border-radius: 10px;
           color: #FF6B6B;
-          font-size: 0.82rem;
+          font-size: 0.88rem;
           font-weight: 600;
-          background: none;
-          border: none;
+          background: rgba(255, 107, 107, 0.05);
+          border: 1px solid rgba(255, 107, 107, 0.15);
           cursor: pointer;
           width: 100%;
           text-align: left;
-          transition: background 0.15s ease;
+          transition: all 0.15s ease;
         }
 
         .profile-logout-btn:hover {
-          background: rgba(255, 107, 107, 0.1);
+          background: rgba(255, 107, 107, 0.15);
         }
 
         /* Guest Card */
@@ -727,12 +721,13 @@ export default function HeaderNav() {
         }
 
         .drawer-section-label {
-          font-size: 0.68rem;
+          font-size: 0.72rem;
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.08em;
           color: #64748B;
-          margin-bottom: 6px;
+          margin-bottom: 8px;
+          padding-left: 2px;
           display: block;
         }
 
@@ -745,29 +740,34 @@ export default function HeaderNav() {
         .drawer-nav-links {
           display: flex;
           flex-direction: column;
-          gap: 2px;
+          gap: 6px;
         }
 
         .drawer-nav-item {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 7px 10px;
-          border-radius: 8px;
-          color: #CBD5E1;
-          font-size: 0.84rem;
+          padding: 10px 14px;
+          min-height: 42px;
+          border-radius: 10px;
+          color: #E2E8F0;
+          font-size: 0.92rem;
           font-weight: 600;
           text-decoration: none;
-          transition: background 0.15s ease, color 0.15s ease;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          transition: all 0.15s ease;
         }
 
-        .drawer-nav-item:hover {
-          background: rgba(255, 255, 255, 0.06);
+        .drawer-nav-item:hover, .drawer-nav-item:active {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.12);
           color: #FFFFFF;
         }
 
         .drawer-nav-item.highlight {
           color: var(--primary-accent, #00E676);
+          background: rgba(0, 230, 118, 0.06);
+          border-color: rgba(0, 230, 118, 0.22);
         }
 
         /* Appropriately Placed Support Module */

@@ -184,8 +184,20 @@ export default function MobileBottomNav() {
               >
                 <Ticket size={18} />
                 <div className="action-item-text">
-                  <span className="item-title">My Bookings</span>
-                  <span className="item-sub">View upcoming and past matches</span>
+                  <span className="item-title">Active Matches</span>
+                  <span className="item-sub">View upcoming fixtures &amp; tickets</span>
+                </div>
+              </Link>
+
+              <Link
+                href="/dashboard?view=profile"
+                onClick={() => setShowProfileSheet(false)}
+                className="sheet-action-item"
+              >
+                <User size={18} color="#00E5FF" />
+                <div className="action-item-text">
+                  <span className="item-title" style={{ color: '#00E5FF' }}>Profile &amp; History</span>
+                  <span className="item-sub">Match history &amp; cancelled bookings</span>
                 </div>
               </Link>
 
@@ -242,7 +254,7 @@ export default function MobileBottomNav() {
                   className="sheet-support-btn phone"
                 >
                   <Phone size={16} />
-                  <span>Direct Call</span>
+                  <span>Call</span>
                 </a>
               </div>
             </div>
@@ -286,14 +298,16 @@ export default function MobileBottomNav() {
 
         .dock-liquid-glass {
           pointer-events: auto;
-          display: flex;
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
           align-items: center;
-          justify-content: space-around;
+          justify-items: center;
           width: 100%;
-          max-width: 330px;
+          max-width: 320px;
           height: 60px;
           border-radius: 9999px;
-          padding: 6px 10px;
+          padding: 6px 8px;
+          box-sizing: border-box;
           background: rgba(14, 18, 26, 0.68);
           backdrop-filter: blur(32px) saturate(220%);
           -webkit-backdrop-filter: blur(32px) saturate(220%);
@@ -308,17 +322,25 @@ export default function MobileBottomNav() {
 
         /* Icon-Only Bubble Touch Target */
         .dock-bubble {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 48px;
-          height: 48px;
+          width: 44px;
+          height: 44px;
+          padding: 0 !important;
+          margin: 0 !important;
           border-radius: 9999px;
           color: rgba(255, 255, 255, 0.52);
           text-decoration: none;
           background: transparent;
-          border: none;
+          border: 1px solid transparent;
           cursor: pointer;
+          outline: none;
+          appearance: none;
+          -webkit-appearance: none;
+          box-sizing: border-box;
+          line-height: 0;
+          vertical-align: middle;
           transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
           -webkit-tap-highlight-color: transparent;
           position: relative;
@@ -331,18 +353,21 @@ export default function MobileBottomNav() {
         .dock-bubble.active {
           color: #FFFFFF;
           background: rgba(255, 255, 255, 0.14);
-          border: 1px solid rgba(255, 255, 255, 0.28);
+          border-color: rgba(255, 255, 255, 0.28);
           box-shadow: 
             0 0 20px rgba(255, 255, 255, 0.2),
             inset 0 1px 1px rgba(255, 255, 255, 0.35);
         }
 
         .dock-avatar-img {
-          width: 28px;
-          height: 28px;
+          width: 22px;
+          height: 22px;
           border-radius: 50%;
           object-fit: cover;
-          border: 1.5px solid rgba(255, 255, 255, 0.3);
+          display: block;
+          box-sizing: border-box;
+          border: 1.5px solid rgba(255, 255, 255, 0.4);
+          margin: 0 auto;
           transition: border-color 0.2s ease;
         }
 
