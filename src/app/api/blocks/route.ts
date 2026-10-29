@@ -23,5 +23,9 @@ export async function GET() {
     orderBy: { date: "asc" },
   });
 
-  return NextResponse.json(blocks);
+  return NextResponse.json(blocks, {
+    headers: {
+      'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120',
+    },
+  });
 }

@@ -103,14 +103,14 @@ export default function DashboardPage() {
             setLoading(false);
           });
 
-      // Try once, then retry once on failure (handles cold start)
+      // Try once, then retry quickly on failure (handles cold start)
       fetchBookings().catch(() => {
         setTimeout(() => {
           fetchBookings().catch((e) => {
             setError(e.message);
             setLoading(false);
           });
-        }, 2500);
+        }, 400);
       });
     } else if (status === 'unauthenticated') {
       signIn('google');
